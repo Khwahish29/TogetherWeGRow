@@ -30,7 +30,7 @@ const STEPS = [
   {
     icon: Briefcase,
     title: "See where it can take you",
-    body: "Discover paid mentoring, advisory, and teaching roles that value what you know and are easier on the body.",
+    body: "Discover paid roles that value what you know, get a step-by-step plan for your next chapter, and see pay and duties up front.",
   },
   {
     icon: Users,
@@ -230,7 +230,12 @@ export default function Home() {
                 Notes of thanks
               </h2>
             </div>
-            <p className="mt-2 text-lg text-ink/80">Written by members after a session, in both directions.</p>
+            <p className="mt-2 text-lg text-ink/80">
+              After a session, members can thank each other, in both directions.
+              {thanks.slice(0, 3).some((t) => t.isDemo) && (
+                <span className="badge ml-2 bg-gray-200 align-middle text-gray-700">Fictional examples · demo data</span>
+              )}
+            </p>
             <ul className="mt-8 grid gap-6 md:grid-cols-3">
               {thanks.slice(0, 3).map((t) => (
                 <li key={t.id} className="flex flex-col rounded-3xl bg-white p-6 shadow-sm">
@@ -254,11 +259,12 @@ export default function Home() {
           A seat at the table for everyone
         </h2>
         <p className="mt-3 text-lg text-ink/80">Age never decides what you can do. Many members both teach and learn.</p>
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
+        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {[
             { to: shareLink, kicker: "Experienced workers", title: "Turn experience into income", body: "Build a profile by voice, discover advisory roles, and offer paid sessions." },
             { to: "/mentors", kicker: "Students & apprentices", title: "Learn what textbooks can't teach", body: "Find matched mentors and request a session in a few clicks." },
             { to: "/signup?role=buddy", kicker: "Digital buddies", title: "Share your patience", body: "Help someone feel at home with technology: for free, as a volunteer, or paid." },
+            { to: "/signup?role=employer", kicker: "Workshops & schools", title: "Hire for experience", body: "Post paid mentoring, training and advisory roles, with clear pay and duties." },
           ].map((c) => (
             <Link key={c.kicker} to={c.to} className="group card flex flex-col transition hover:-translate-y-1 hover:border-brand-600 hover:shadow-md">
               <p className="text-sm font-bold uppercase tracking-wider text-warm-700">{c.kicker}</p>

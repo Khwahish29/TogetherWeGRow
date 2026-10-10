@@ -7,6 +7,8 @@ import type {
   CompanionResponse,
   MatchRequest,
   MatchResult,
+  NextChapterInput,
+  NextChapterPlan,
   ProfileDraft,
   ResumeJobResult,
   ResumeSummaryInput,
@@ -15,6 +17,7 @@ import { askStructured } from "../lib/ai";
 import { fallbackCareers, fallbackProfileDraft } from "../fallback/profile";
 import { fallbackCompanion, GUIDES } from "../fallback/companion";
 import { fallbackResumeJob, fallbackResumeSummary } from "../fallback/resume";
+import { fallbackPlan } from "../fallback/plan";
 
 export class BadRequest extends Error {}
 
@@ -75,12 +78,13 @@ export async function careers(body: unknown): Promise<ApiResult<CareerRec[]>> {
     workPreferences: (profile.workPreferences ?? []).slice(0, 10).map(String),
     location: profile.location ? String(profile.location).slice(0, 100) : undefined,
     interests: (profile.interests ?? []).slice(0, 10).map(String),
+    comfort: (profile.comfort ?? []).slice(0, 10).map(String),
   };
   const ai = await askStructured(
     CareersSchema,
     `Recommend exactly 4 career transition options that let this person earn from their existing knowledge, favouring paid mentoring, advisory, training, inspection, or consulting work.
 For each: explain "why" in 1-2 plain sentences addressed to the person ("You..."), list which of THEIR skills transfer, state honestly whether further qualifications or certification may be needed, rate physicalDemand (low or medium only), and say concretely where to look for openings.
-Respect their work preferences, especially any physical limitations.`,
+Respect their work preferences and any "comfort" answers (e.g. preferring to sit, avoiding routine heavy lifting, part-time hours, remote work); favour roles that fit them. Do not assume physical limitations they haven't stated.`,
     JSON.stringify(input),
   );
   return ai
@@ -204,16 +208,25 @@ export async function match(body: unknown): Promise<ApiResult<MatchResult[] | nu
     wantsToLearn: (p.wantsToLearn ?? []).slice(0, 10).map(String),
   }));
   const need = String(req.need ?? "").slice(0, 300);
-  if (!need.trim() && !req.seeker?.wantToLearn?.length) return { source: "fallback", data: null };
+  const hasProfileNeed = req.kind === "opportunity" ? Boolean(req.seeker?.skills?.length) : Boolean(req.seeker?.wantToLearn?.length);
+  if (!need.trim() && !hasProfileNeed) return { source: "fallback", data: null };
 
+  const kind = req.kind ?? "mentor";
+  const framing = {
+    mentor: `You match a person who wants to learn something with experienced mentors who could teach them. Reasons are addressed to the seeker, e.g. "Teaches carpentry, which you want to learn", "Also in Portland". If the seeker has a skill the candidate wants to learn, you may add "You could share X in return, if you'd like".`,
+    buddy: `You match a person who wants help with technology with friendly digital buddies. Reasons are addressed to the seeker, e.g. "Helps with video meetings", "Available online".`,
+    opportunity: `You match an experienced worker (the seeker) with paid opportunities (the candidates). "offers" lists each opportunity's title, duties and requirements. Judge how well the seeker's skills and stated preferences fit. Reasons are addressed to the worker, e.g. "Uses your 35 years of carpentry", "Remote, as you prefer". Never claim a role is physically suitable; you may say "No heavy lifting listed".`,
+    worker: `You help an employer (the seeker's need) find experienced workers (the candidates). Reasons are addressed to the employer and describe the worker factually, e.g. "35 years of carpentry experience", "Has trained apprentices", "Prefers part-time". Never mention age.`,
+  }[kind];
   const ai = await askStructured(
     MatchSchema,
-    `You match a person who wants to learn something with people who can teach or help them.
-For each candidate, judge how well what they offer fits the seeker's need (the typed need if given, otherwise what the seeker wants to learn). Understand meaning, not just keywords (e.g. "woodworking" fits "Carpentry", "zoom calls" fits "Video meetings", "fix my car" fits "Engine Diagnostics").
-Return only candidates whose offers genuinely help with the need, best first. Being in the same town or offering the same format NEVER makes someone a match on its own. If none fit, return an empty list.
-- score: 0-100 for how well their offers fit the need. Only once the offers fit, same town and compatible format (online/in-person/both) may add a few points.
+    `${framing}
+Understand meaning, not just keywords (e.g. "woodworking" fits "Carpentry", "zoom calls" fits "Video meetings", "fix my car" fits "Engine Diagnostics").
+For each candidate, judge how well what they offer fits the need (the typed need if given, otherwise the seeker's profile).
+Return only candidates who genuinely fit, best first. Being in the same town or offering the same format NEVER makes a match on its own. If none fit, return an empty list.
+- score: 0-100 for how well the candidate fits the need. Only once there's a real fit may location and format add a few points.
 - matched: the items from that candidate's "offers" that fit, copied exactly.
-- reasons: 1-3 very short phrases addressed to the seeker, based only on the data, e.g. "Teaches carpentry, which you want to learn", "Also in Portland". If the seeker has a skill the candidate wants to learn, you may add "You could share X in return, if you'd like".`,
+- reasons: 1-3 very short phrases based only on the data.`,
     JSON.stringify({ need, seeker: req.seeker ?? null, candidates: people }),
   );
   if (!ai) return { source: "fallback", data: null };
@@ -232,4 +245,51 @@ Return only candidates whose offers genuinely help with the need, best first. Be
     .filter((m) => m.score >= 25)
     .sort((a, b) => b.score - a.score);
   return { source: "ai", data };
+}
+
+const PlanSchema = z.object({
+  from: z.string(),
+  to: z.string(),
+  intro: z.string(),
+  steps: z.array(
+    z.object({
+      title: z.string(),
+      detail: z.string(),
+      actions: z.array(
+        z.object({
+          kind: z.enum(["profile", "resume", "careers", "opportunities", "offer", "buddy", "practise", "mentors"]),
+          label: z.string(),
+        }),
+      ),
+    }),
+  ),
+});
+
+export async function nextChapter(body: unknown): Promise<ApiResult<NextChapterPlan>> {
+  const input = body as NextChapterInput;
+  if (!input || !Array.isArray(input.skills)) throw new BadRequest("skills are required");
+  const clean: NextChapterInput = {
+    name: String(input.name ?? "").slice(0, 80),
+    skills: input.skills.slice(0, 15).map(String),
+    yearsExperience: typeof input.yearsExperience === "number" ? input.yearsExperience : null,
+    industries: (input.industries ?? []).slice(0, 5).map(String),
+    workPreferences: (input.workPreferences ?? []).slice(0, 8).map(String),
+    comfort: input.comfort,
+    targetRole: input.targetRole ? String(input.targetRole).slice(0, 100) : undefined,
+    opportunities: (input.opportunities ?? []).slice(0, 8),
+    hasResume: Boolean(input.hasResume),
+    hasOffer: Boolean(input.hasOffer),
+  };
+  const ai = await askStructured(
+    PlanSchema,
+    `Create a realistic, encouraging career transition plan ("My Next Chapter") for this experienced worker.
+- from: their current kind of work in a few words (e.g. "Construction carpentry"). to: one realistic target role in a few words (use targetRole if given).
+- intro: one sentence saying this is a possible pathway based on their experience and preferences, not a promise.
+- steps: exactly 5 steps, in this order: 1) recognise their strengths (name their actual skills and years), 2) choose a direction that fits their stated preferences, 3) identify what may be missing (credentials, references, certificates; say "may"), 4) prepare (résumé, a mentoring offer, practising an introduction), 5) take a first step (contact a specific listed opportunity if one fits, or get help applying from a digital buddy).
+- Each step: short title, a 1-2 sentence detail written to them ("you"), and 1-2 actions from the allowed kinds with short button labels. Use "resume" only for résumé work, "offer" for creating a paid mentoring offer, "opportunities" for paid openings, "buddy" for asking a person to help, "practise" for practising with the AI companion.
+Never promise a job or say a role is physically suitable; tell them to check each listing's actual duties. Use only facts given.`,
+    JSON.stringify(clean),
+  );
+  if (ai) return { source: "ai", data: { ...ai, steps: ai.steps.slice(0, 6) } };
+  return { source: "fallback", data: fallbackPlan(clean) };
 }

@@ -249,7 +249,9 @@ export default function ResumeBuilder() {
           <Link to="/learn" className="inline-flex items-center gap-1 font-bold text-brand-700 hover:underline">
             <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Learn your way
           </Link>
-          <p className="text-sm text-ink/70">Your draft saves automatically on this device.</p>
+          <p className="text-sm text-ink/70">
+            Your draft saves on this device. What you describe is sent to our AI provider to write résumé points.
+          </p>
         </div>
         <div className="mt-4 flex items-center gap-3 print:hidden">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-warm-100 text-warm-700">

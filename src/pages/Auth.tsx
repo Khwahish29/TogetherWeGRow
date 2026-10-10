@@ -15,6 +15,7 @@ const ROLE_OPTIONS: { value: Role; title: string; body: string }[] = [
   { value: "mentor", title: "Share my experience", body: "Offer paid mentoring, training, or advice based on your work." },
   { value: "learner", title: "Learn something new", body: "Learn practical skills from mentors, or technology at your own pace." },
   { value: "buddy", title: "Be a digital buddy", body: "Patiently help others feel comfortable with technology." },
+  { value: "employer", title: "Offer paid work (organisations)", body: "Workshops, schools and community groups posting mentoring, training or advisory roles." },
 ];
 
 function AuthShell({ title, children, footer }: { title: string; children: React.ReactNode; footer: React.ReactNode }) {
@@ -54,9 +55,12 @@ export function Signup() {
         location: String(form.get("location") ?? ""),
         roles,
         comfort,
+        org: roles.includes("employer")
+          ? { name: String(form.get("org") ?? "").trim(), kind: "workshop", about: "", verified: false }
+          : undefined,
       });
       if (comfort.includes("Larger text")) setTextSize("large");
-      navigate("/profile/create");
+      navigate(roles.length === 1 && roles[0] === "employer" ? "/employer" : "/profile/create");
     } catch (err) {
       setError((err as Error).message);
       setBusy(false);
@@ -134,6 +138,14 @@ export function Signup() {
           </div>
           <p className="hint mt-2">We'll set things up to suit you. You can change this anytime.</p>
         </fieldset>
+        {roles.includes("employer") && (
+          <div>
+            <label htmlFor="org" className="label">
+              Organisation name
+            </label>
+            <input id="org" name="org" className="input" required autoComplete="organization" />
+          </div>
+        )}
         <div>
           <label htmlFor="name" className="label">
             Your name
@@ -182,16 +194,16 @@ export function Login() {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     try {
-      await logIn(String(form.get("email")), String(form.get("password")));
-      navigate(from, { replace: true });
+      const u = await logIn(String(form.get("email")), String(form.get("password")));
+      navigate(u.roles.length === 1 && u.roles[0] === "employer" && from === "/dashboard" ? "/employer" : from, { replace: true });
     } catch (err) {
       setError((err as Error).message);
     }
   }
 
   async function demoLogin(email: string) {
-    await logIn(email, "demo1234");
-    navigate(from, { replace: true });
+    const u = await logIn(email, "demo1234");
+    navigate(u.roles.length === 1 && u.roles[0] === "employer" && from === "/dashboard" ? "/employer" : from, { replace: true });
   }
 
   return (
@@ -237,6 +249,9 @@ export function Login() {
           </button>
           <button className="btn-secondary" onClick={() => demoLogin("maya@demo.twg")}>
             Maya · student
+          </button>
+          <button className="btn-secondary sm:col-span-2" onClick={() => demoLogin("hiring@woodcenter.demo")}>
+            Community Woodworking Center · employer
           </button>
         </div>
       </div>

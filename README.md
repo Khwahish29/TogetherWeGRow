@@ -14,7 +14,9 @@ npm run dev               # web on http://localhost:5173, API on :8787
 Without an API key, every AI feature falls back to built-in rules, so the demo always works. Each result is labelled
 "AI-generated draft" or "Suggested by built-in rules".
 
-Demo accounts (password `demo1234`): `robert@demo.twg` (carpenter mentor) and `maya@demo.twg` (student + buddy).
+Demo accounts (password `demo1234`): `robert@demo.twg` (carpenter mentor), `maya@demo.twg` (student + buddy) and
+`hiring@woodcenter.demo` (a fictional employer). All organisations, opportunities and thank-you notes in the demo data
+are fictional and labelled as such.
 The login page has one-click buttons for both. Use "reset all demo data" at the bottom of the dashboard to start fresh.
 
 ## What's built
@@ -31,7 +33,11 @@ The login page has one-click buttons for both. Use "reset all demo data" at the 
 | Résumé builder: guided questions with a live preview, AI-written bullet points, print or save as PDF | `/resume` |
 | Personal dashboard ("What would you like to do today?") | `/dashboard` |
 | After-session notes (private) and thank-you notes (shown on profiles) | `/requests` |
-| Our story, safety & support, report a concern | `/about` |
+| Our story, safety & support, report a concern (demo-only) | `/about` |
+| My Next Chapter: AI-written, editable 5-step career transition plan | `/next-chapter` |
+| Paid opportunities with "Know before you accept" and a preference fit check | `/opportunities`, `/opportunities/:id` |
+| Employer portal: post roles (pay, duties, physical requirements and terms required), review applications, find and invite people | `/employer`, `/employer/new` |
+| Work comfort preferences (optional, private unless shared) | `/profile#work-comfort` |
 
 Other touches: a Help panel on every page, a bottom tab bar on phones, a "how are you feeling?" check-in that
 adjusts the AI companion's tone, an "easy on the body" career filter, a sign-up question about what would make things

@@ -1,7 +1,18 @@
 // Local demo data layer. Every function is async so it can be swapped for Supabase later
 // without changing the pages that call it.
-import { SEED_LISTINGS, SEED_REQUESTS, SEED_THANKS, SEED_USERS } from "../data/seed";
-import type { ConnectionRequest, Listing, Reflection, RequestStatus, ThankYou, User } from "./types";
+import { SEED_APPLICATIONS, SEED_LISTINGS, SEED_OPPORTUNITIES, SEED_REQUESTS, SEED_THANKS, SEED_USERS } from "../data/seed";
+import type { NextChapterPlan } from "../../shared/types";
+import type {
+  Application,
+  ApplicationStatus,
+  ConnectionRequest,
+  Listing,
+  Opportunity,
+  Reflection,
+  RequestStatus,
+  ThankYou,
+  User,
+} from "./types";
 
 const KEYS = {
   users: "twg.users",
@@ -9,8 +20,11 @@ const KEYS = {
   requests: "twg.requests",
   reflections: "twg.reflections",
   thanks: "twg.thanks",
+  opportunities: "twg.opportunities",
+  applications: "twg.applications",
+  plans: "twg.plans",
   session: "twg.session",
-  seeded: "twg.seeded.v2",
+  seeded: "twg.seeded.v3",
 };
 
 function read<T>(key: string, fallback: T): T {
@@ -47,6 +61,8 @@ function ensureSeeded() {
   write(KEYS.requests, keepById(KEYS.requests, SEED_REQUESTS));
   write(KEYS.reflections, read(KEYS.reflections, []));
   write(KEYS.thanks, keepById(KEYS.thanks, SEED_THANKS));
+  write(KEYS.opportunities, keep(KEYS.opportunities, SEED_OPPORTUNITIES));
+  write(KEYS.applications, keepById(KEYS.applications, SEED_APPLICATIONS));
   write(KEYS.seeded, true);
 }
 
@@ -91,7 +107,7 @@ export async function currentUser(): Promise<User | null> {
 }
 
 export async function signUp(
-  input: Pick<User, "name" | "email" | "password" | "roles" | "location"> & { comfort?: string[] },
+  input: Pick<User, "name" | "email" | "password" | "roles" | "location"> & { comfort?: string[]; org?: User["org"] },
 ): Promise<User> {
   const users = await getUsers();
   const email = input.email.trim().toLowerCase();
@@ -113,6 +129,7 @@ export async function signUp(
     wantToLearn: [],
     format: "both",
     comfort: input.comfort ?? [],
+    org: input.org,
     profileApproved: false,
     createdAt: new Date().toISOString(),
   };
@@ -204,6 +221,61 @@ export async function sendThanks(note: Omit<ThankYou, "id" | "createdAt">): Prom
   const created: ThankYou = { ...note, id: newId("ty"), createdAt: new Date().toISOString() };
   write(KEYS.thanks, [created, ...(await getThanks())]);
   return created;
+}
+
+// ---- Paid opportunities and applications ----
+
+export async function getOpportunities(): Promise<Opportunity[]> {
+  ensureSeeded();
+  return read<Opportunity[]>(KEYS.opportunities, []);
+}
+
+export async function saveOpportunity(
+  opp: Omit<Opportunity, "id" | "createdAt"> & { id?: string; createdAt?: string },
+): Promise<Opportunity> {
+  const all = await getOpportunities();
+  const saved: Opportunity = { ...opp, id: opp.id ?? newId("o"), createdAt: opp.createdAt ?? new Date().toISOString() };
+  write(KEYS.opportunities, all.some((o) => o.id === saved.id) ? all.map((o) => (o.id === saved.id ? saved : o)) : [saved, ...all]);
+  return saved;
+}
+
+export async function getApplications(): Promise<Application[]> {
+  ensureSeeded();
+  return read<Application[]>(KEYS.applications, []);
+}
+
+export async function createApplication(
+  app: Omit<Application, "id" | "createdAt" | "updatedAt" | "status"> & { status?: ApplicationStatus },
+): Promise<Application> {
+  const now = new Date().toISOString();
+  const created: Application = { status: "submitted", ...app, id: newId("a"), createdAt: now, updatedAt: now };
+  write(KEYS.applications, [created, ...(await getApplications())]);
+  return created;
+}
+
+export async function updateApplication(id: string, patch: Partial<Pick<Application, "status" | "reply" | "helperRequested">>) {
+  write(
+    KEYS.applications,
+    (await getApplications()).map((a) => (a.id === id ? { ...a, ...patch, updatedAt: new Date().toISOString() } : a)),
+  );
+}
+
+// ---- My Next Chapter plans (one per person) ----
+
+export interface SavedPlan extends NextChapterPlan {
+  source: "ai" | "fallback";
+  updatedAt: string;
+}
+
+export async function getPlan(userId: string): Promise<SavedPlan | null> {
+  return read<Record<string, SavedPlan>>(KEYS.plans, {})[userId] ?? null;
+}
+
+export async function savePlan(userId: string, plan: SavedPlan | null) {
+  const all = read<Record<string, SavedPlan>>(KEYS.plans, {});
+  if (plan) all[userId] = { ...plan, updatedAt: new Date().toISOString() };
+  else delete all[userId];
+  write(KEYS.plans, all);
 }
 
 export async function resetDemo() {

@@ -10,12 +10,13 @@ import {
   Lightbulb,
   LogOut,
   Menu,
+  PlusCircle,
   Search,
   UserRound,
   X,
 } from "lucide-react";
 import { useAuth } from "../lib/auth";
-import { getRequests, logOut } from "../lib/store";
+import { getApplications, getRequests, logOut } from "../lib/store";
 import { useStore } from "../lib/useStore";
 import { HelpPanel } from "./HelpPanel";
 import { Logo } from "./Logo";
@@ -25,9 +26,18 @@ import { Avatar } from "./ui";
 const NAV = [
   { to: "/mentors", label: "Find Mentors", icon: Search },
   { to: "/marketplace", label: "Sessions", icon: GraduationCap },
-  { to: "/careers", label: "Careers", icon: Briefcase },
+  { to: "/opportunities", label: "Work", icon: Briefcase },
   { to: "/learn", label: "Learn", icon: Lightbulb },
 ];
+
+// Organisations see tools for hiring instead of learner/mentor pages.
+const EMPLOYER_NAV = [
+  { to: "/employer/new", label: "Post a role", icon: PlusCircle },
+  { to: "/opportunities", label: "All opportunities", icon: Briefcase },
+  { to: "/mentors", label: "Find Mentors", icon: Search },
+];
+
+const WORK_PATHS = ["/opportunities", "/careers", "/next-chapter"];
 
 export function Layout() {
   const { user } = useAuth();
@@ -36,7 +46,14 @@ export function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const requests = useStore(getRequests, []);
-  const waiting = user ? requests.filter((r) => r.toId === user.id && r.status === "pending").length : 0;
+  const applications = useStore(getApplications, []);
+  const waiting = user
+    ? requests.filter((r) => r.toId === user.id && r.status === "pending").length +
+      applications.filter((a) => a.workerId === user.id && a.status === "invited" && a.initiatedBy === "employer" && !a.reply).length
+    : 0;
+  const employerOnly = Boolean(user?.roles.includes("employer") && user.roles.length === 1);
+  const nav = employerOnly ? EMPLOYER_NAV : NAV;
+  const homePath = employerOnly ? "/employer" : "/dashboard";
 
   useEffect(() => {
     setMenuOpen(false);
@@ -48,6 +65,9 @@ export function Layout() {
     navigate("/");
   }
 
+  const isWork = WORK_PATHS.some((p) => location.pathname.startsWith(p));
+  const navClassFor = (to: string) => ({ isActive }: { isActive: boolean }) =>
+    navClass({ isActive: isActive || (to === "/opportunities" && !employerOnly && isWork) });
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-2 font-bold transition ${
       isActive ? "bg-brand-700 text-white shadow-sm" : "text-brand-800 hover:bg-brand-100"
@@ -72,19 +92,19 @@ export function Layout() {
       </a>
       <header className="sticky top-0 z-40 print:hidden border-b border-brand-100/80 bg-warm-50/90 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <Link to={user ? "/dashboard" : "/"} className="rounded-xl" aria-label="TogetherWeGrow home">
+          <Link to={user ? homePath : "/"} className="rounded-xl" aria-label="TogetherWeGrow home">
             <Logo />
           </Link>
 
           <nav aria-label="Main" className="hidden items-center gap-1 xl:flex">
             {user && (
-              <NavLink to="/dashboard" className={navClass}>
+              <NavLink to={homePath} end className={navClass}>
                 <LayoutDashboard aria-hidden="true" className="h-5 w-5" />
-                My Home
+                {employerOnly ? "Portal" : "My Home"}
               </NavLink>
             )}
-            {NAV.map(({ to, label, icon: Icon }) => (
-              <NavLink key={to} to={to} className={navClass}>
+            {nav.map(({ to, label, icon: Icon }) => (
+              <NavLink key={to} to={to} className={navClassFor(to)}>
                 <Icon aria-hidden="true" className="h-5 w-5" />
                 {label}
               </NavLink>
@@ -152,12 +172,12 @@ export function Layout() {
         {menuOpen && (
           <nav id="mobile-menu" aria-label="Main" className="mx-auto grid max-w-7xl gap-1 px-4 pb-4 sm:grid-cols-2 sm:px-6 xl:hidden">
             {user && (
-              <NavLink to="/dashboard" className={navClass}>
-                <LayoutDashboard aria-hidden="true" className="h-5 w-5" /> My Home
+              <NavLink to={homePath} end className={navClass}>
+                <LayoutDashboard aria-hidden="true" className="h-5 w-5" /> {employerOnly ? "Employer portal" : "My Home"}
               </NavLink>
             )}
-            {NAV.map(({ to, label, icon: Icon }) => (
-              <NavLink key={to} to={to} className={navClass}>
+            {nav.map(({ to, label, icon: Icon }) => (
+              <NavLink key={to} to={to} className={navClassFor(to)}>
                 <Icon aria-hidden="true" className="h-5 w-5" /> {label}
               </NavLink>
             ))}
@@ -202,6 +222,7 @@ export function Layout() {
             <ul className="mt-3 space-y-2">
               <li><Link className="hover:underline" to="/mentors">Find a mentor</Link></li>
               <li><Link className="hover:underline" to="/marketplace">Mentoring sessions</Link></li>
+              <li><Link className="hover:underline" to="/opportunities">Paid opportunities</Link></li>
               <li><Link className="hover:underline" to="/learn">Learn your way</Link></li>
               <li><Link className="hover:underline" to="/about">Our story</Link></li>
               <li><Link className="hover:underline" to="/about#safety">Safety & support</Link></li>
@@ -231,10 +252,19 @@ export function Layout() {
       >
         <ul className="mx-auto grid max-w-lg grid-cols-5">
           {[
-            user ? { to: "/dashboard", label: "Home", icon: HomeIcon } : { to: "/", label: "Home", icon: HomeIcon },
-            { to: "/mentors", label: "Mentors", icon: Search },
-            { to: "/learn", label: "Learn", icon: Lightbulb },
-            user ? { to: "/requests", label: "Requests", icon: Inbox } : { to: "/marketplace", label: "Sessions", icon: GraduationCap },
+            ...(employerOnly
+              ? [
+                  { to: homePath, label: "Portal", icon: HomeIcon },
+                  { to: "/employer/new", label: "Post", icon: PlusCircle },
+                  { to: "/opportunities", label: "Listings", icon: Briefcase },
+                  { to: "/mentors", label: "People", icon: Search },
+                ]
+              : [
+                  user ? { to: homePath, label: "Home", icon: HomeIcon } : { to: "/", label: "Home", icon: HomeIcon },
+                  user ? { to: "/opportunities", label: "Work", icon: Briefcase } : { to: "/mentors", label: "Mentors", icon: Search },
+                  { to: "/learn", label: "Learn", icon: Lightbulb },
+                  user ? { to: "/requests", label: "Requests", icon: Inbox } : { to: "/opportunities", label: "Work", icon: Briefcase },
+                ]),
             user ? { to: "/profile", label: "Me", icon: UserRound } : { to: "/login", label: "Log in", icon: UserRound },
           ].map(({ to, label, icon: Icon }) => (
             <li key={label}>

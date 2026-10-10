@@ -99,7 +99,10 @@ export default function MentorDetail() {
                   .map((t) => (
                     <li key={t.id} className="rounded-3xl bg-warm-100/70 p-5">
                       <p className="font-serif text-lg leading-relaxed text-brand-900">“{t.message}”</p>
-                      <p className="mt-2 text-sm text-ink/70">{users.find((u) => u.id === t.fromId)?.name ?? "A member"}</p>
+                      <p className="mt-2 text-sm text-ink/70">
+                        {users.find((u) => u.id === t.fromId)?.name ?? "A member"}
+                        {t.isDemo && <span className="badge ml-2 bg-gray-200 text-gray-700">Fictional example</span>}
+                      </p>
                     </li>
                   ))}
               </ul>

@@ -39,9 +39,11 @@ export function useBooking(users: User[]) {
             <p className="mt-2">
               <strong className="text-lg">{formatPrice(listing.price)}</strong> per session
             </p>
-            <p className="mt-1 text-sm text-ink/70">
-              No payment is taken now. Payment is arranged after the mentor accepts. (Payments are not part of this demo.)
-            </p>
+            <ul className="mt-2 space-y-0.5 text-sm text-ink/80">
+              <li>✓ Price shown up front: {formatPrice(listing.price)} for {listing.durationMins} minutes</li>
+              <li>✓ Cancellation: {listing.cancellation ?? "not stated. Ask the mentor."}</li>
+              <li>✓ No payment is taken now. This prototype doesn't process payments.</li>
+            </ul>
           </>
         )
       }

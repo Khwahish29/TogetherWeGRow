@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
 import type { MentorMatch } from "../lib/matching";
+import { matchStrength } from "../lib/useAiMatches";
 import type { Listing, User } from "../lib/types";
 import { Avatar, DemoBadge, FormatBadge, formatPrice } from "./ui";
 
@@ -50,7 +51,10 @@ export function ListingCard({
           )
         )}
       </div>
-      {listing.isDemo && <p className="mt-2 text-xs text-ink/60">Illustrative price per session; not a live listing.</p>}
+      <p className="mt-2 text-xs text-ink/60">
+        {listing.cancellation ?? "Cancellation terms not stated"} · Payment isn't processed in this prototype
+        {listing.isDemo && " · Illustrative price; not a live listing"}
+      </p>
     </article>
   );
 }
@@ -61,8 +65,8 @@ export function MentorCard({ match, showScore, thanksCount = 0 }: { match: Mento
   return (
     <article className="card flex h-full flex-col">
       {isMatch && (
-        <span className="badge mb-3 self-start bg-brand-700 text-white" title="How well this mentor fits what you want to learn">
-          {match.score}% match
+        <span className="badge mb-3 self-start bg-brand-700 text-white" title="AI-assisted suggestion based on what you shared. Not a measured compatibility score.">
+          {matchStrength(match.score)}
         </span>
       )}
       <div className="flex items-center gap-4">

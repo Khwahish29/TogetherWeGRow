@@ -29,6 +29,8 @@ export interface CareerProfileInput {
   workPreferences: string[];
   location?: string;
   interests?: string[];
+  /** Plain-language summary of the person's optional work-comfort answers. */
+  comfort?: string[];
 }
 
 export type CompanionAction = "guide" | "simpler" | "ask";
@@ -88,9 +90,11 @@ export interface MatchPerson {
 }
 
 export interface MatchRequest {
+  /** What is being matched: people who can teach/help, paid opportunities for a worker, or workers for an employer. */
+  kind?: "mentor" | "buddy" | "opportunity" | "worker";
   /** Free-text need typed by the seeker, e.g. "fix my bike" or "join a zoom call". */
   need: string;
-  seeker?: { skills: string[]; wantToLearn: string[]; location: string; format: string };
+  seeker?: { skills: string[]; wantToLearn: string[]; location: string; format: string; preferences?: string[] };
   people: MatchPerson[];
 }
 
@@ -101,4 +105,40 @@ export interface MatchResult {
   matched: string[];
   /** 1-3 short reasons, addressed to the seeker. */
   reasons: string[];
+}
+
+export type PlanActionKind = "profile" | "resume" | "careers" | "opportunities" | "offer" | "buddy" | "practise" | "mentors";
+
+export interface PlanStep {
+  title: string;
+  detail: string;
+  actions: { kind: PlanActionKind; label: string }[];
+  done?: boolean;
+}
+
+export interface NextChapterPlan {
+  from: string;
+  to: string;
+  intro: string;
+  steps: PlanStep[];
+}
+
+export interface NextChapterInput {
+  name: string;
+  skills: string[];
+  yearsExperience: number | null;
+  industries: string[];
+  workPreferences: string[];
+  comfort?: {
+    posture: string;
+    avoidHeavyLifting: boolean | null;
+    hoursPerWeek: string;
+    setting: string;
+    moreOf: string[];
+    lessOf: string[];
+  };
+  targetRole?: string;
+  opportunities: { title: string; org: string; type: string }[];
+  hasResume: boolean;
+  hasOffer: boolean;
 }

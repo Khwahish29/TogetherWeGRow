@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import type { AiSource, CareerRec, CareerType } from "../../shared/types";
 import { EmptyState, PageHeader, SourceLabel } from "../components/ui";
+import { WorkTabs } from "../components/opportunity";
+import { comfortSummary } from "../lib/comfort";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/auth";
 
@@ -23,9 +25,10 @@ export default function Careers() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [gentleOnly, setGentleOnly] = useState(
-    () => Boolean(user?.workPreferences.some((p) => /physical|lift|strain/i.test(p))),
+    () => Boolean(user?.workComfort?.avoidHeavyLifting || user?.workPreferences.some((p) => /physical|lift|strain/i.test(p))),
   );
-  const cacheId = user ? `${user.id}:${user.skills.join("|")}:${user.workPreferences.join("|")}` : "";
+  const comfort = comfortSummary(user?.workComfort);
+  const cacheId = user ? `${user.id}:${user.skills.join("|")}:${user.workPreferences.join("|")}:${comfort.join("|")}` : "";
 
   async function load(force = false) {
     if (!user || user.skills.length === 0) return;
@@ -54,6 +57,7 @@ export default function Careers() {
               workPreferences: user.workPreferences,
               location: user.location,
               interests: user.industries,
+              comfort,
             })
             .finally(() => inFlight.delete(key)),
         );
@@ -85,7 +89,8 @@ export default function Careers() {
         Roles where what you know is the main thing you bring, often with less physical strain. Each one explains why it may
         suit you and what it may take.
       </PageHeader>
-      <div className="container-page py-10">
+      <WorkTabs />
+      <div className="container-page py-8">
         {user.skills.length === 0 ? (
           <EmptyState title="Add your skills first">
             <p>SkillBridge needs to know what you're good at.</p>
@@ -121,6 +126,15 @@ export default function Careers() {
             </div>
 
             <p className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
+              {comfort.length === 0 && (
+                <>
+                  Want suggestions that fit how you'd like to work?{" "}
+                  <Link to="/profile#work-comfort" className="font-bold text-brand-700 underline">
+                    Add your work preferences
+                  </Link>
+                  .{" "}
+                </>
+              )}
               Ready to apply somewhere?{" "}
               <Link to="/resume" className="font-bold text-brand-700 underline">
                 Build a résumé together
@@ -190,13 +204,16 @@ export default function Careers() {
                             <dd>{rec.howToFind}</dd>
                           </div>
                         </dl>
-                        {rec.type === "paid-mentoring" && (
-                          <div className="mt-auto pt-5">
-                            <Link to="/marketplace?create=1" className="btn-primary">
+                        <div className="mt-auto flex flex-wrap gap-2 pt-5">
+                          <Link to={`/next-chapter?role=${encodeURIComponent(rec.title)}`} className="btn-primary">
+                            Plan my move into this role
+                          </Link>
+                          {rec.type === "paid-mentoring" && (
+                            <Link to="/marketplace?create=1" className="btn-secondary">
                               Create a mentoring offer
                             </Link>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </li>
                     ))}
                   </ol>

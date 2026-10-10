@@ -109,6 +109,11 @@ export default function About() {
               <li>Only what you approve appears on your profile.</li>
               <li>Your session notes are private to you.</li>
               <li>We never ask your age.</li>
+              <li>
+                Text you type or speak into AI features (your story, job descriptions, questions) is sent to our AI service
+                provider to create suggestions. Leave out private details like bank, health or ID numbers.
+              </li>
+              <li>Work preferences are hidden from organisations unless you choose to share them.</li>
             </ul>
           </div>
           <div className="card">
@@ -150,6 +155,10 @@ export default function About() {
             ) : (
               <>
                 <p className="text-ink/75">If something didn't feel right, tell us. You won't be judged for raising it.</p>
+                <p className="rounded-xl bg-gray-100 p-3 text-sm text-gray-700">
+                  <strong>Demo only:</strong> this prototype doesn't send reports anywhere yet. A real launch needs a staffed
+                  review and response process.
+                </p>
                 <div>
                   <label htmlFor="concern" className="label">
                     What happened?

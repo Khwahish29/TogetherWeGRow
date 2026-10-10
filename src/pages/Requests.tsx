@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { CalendarClock, Check, Heart, NotebookPen, RotateCcw, Undo2, X } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { Building2, CalendarClock, Check, Heart, HeartHandshake, NotebookPen, RotateCcw, Undo2, X } from "lucide-react";
 import { ReflectionDialog } from "../components/ReflectionDialog";
 import { Avatar, EmptyState, PageHeader, formatPrice } from "../components/ui";
 import { useAuth } from "../lib/auth";
 import {
+  getApplications,
+  getOpportunities,
+  updateApplication,
   getListings,
   getReflections,
   getRequests,
@@ -12,7 +15,8 @@ import {
   rescheduleRequest,
   setRequestStatus,
 } from "../lib/store";
-import type { ConnectionRequest, Listing, Reflection, RequestStatus, User } from "../lib/types";
+import type { Application, ConnectionRequest, Listing, Opportunity, Reflection, RequestStatus, User } from "../lib/types";
+import { payLabel } from "../lib/comfort";
 import { useStore } from "../lib/useStore";
 
 const STATUS_STYLE: Record<RequestStatus, string> = {
@@ -202,18 +206,119 @@ export function RequestItem({
   );
 }
 
+const APP_STATUS: Record<Application["status"], { label: string; style: string; text: string }> = {
+  submitted: { label: "Sent", style: "bg-amber-100 text-amber-800", text: "Waiting for the organisation to look at it." },
+  reviewing: { label: "Being reviewed", style: "bg-sky-100 text-sky-800", text: "The organisation is reviewing your application." },
+  invited: { label: "Invited to talk", style: "bg-emerald-100 text-emerald-800", text: "They'd like to talk with you about this role." },
+  closed: { label: "Closed", style: "bg-gray-200 text-gray-700", text: "This application is closed." },
+};
+
+function WorkItem({ app, opp, org }: { app: Application; opp?: Opportunity; org?: User }) {
+  const [reply, setReply] = useState("");
+  const [answering, setAnswering] = useState<"yes" | "no" | null>(null);
+  const invite = app.initiatedBy === "employer";
+  const st = APP_STATUS[app.status];
+
+  return (
+    <li className="card">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className={`badge ${st.style}`}>{st.label}</span>
+        <span className="badge bg-warm-100 text-warm-700">{invite ? "Invitation" : "Your application"}</span>
+        {opp?.isDemo && <span className="badge bg-gray-200 text-gray-700">Illustrative listing</span>}
+      </div>
+      <h3 className="mt-2 text-xl font-bold">
+        {opp ? (
+          <Link to={`/opportunities/${opp.id}`} className="hover:underline">
+            {opp.title}
+          </Link>
+        ) : (
+          "Opportunity"
+        )}
+      </h3>
+      <p className="flex items-center gap-1.5 text-ink/80">
+        <Building2 aria-hidden="true" className="h-4 w-4" /> {opp?.orgName ?? org?.org?.name}
+        {opp && <span className="text-ink/60"> · {payLabel(opp.pay)} · {opp.hoursPerWeek}</span>}
+      </p>
+      <p className="mt-2 text-ink/80">{st.text}</p>
+      {app.message && (
+        <p className="mt-3 rounded-xl bg-brand-50 p-3 italic">
+          {invite ? <strong className="not-italic">{org?.name ?? "They"} wrote: </strong> : <strong className="not-italic">You wrote: </strong>}“{app.message}”
+        </p>
+      )}
+      {app.reply && (
+        <p className="mt-2 rounded-xl bg-warm-50 p-3">
+          <strong>Your reply:</strong> {app.reply}
+        </p>
+      )}
+      {app.helperRequested && (
+        <p className="mt-2 flex items-center gap-1 text-sm text-ink/70">
+          <HeartHandshake aria-hidden="true" className="h-4 w-4" /> You asked for help.{" "}
+          <Link to="/learn/buddies" className="font-bold underline">Find a buddy</Link>
+        </p>
+      )}
+
+      {invite && app.status === "invited" && !app.reply && !answering && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button className="btn-primary" onClick={() => setAnswering("yes")}>
+            <Check aria-hidden="true" className="h-5 w-5" /> I'd like to talk
+          </button>
+          <button className="btn-secondary" onClick={() => setAnswering("no")}>
+            Not for me, thanks
+          </button>
+          {opp && (
+            <Link to={`/opportunities/${opp.id}`} className="btn-ghost">
+              Read the details first
+            </Link>
+          )}
+        </div>
+      )}
+      {answering && (
+        <form
+          className="mt-4 space-y-2 rounded-2xl bg-brand-50 p-4"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const fallback = answering === "yes" ? "Yes, I'd like to talk about this." : "Thank you, but this isn't for me right now.";
+            await updateApplication(app.id, { reply: reply.trim() || fallback, status: answering === "yes" ? "invited" : "closed" });
+            setAnswering(null);
+          }}
+        >
+          <label htmlFor={`reply-${app.id}`} className="label">
+            {answering === "yes" ? "Add a note (optional), e.g. times that suit you" : "Add a note (optional)"}
+          </label>
+          <textarea id={`reply-${app.id}`} rows={2} className="input" value={reply} onChange={(e) => setReply(e.target.value)} />
+          <div className="flex gap-2">
+            <button className="btn-primary">Send reply</button>
+            <button type="button" className="btn-ghost" onClick={() => setAnswering(null)}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+      {!invite && (app.status === "submitted" || app.status === "reviewing") && (
+        <button className="btn-ghost mt-3" onClick={() => updateApplication(app.id, { status: "closed", reply: "Withdrawn by applicant." })}>
+          <Undo2 aria-hidden="true" className="h-5 w-5" /> Withdraw application
+        </button>
+      )}
+    </li>
+  );
+}
+
 export default function Requests() {
   const { user } = useAuth();
   const users = useStore(getUsers, []);
   const listings = useStore(getListings, []);
   const requests = useStore(getRequests, []);
   const reflections = useStore(() => (user ? getReflections(user.id) : Promise.resolve([])), []);
-  const [tab, setTab] = useState<"incoming" | "outgoing">("incoming");
+  const applications = useStore(getApplications, []);
+  const opportunities = useStore(getOpportunities, []);
+  const [params] = useSearchParams();
+  const [tab, setTab] = useState<"incoming" | "outgoing" | "work">(params.get("tab") === "work" ? "work" : "incoming");
   if (!user) return null;
+  const work = applications.filter((a) => a.workerId === user.id);
 
   const incoming = requests.filter((r) => r.toId === user.id);
   const outgoing = requests.filter((r) => r.fromId === user.id);
-  const list = tab === "incoming" ? incoming : outgoing;
+  const list = tab === "incoming" ? incoming : tab === "outgoing" ? outgoing : [];
 
   return (
     <>
@@ -222,7 +327,7 @@ export default function Requests() {
       </PageHeader>
       <div className="container-page max-w-4xl py-10">
         <div role="tablist" aria-label="Request direction" className="mb-6 inline-flex rounded-full bg-brand-100 p-1">
-          {(["incoming", "outgoing"] as const).map((t) => (
+          {(["incoming", "outgoing", "work"] as const).map((t) => (
             <button
               key={t}
               role="tab"
@@ -230,11 +335,30 @@ export default function Requests() {
               onClick={() => setTab(t)}
               className={`min-h-[44px] rounded-full px-5 font-bold ${tab === t ? "bg-white text-brand-900 shadow" : "text-brand-800"}`}
             >
-              {t === "incoming" ? `Received (${incoming.length})` : `Sent (${outgoing.length})`}
+              {t === "incoming" ? `Received (${incoming.length})` : t === "outgoing" ? `Sent (${outgoing.length})` : `Work (${work.length})`}
             </button>
           ))}
         </div>
-        {list.length === 0 ? (
+        {tab === "work" ? (
+          work.length === 0 ? (
+            <EmptyState title="No job applications or invitations yet">
+              <Link to="/opportunities" className="btn-primary mt-3">
+                Browse paid opportunities
+              </Link>
+            </EmptyState>
+          ) : (
+            <ul className="space-y-4">
+              {work.map((a) => (
+                <WorkItem
+                  key={a.id}
+                  app={a}
+                  opp={opportunities.find((o) => o.id === a.opportunityId)}
+                  org={users.find((u) => u.id === a.employerId)}
+                />
+              ))}
+            </ul>
+          )
+        ) : list.length === 0 ? (
           <EmptyState title={tab === "incoming" ? "No requests received yet" : "You haven't sent any requests yet"}>
             {tab === "incoming" ? (
               <Link to="/marketplace?create=1" className="btn-primary mt-3">

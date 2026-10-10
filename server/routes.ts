@@ -1,4 +1,4 @@
-import { BadRequest, careers, companion, match, profileDraft, resumeJob, resumeSummary } from "./handlers";
+import { BadRequest, careers, companion, match, nextChapter, profileDraft, resumeJob, resumeSummary } from "./handlers";
 
 export const ROUTES: Record<string, (body: unknown) => Promise<unknown>> = {
   "profile-draft": profileDraft,
@@ -7,6 +7,7 @@ export const ROUTES: Record<string, (body: unknown) => Promise<unknown>> = {
   "resume-job": resumeJob,
   "resume-summary": resumeSummary,
   match,
+  "next-chapter": nextChapter,
 };
 
 /** Runs a handler and maps errors to an HTTP status + JSON body. */

@@ -17,6 +17,11 @@ import Requests from "./pages/Requests";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import ResumeBuilder from "./pages/ResumeBuilder";
+import Opportunities from "./pages/Opportunities";
+import OpportunityDetail from "./pages/OpportunityDetail";
+import OpportunityForm from "./pages/OpportunityForm";
+import EmployerPortal from "./pages/EmployerPortal";
+import NextChapter from "./pages/NextChapter";
 
 export default function App() {
   const guard = (el: JSX.Element) => <RequireAuth>{el}</RequireAuth>;
@@ -38,6 +43,12 @@ export default function App() {
         <Route path="marketplace" element={<Marketplace />} />
         <Route path="about" element={<About />} />
         <Route path="resume" element={<ResumeBuilder />} />
+        <Route path="opportunities" element={<Opportunities />} />
+        <Route path="opportunities/:id" element={<OpportunityDetail />} />
+        <Route path="next-chapter" element={guard(<NextChapter />)} />
+        <Route path="employer" element={guard(<EmployerPortal />)} />
+        <Route path="employer/new" element={guard(<OpportunityForm />)} />
+        <Route path="employer/edit/:id" element={guard(<OpportunityForm />)} />
         <Route path="requests" element={guard(<Requests />)} />
         <Route path="*" element={<NotFound />} />
       </Route>

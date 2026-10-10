@@ -7,6 +7,7 @@ import { VoiceRecorder } from "../components/VoiceRecorder";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { saveUser } from "../lib/store";
+import { EMPTY_COMFORT } from "../lib/comfort";
 
 const EXAMPLE =
   "I've worked in carpentry for 35 years. I know furniture making, repairs, and construction, and I've trained apprentices, but I can't do heavy lifting anymore.";
@@ -50,6 +51,8 @@ export default function CreateProfile() {
     format: user.format,
     roles: user.roles,
     buddy: user.buddy,
+    workComfort: user.workComfort,
+    org: user.org,
   };
 
   if (draft || manual) {
@@ -62,6 +65,11 @@ export default function CreateProfile() {
           yearsExperience: d.yearsExperience,
           industries: d.industries,
           workPreferences: d.workPreferences,
+          // If they mentioned physical limits, pre-tick the matching comfort answer (they can change it).
+          workComfort:
+            !base.workComfort && d.workPreferences.some((p) => /lift|physical|strain|heavy/i.test(p))
+              ? { ...EMPTY_COMFORT, avoidHeavyLifting: true }
+              : base.workComfort,
         }
       : base;
     return (
@@ -164,8 +172,11 @@ export default function CreateProfile() {
           <div className="rounded-2xl border border-brand-100 bg-white p-5">
             <p className="font-bold text-brand-900">Your privacy</p>
             <p className="mt-1">
-              Your browser's speech service turns your voice into text. TogetherWeGrow never receives or saves recordings. Only the text you approve becomes your
-              profile.
+              Your browser's speech service turns your voice into text. TogetherWeGrow never receives or saves recordings.
+            </p>
+            <p className="mt-2">
+              The text is sent to our AI service provider to draft your profile. Only what you approve is saved. Leave out
+              private details like bank or health information.
             </p>
           </div>
         </aside>

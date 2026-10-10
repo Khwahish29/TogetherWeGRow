@@ -1,7 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import {
   ArrowRight,
   Briefcase,
+  Building2,
+  Compass,
   FileText,
   CalendarClock,
   GraduationCap,
@@ -19,7 +21,7 @@ import { MentorCard } from "../components/cards";
 import { Avatar, formatPrice } from "../components/ui";
 import { useAuth } from "../lib/auth";
 import { scoreMentor } from "../lib/matching";
-import { deleteListing, getListings, getReflections, getRequests, getThanks, getUsers, resetDemo } from "../lib/store";
+import { deleteListing, getApplications, getListings, getReflections, getRequests, getThanks, getUsers, resetDemo } from "../lib/store";
 import type { User } from "../lib/types";
 import { useStore } from "../lib/useStore";
 import { useAiMatches } from "../lib/useAiMatches";
@@ -73,7 +75,10 @@ export default function Dashboard() {
   const reflections = useStore(() => (user ? getReflections(user.id) : Promise.resolve([])), []);
   const mentors = useMemo(() => users.filter((u) => u.roles.includes("mentor") && u.id !== user?.id && u.skills.length > 0), [users, user]);
   const ai = useAiMatches("mentor", user, mentors, "");
+  const applications = useStore(getApplications, []);
   if (!user) return null;
+  if (user.roles.length === 1 && user.roles[0] === "employer") return <Navigate to="/employer" replace />;
+  const invitations = applications.filter((a) => a.workerId === user.id && a.initiatedBy === "employer" && a.status === "invited" && !a.reply);
 
   const { percent, todo } = completion(user);
   const isMentor = user.roles.includes("mentor");
@@ -102,7 +107,8 @@ export default function Dashboard() {
   const actions = [
     ...(isMentor
       ? [
-          { to: "/careers", icon: Briefcase, title: "Explore new roles", body: "Work that values what you know", tone: "bg-brand-100 text-brand-700" },
+          { to: "/next-chapter", icon: Compass, title: "My Next Chapter", body: "A step-by-step plan for what's next", tone: "bg-brand-100 text-brand-700" },
+          { to: "/opportunities", icon: Briefcase, title: "Paid opportunities", body: "Roles that value experience", tone: "bg-emerald-100 text-emerald-700" },
           { to: "/marketplace?create=1", icon: PlusCircle, title: "Offer a paid session", body: "Set your own fair price", tone: "bg-warm-100 text-warm-700" },
         ]
       : []),
@@ -151,6 +157,23 @@ export default function Dashboard() {
             ))}
           </ul>
         </section>
+
+        {invitations.length > 0 && (
+          <section aria-labelledby="invites" className="rounded-3xl border-2 border-brand-600 bg-brand-50 p-6">
+            <div className="flex flex-wrap items-start gap-4">
+              <Building2 aria-hidden="true" className="mt-1 h-7 w-7 shrink-0 text-brand-700" />
+              <div className="flex-1">
+                <h2 id="invites" className="text-xl font-bold">
+                  {invitations.length === 1 ? "An organisation would like to talk with you" : `${invitations.length} organisations would like to talk with you`}
+                </h2>
+                <p className="text-ink/80">There's no pressure. Read the details and reply when you're ready, yes or no.</p>
+              </div>
+              <Link to="/requests?tab=work" className="btn-primary shrink-0">
+                See invitation
+              </Link>
+            </div>
+          </section>
+        )}
 
         {toReflect.length > 0 && (
           <section aria-labelledby="reflect" className="rounded-3xl border-2 border-warm-400 bg-warm-50 p-6">
@@ -300,7 +323,10 @@ export default function Dashboard() {
                 {myThanks.slice(0, 3).map((t) => (
                   <li key={t.id} className="rounded-2xl bg-white p-4">
                     <p className="font-serif text-lg text-brand-900">“{t.message}”</p>
-                    <p className="mt-1 text-sm text-ink/70">{nameOf(t.fromId)}</p>
+                    <p className="mt-1 text-sm text-ink/70">
+                      {nameOf(t.fromId)}
+                      {t.isDemo && <span className="badge ml-2 bg-gray-200 text-gray-700">Fictional example</span>}
+                    </p>
                   </li>
                 ))}
               </ul>

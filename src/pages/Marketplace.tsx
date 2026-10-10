@@ -27,6 +27,7 @@ function CreateOfferForm({ onDone }: { onDone: () => void }) {
       format: String(form.get("format")) as Format,
       durationMins: Number(form.get("duration")),
       price: Number(form.get("price")),
+      cancellation: String(form.get("cancellation")),
     });
     setBusy(false);
     onDone();
@@ -97,6 +98,17 @@ function CreateOfferForm({ onDone }: { onDone: () => void }) {
             Price per session ($)
           </label>
           <input id="price" name="price" type="number" min={1} max={1000} className="input" required defaultValue={25} />
+        </div>
+        <div className="sm:col-span-2">
+          <label htmlFor="cancellation" className="label">
+            Cancellation terms (shown before anyone books)
+          </label>
+          <select id="cancellation" name="cancellation" className="input" defaultValue="Free to cancel up to 24 hours before">
+            <option>Free to cancel up to 24 hours before</option>
+            <option>Free to cancel up to 48 hours before</option>
+            <option>Free to cancel any time</option>
+            <option>Reschedule only, with 24 hours' notice</option>
+          </select>
         </div>
       </div>
       <div className="flex flex-col-reverse gap-2 sm:flex-row">
