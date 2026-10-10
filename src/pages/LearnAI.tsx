@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Bot, FileText, Mail, MousePointerClick, ShieldAlert, Sparkles, Video, type LucideIcon } from "lucide-react";
 import type { AiSource, CompanionRequest } from "../../shared/types";
 import { SourceLabel } from "../components/ui";
@@ -9,7 +9,7 @@ import { api } from "../lib/api";
 const TOPICS: { id: string; label: string; icon: LucideIcon; tone: string }[] = [
   { id: "video-meeting", label: "Join a video meeting", icon: Video, tone: "bg-sky-100 text-sky-700" },
   { id: "email", label: "Send an email", icon: Mail, tone: "bg-brand-100 text-brand-700" },
-  { id: "resume", label: "Create a résumé", icon: FileText, tone: "bg-warm-100 text-warm-700" },
+  { id: "resume", label: "Build my résumé together", icon: FileText, tone: "bg-warm-100 text-warm-700" },
   { id: "job-application", label: "Apply for a job online", icon: MousePointerClick, tone: "bg-violet-100 text-violet-700" },
   { id: "scams", label: "Spot suspicious messages", icon: ShieldAlert, tone: "bg-rose-100 text-rose-700" },
   { id: "ai-tools", label: "Use basic AI tools", icon: Sparkles, tone: "bg-amber-100 text-amber-700" },
@@ -37,6 +37,7 @@ function speak(text: string) {
 }
 
 export default function LearnAI() {
+  const navigate = useNavigate();
   const [topic, setTopic] = useState<(typeof TOPICS)[number] | null>(null);
   const [feeling, setFeeling] = useState<Feeling | null>(null);
   const [intro, setIntro] = useState("");
@@ -63,6 +64,10 @@ export default function LearnAI() {
   useEffect(() => () => window.speechSynthesis?.cancel(), []);
 
   function pickTopic(t: (typeof TOPICS)[number]) {
+    if (t.id === "resume") {
+      navigate("/resume");
+      return;
+    }
     setTopic(t);
     setFeeling(null);
     setSteps([]);

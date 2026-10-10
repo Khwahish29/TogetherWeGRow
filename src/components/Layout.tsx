@@ -70,7 +70,7 @@ export function Layout() {
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 btn-primary">
         Skip to main content
       </a>
-      <header className="sticky top-0 z-40 border-b border-brand-100/80 bg-warm-50/90 backdrop-blur-md">
+      <header className="sticky top-0 z-40 print:hidden border-b border-brand-100/80 bg-warm-50/90 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <Link to={user ? "/dashboard" : "/"} className="rounded-xl" aria-label="TogetherWeGrow home">
             <Logo />
@@ -185,11 +185,11 @@ export function Layout() {
         )}
       </header>
 
-      <main id="main" className="flex-1 pb-24 xl:pb-0">
+      <main id="main" className="flex-1 pb-24 xl:pb-0 print:pb-0">
         <Outlet />
       </main>
 
-      <footer className="mb-[72px] border-t border-brand-100 bg-brand-900 text-brand-50 xl:mb-0">
+      <footer className="print:hidden mb-[72px] border-t border-brand-100 bg-brand-900 text-brand-50 xl:mb-0">
         <div className="container-page grid gap-10 py-12 md:grid-cols-4">
           <div className="md:col-span-1">
             <Logo light />
@@ -226,7 +226,7 @@ export function Layout() {
 
       <nav
         aria-label="Quick"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-brand-100 bg-white/95 backdrop-blur xl:hidden"
+        className="print:hidden fixed inset-x-0 bottom-0 z-40 border-t border-brand-100 bg-white/95 backdrop-blur xl:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <ul className="mx-auto grid max-w-lg grid-cols-5">

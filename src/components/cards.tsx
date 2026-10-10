@@ -57,7 +57,7 @@ export function ListingCard({
 
 export function MentorCard({ match, showScore, thanksCount = 0 }: { match: MentorMatch; showScore: boolean; thanksCount?: number }) {
   const { mentor } = match;
-  const isMatch = showScore && match.matchedSkills.length > 0;
+  const isMatch = showScore && (match.matchedSkills.length > 0 || match.score >= 50);
   return (
     <article className="card flex h-full flex-col">
       {isMatch && (

@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { Sparkles } from "lucide-react";
 import { MentorCard } from "../components/cards";
 import { EmptyState, PageHeader } from "../components/ui";
 import { useAuth } from "../lib/auth";
-import { scoreMentor, skillsOverlap } from "../lib/matching";
+import { scoreMentor, skillsOverlap, type MentorMatch } from "../lib/matching";
 import { getListings, getThanks, getUsers } from "../lib/store";
 import type { Format } from "../lib/types";
+import { useAiMatches } from "../lib/useAiMatches";
 import { useStore } from "../lib/useStore";
 
 export default function Mentors() {
@@ -19,30 +21,47 @@ export default function Mentors() {
   const [maxPrice, setMaxPrice] = useState<number | "">("");
 
   const mentors = useMemo(() => users.filter((u) => u.roles.includes("mentor") && u.id !== user?.id && u.skills.length > 0), [users, user]);
+  const ai = useAiMatches("mentor", user, mentors, query);
 
   const lowestPrice = (mentorId: string) => {
     const prices = listings.filter((l) => l.mentorId === mentorId).map((l) => l.price);
     return prices.length ? Math.min(...prices) : null;
   };
 
-  const filtered = mentors
-    .filter((m) => {
-      const q = query.trim();
-      if (q && ![...m.skills, ...m.industries, m.name, m.bio].some((s) => skillsOverlap(s, q) || s.toLowerCase().includes(q.toLowerCase())))
-        return false;
-      if (format !== "any" && m.format !== "both" && m.format !== format) return false;
-      if (maxPrice !== "") {
-        const p = lowestPrice(m.id);
-        if (p === null || p > maxPrice) return false;
-      }
-      return true;
-    })
-    .map((m) => scoreMentor(user, m))
-    .sort((a, b) => b.score - a.score);
+  // Plain filters the person chose (format, price) stay as simple filters.
+  const eligible = mentors.filter((m) => {
+    if (format !== "any" && m.format !== "both" && m.format !== format) return false;
+    if (maxPrice !== "") {
+      const p = lowestPrice(m.id);
+      if (p === null || p > maxPrice) return false;
+    }
+    return true;
+  });
 
-  const canMatch = Boolean(user && user.wantToLearn.length > 0);
-  const bestMatches = canMatch ? filtered.filter((m) => m.matchedSkills.length > 0).slice(0, 3) : [];
-  const rest = filtered.filter((m) => !bestMatches.includes(m));
+  const q = query.trim();
+  let matches: MentorMatch[];
+  if (ai.results) {
+    // AI decides who fits the search / what the person wants to learn.
+    const byId = new Map(ai.results.map((r) => [r.id, r]));
+    matches = eligible
+      .map((m) => {
+        const r = byId.get(m.id);
+        return { mentor: m, score: r?.score ?? 0, matchedSkills: r?.matched ?? [], reasons: r?.reasons ?? [] };
+      })
+      .filter((m) => !q || m.score > 0)
+      .sort((a, b) => b.score - a.score);
+  } else {
+    // AI unavailable or still thinking: simple keyword matching so the page is never empty.
+    matches = eligible
+      .filter((m) => !q || [...m.skills, ...m.industries, m.name, m.bio].some((s) => skillsOverlap(s, q) || s.toLowerCase().includes(q.toLowerCase())))
+      .map((m) => scoreMentor(user, m))
+      .sort((a, b) => b.score - a.score);
+  }
+
+  const hasNeed = Boolean(q || user?.wantToLearn.length);
+  const best = hasNeed ? matches.filter((m) => m.matchedSkills.length > 0 || (ai.results && m.score >= 50)).slice(0, q ? 6 : 3) : [];
+  const rest = matches.filter((m) => !best.includes(m));
+  const bestTitle = q ? `Best matches for “${q}”` : "Best matches for you";
 
   return (
     <>
@@ -59,7 +78,7 @@ export default function Mentors() {
               id="q"
               type="search"
               className="input"
-              placeholder="e.g. woodworking, bookkeeping, cooking"
+              placeholder="Describe it in your own words, e.g. fix my old car, start a small bakery"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -92,53 +111,71 @@ export default function Mentors() {
           </div>
         </form>
 
-        {!canMatch && (
-          <p className="notice mt-6">
+        <p aria-live="polite" className="mt-3 flex min-h-[1.75rem] items-center gap-2 text-sm text-ink/70">
+          {ai.active && ai.loading && (
+            <>
+              <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-violet-600" /> Finding the best people for you…
+            </>
+          )}
+          {ai.active && !ai.loading && ai.results && (
+            <>
+              <Sparkles aria-hidden="true" className="h-4 w-4 text-violet-600" /> Matched by AI from what you're looking for. Please
+              check profiles yourself.
+            </>
+          )}
+        </p>
+
+        {!user?.wantToLearn.length && !q && (
+          <p className="notice mt-3">
             {user ? (
               <>
-                Add things you'd like to learn to <Link to="/profile" className="font-bold underline">your profile</Link> and
-                we'll show your best matches first.
+                Type what you'd like to learn above, or add it to <Link to="/profile" className="font-bold underline">your profile</Link>{" "}
+                and we'll show your best matches first.
               </>
             ) : (
               <>
-                <Link to="/signup?role=learner" className="font-bold underline">Join free</Link> and tell us what you'd like
-                to learn to see your best matches.
+                Type what you'd like to learn above, or <Link to="/signup?role=learner" className="font-bold underline">join free</Link>{" "}
+                to save it.
               </>
             )}
           </p>
         )}
 
-        {bestMatches.length > 0 && (
-          <section aria-labelledby="best" className="mt-10">
+        {best.length > 0 && (
+          <section aria-labelledby="best" className="mt-8">
             <h2 id="best" className="text-2xl font-bold">
-              Best matches for you
+              {bestTitle}
             </h2>
-            <p className="text-ink/70">Based on what you want to learn: {user!.wantToLearn.join(", ")}</p>
+            {!q && <p className="text-ink/70">Based on what you want to learn: {user!.wantToLearn.join(", ")}</p>}
             <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {bestMatches.map((m) => (
+              {best.map((m) => (
                 <MentorCard key={m.mentor.id} match={m} showScore thanksCount={thanksFor(m.mentor.id)} />
               ))}
             </div>
           </section>
         )}
 
-        <section aria-labelledby="all" className="mt-10">
-          <h2 id="all" className="text-2xl font-bold">
-            {bestMatches.length ? "More mentors" : "All mentors"}{" "}
-            <span className="text-base font-normal text-ink/60">({rest.length})</span>
-          </h2>
-          {rest.length === 0 && bestMatches.length === 0 ? (
-            <div className="mt-4">
-              <EmptyState title="No mentors match those filters yet">Try a broader search or remove a filter.</EmptyState>
-            </div>
-          ) : (
-            <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {rest.map((m) => (
-                <MentorCard key={m.mentor.id} match={m} showScore={canMatch} thanksCount={thanksFor(m.mentor.id)} />
-              ))}
-            </div>
-          )}
-        </section>
+        {!(q && best.length > 0 && rest.length === 0) && (
+          <section aria-labelledby="all" className="mt-10">
+            <h2 id="all" className="text-2xl font-bold">
+              {best.length ? (q ? "Other possible matches" : "More mentors") : "All mentors"}{" "}
+              <span className="text-base font-normal text-ink/60">({rest.length})</span>
+            </h2>
+            {rest.length === 0 && best.length === 0 ? (
+              <div className="mt-4">
+                <EmptyState title={ai.loading ? "Looking…" : "No mentors match that yet"}>
+                  {!ai.loading && "Try describing it differently, or remove a filter."}
+                </EmptyState>
+              </div>
+            ) : (
+              <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {rest.map((m) => (
+                  <MentorCard key={m.mentor.id} match={m} showScore={hasNeed} thanksCount={thanksFor(m.mentor.id)} />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
       </div>
     </>
   );

@@ -16,6 +16,7 @@ import Marketplace from "./pages/Marketplace";
 import Requests from "./pages/Requests";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
+import ResumeBuilder from "./pages/ResumeBuilder";
 
 export default function App() {
   const guard = (el: JSX.Element) => <RequireAuth>{el}</RequireAuth>;
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="learn/buddies" element={<Buddies />} />
         <Route path="marketplace" element={<Marketplace />} />
         <Route path="about" element={<About />} />
+        <Route path="resume" element={<ResumeBuilder />} />
         <Route path="requests" element={guard(<Requests />)} />
         <Route path="*" element={<NotFound />} />
       </Route>

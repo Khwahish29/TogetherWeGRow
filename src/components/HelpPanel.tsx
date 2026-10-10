@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Briefcase, GraduationCap, HeartHandshake, Lightbulb, Search, UserRound } from "lucide-react";
+import { ArrowRight, Briefcase, FileText, GraduationCap, HeartHandshake, Lightbulb, Search, UserRound } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { TextSizeToggle } from "./TextSizeToggle";
 
@@ -21,6 +21,7 @@ export function HelpPanel({ open, onClose }: { open: boolean; onClose: () => voi
       ? { to: "/profile", icon: UserRound, title: "Update my profile", body: "Change your skills, preferences, or introduction." }
       : { to: "/signup", icon: UserRound, title: "Get started", body: "Create a free account in a couple of minutes." },
     { to: "/careers", icon: Briefcase, title: "Find work that suits me now", body: "Roles that value your experience." },
+    { to: "/resume", icon: FileText, title: "Make a résumé", body: "Answer a few questions and watch it build." },
     { to: "/mentors", icon: Search, title: "Learn a skill from someone experienced", body: "Browse mentors and request a session." },
     { to: "/marketplace", icon: GraduationCap, title: "Offer or book a paid session", body: "See prices up front. Nothing is charged to ask." },
     { to: "/learn/ai", icon: Lightbulb, title: "Figure out some technology", body: "Step-by-step help, as slowly as you like." },

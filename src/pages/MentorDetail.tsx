@@ -6,6 +6,8 @@ import { useAuth } from "../lib/auth";
 import { scoreMentor } from "../lib/matching";
 import { getListings, getThanks, getUsers } from "../lib/store";
 import { useStore } from "../lib/useStore";
+import { useAiMatches } from "../lib/useAiMatches";
+import { useMemo } from "react";
 
 export default function MentorDetail() {
   const { id } = useParams();
@@ -15,6 +17,8 @@ export default function MentorDetail() {
   const thanks = useStore(getThanks, []);
   const booking = useBooking(users);
   const person = users.find((u) => u.id === id);
+  const single = useMemo(() => (person && person.id !== user?.id ? [person] : []), [person, user]);
+  const ai = useAiMatches("mentor", user, single, "");
 
   if (!users.length) return <p className="container-page py-16">Loading…</p>;
   if (!person) {
@@ -31,7 +35,9 @@ export default function MentorDetail() {
 
   const isSelf = user?.id === person.id;
   const own = listings.filter((l) => l.mentorId === person.id);
-  const match = scoreMentor(user, person);
+  const local = scoreMentor(user, person);
+  const aiResult = ai.results?.find((r) => r.id === person.id);
+  const match = ai.results ? { ...local, reasons: aiResult?.reasons ?? [] } : ai.loading ? { ...local, reasons: [] } : local;
 
   return (
     <div className="container-page py-10">

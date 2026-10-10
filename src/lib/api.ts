@@ -4,7 +4,11 @@ import type {
   CareerRec,
   CompanionRequest,
   CompanionResponse,
+  MatchRequest,
+  MatchResult,
   ProfileDraft,
+  ResumeJobResult,
+  ResumeSummaryInput,
 } from "../../shared/types";
 
 async function post<T>(path: string, body: unknown): Promise<ApiResult<T>> {
@@ -24,4 +28,7 @@ export const api = {
   profileDraft: (text: string) => post<ProfileDraft>("profile-draft", { text }),
   careers: (profile: CareerProfileInput) => post<CareerRec[]>("careers", profile),
   companion: (req: CompanionRequest) => post<CompanionResponse>("companion", req),
+  match: (req: MatchRequest) => post<MatchResult[] | null>("match", req),
+  resumeJob: (text: string) => post<ResumeJobResult>("resume-job", { text }),
+  resumeSummary: (input: ResumeSummaryInput) => post<{ summary: string }>("resume-summary", input),
 };

@@ -7,7 +7,7 @@ advisory, and teaching work, and where anyone can learn technology with AI or a 
 
 ```bash
 npm install
-cp .env.example .env      # optional: add ANTHROPIC_API_KEY to use Claude
+cp .env.example .env      # optional: add XAI_API_KEY (Grok) or GROQ_API_KEY (Groq)
 npm run dev               # web on http://localhost:5173, API on :8787
 ```
 
@@ -28,6 +28,7 @@ The login page has one-click buttons for both. Use "reset all demo data" at the 
 | Mentor discovery with match scores | `/mentors`, `/mentors/:id` |
 | Learn Your Way: AI companion (step-by-step, read aloud, explain simpler, ask by voice) or human buddies | `/learn`, `/learn/ai`, `/learn/buddies` |
 | Paid mentoring listings, create offers, booking requests, accept/decline | `/marketplace`, `/requests` |
+| Résumé builder: guided questions with a live preview, AI-written bullet points, print or save as PDF | `/resume` |
 | Personal dashboard ("What would you like to do today?") | `/dashboard` |
 | After-session notes (private) and thank-you notes (shown on profiles) | `/requests` |
 | Our story, safety & support, report a concern | `/about` |
@@ -41,7 +42,10 @@ easier, and the option to withdraw, reconsider, or reschedule any request.
 - `src/`: React + TypeScript + Tailwind + React Router.
 - `src/lib/store.ts`: data layer backed by localStorage. All functions are async, so Supabase can replace it later.
 - `src/lib/matching.ts`: mentor scoring, a pure function.
-- `server/handlers/`: AI endpoints that call Claude (`claude-opus-5-5`) with structured outputs via `@anthropic-ai/sdk`.
+- `server/lib/ai.ts`: one client for any OpenAI-compatible API. It uses xAI Grok if `XAI_API_KEY` is set, otherwise
+  Groq if `GROQ_API_KEY` is set (Groq has a free tier). It picks a suitable model automatically (override with
+  `AI_MODEL`) and checks every reply against a schema.
+- `server/handlers/`: the AI endpoints (profile draft, careers, companion, résumé).
   They fall back to `server/fallback/*` when there's no key, an error, or a refusal.
 - `server/dev.ts`: Express server for local dev. `api/*.ts` holds Vercel serverless wrappers around the same handlers.
 
@@ -50,7 +54,7 @@ never sent to or stored by TogetherWeGrow. Voice input works in Chrome and Edge,
 
 ## Deploy (Vercel)
 
-Import the repo, set `ANTHROPIC_API_KEY` in project settings, and deploy. `vercel.json` routes the SPA.
+Import the repo, set `XAI_API_KEY` or `GROQ_API_KEY` in project settings, and deploy. `vercel.json` routes the SPA.
 
 ## Not in this prototype
 

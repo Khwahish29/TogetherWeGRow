@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express from "express";
-import { aiEnabled } from "./lib/claude";
+import { aiProviderName } from "./lib/ai";
 import { runRoute } from "./routes";
 
 const app = express();
@@ -13,5 +13,6 @@ app.post("/api/:name", async (req, res) => {
 
 const port = Number(process.env.API_PORT ?? 8787);
 app.listen(port, () => {
-  console.log(`API on http://localhost:${port} (AI: ${aiEnabled() ? "Claude" : "built-in rules — set ANTHROPIC_API_KEY to enable"})`);
+  const provider = aiProviderName();
+  console.log(`API on http://localhost:${port} (AI: ${provider ?? "built-in rules. Set XAI_API_KEY or GROQ_API_KEY in .env to enable"})`);
 });

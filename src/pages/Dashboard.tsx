@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import {
   ArrowRight,
   Briefcase,
+  FileText,
   CalendarClock,
   GraduationCap,
   Heart,
@@ -21,6 +22,8 @@ import { scoreMentor } from "../lib/matching";
 import { deleteListing, getListings, getReflections, getRequests, getThanks, getUsers, resetDemo } from "../lib/store";
 import type { User } from "../lib/types";
 import { useStore } from "../lib/useStore";
+import { useAiMatches } from "../lib/useAiMatches";
+import { useMemo } from "react";
 import { RequestItem, formatWhen, isPast } from "./Requests";
 
 function completion(user: User) {
@@ -68,6 +71,8 @@ export default function Dashboard() {
   const requests = useStore(getRequests, []);
   const thanks = useStore(getThanks, []);
   const reflections = useStore(() => (user ? getReflections(user.id) : Promise.resolve([])), []);
+  const mentors = useMemo(() => users.filter((u) => u.roles.includes("mentor") && u.id !== user?.id && u.skills.length > 0), [users, user]);
+  const ai = useAiMatches("mentor", user, mentors, "");
   if (!user) return null;
 
   const { percent, todo } = completion(user);
@@ -80,12 +85,19 @@ export default function Dashboard() {
   const toReflect = mine.filter((r) => r.status === "accepted" && isPast(r.proposedAt) && !reflections.some((rf) => rf.requestId === r.id));
   const myThanks = thanks.filter((t) => t.toId === user.id);
   const nameOf = (id: string) => users.find((u) => u.id === id)?.name ?? "A member";
-  const recommended = users
-    .filter((u) => u.roles.includes("mentor") && u.id !== user.id)
-    .map((m) => scoreMentor(user, m))
-    .filter((m) => m.matchedSkills.length > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 2);
+  const recommended = (
+    ai.results
+      ? ai.results.flatMap((r) => {
+          const mentor = mentors.find((m) => m.id === r.id);
+          return mentor ? [{ mentor, score: r.score, matchedSkills: r.matched, reasons: r.reasons }] : [];
+        })
+      : ai.loading
+        ? []
+        : mentors
+            .map((m) => scoreMentor(user, m))
+            .filter((m) => m.matchedSkills.length > 0)
+            .sort((a, b) => b.score - a.score)
+  ).slice(0, 2);
 
   const actions = [
     ...(isMentor
@@ -97,6 +109,7 @@ export default function Dashboard() {
     ...(isLearner || !isMentor
       ? [{ to: "/mentors", icon: Search, title: "Find a mentor", body: "Learn from decades of experience", tone: "bg-brand-100 text-brand-700" }]
       : []),
+    { to: "/resume", icon: FileText, title: "Build my résumé", body: "Answer questions, watch it build", tone: "bg-warm-100 text-warm-700" },
     { to: "/learn/ai", icon: Lightbulb, title: "Learn some technology", body: "Step by step, at your pace", tone: "bg-violet-100 text-violet-700" },
     { to: "/learn/buddies", icon: HeartHandshake, title: "Ask a friendly person", body: "A patient digital buddy", tone: "bg-sky-100 text-sky-700" },
     { to: "/requests", icon: Inbox, title: "My requests", body: incoming.length ? `${incoming.length} waiting for you` : "Sessions and replies", tone: "bg-amber-100 text-amber-700" },
@@ -243,7 +256,11 @@ export default function Dashboard() {
               <h2 id="mentors-for-you" className="flex items-center gap-2 text-xl font-bold">
                 <Sparkles aria-hidden="true" className="h-6 w-6 text-brand-600" /> Mentors for you
               </h2>
-              {recommended.length === 0 ? (
+              {ai.loading && recommended.length === 0 ? (
+                <p className="mt-3 flex items-center gap-2 text-ink/70">
+                  <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-violet-600" /> Finding mentors for you…
+                </p>
+              ) : recommended.length === 0 ? (
                 <p className="mt-3 text-ink/70">
                   {user.wantToLearn.length ? (
                     <>

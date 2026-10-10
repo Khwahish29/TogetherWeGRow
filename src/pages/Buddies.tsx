@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { Sparkles } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { RequestDialog } from "../components/RequestDialog";
 import { Avatar, EmptyState, FormatBadge, PageHeader, PricingBadge } from "../components/ui";
@@ -7,6 +8,7 @@ import { skillsOverlap } from "../lib/matching";
 import { createRequest, getUsers } from "../lib/store";
 import type { BuddyPricing, User } from "../lib/types";
 import { useStore } from "../lib/useStore";
+import { useAiMatches } from "../lib/useAiMatches";
 
 const TOPICS = ["Video meetings", "Email", "Smartphones", "AI tools", "Online safety", "Résumés", "Online job applications"];
 
@@ -19,14 +21,20 @@ export default function Buddies() {
   const [pricing, setPricing] = useState<"any" | BuddyPricing>("any");
   const [selected, setSelected] = useState<User | null>(null);
 
-  const buddies = users.filter(
-    (u) =>
-      u.buddy &&
-      u.roles.includes("buddy") &&
-      u.id !== user?.id &&
-      (!topic || u.buddy.topics.some((t) => skillsOverlap(t, topic))) &&
-      (pricing === "any" || u.buddy.pricing === pricing),
+  const all = useMemo(
+    () => users.filter((u) => u.buddy && u.roles.includes("buddy") && u.id !== user?.id),
+    [users, user],
   );
+  // Only the typed need is used here (not the profile), so the AI answers exactly what was asked.
+  const ai = useAiMatches("buddy", null, all, topic);
+  const byPricing = all.filter((u) => pricing === "any" || u.buddy!.pricing === pricing);
+  const q = topic.trim();
+  const buddies = !q
+    ? byPricing
+    : ai.results
+      ? ai.results.flatMap((r) => byPricing.filter((b) => b.id === r.id))
+      : byPricing.filter((u) => u.buddy!.topics.some((t) => skillsOverlap(t, q) || t.toLowerCase().includes(q.toLowerCase())));
+  const reasonsFor = (id: string) => (q ? (ai.results?.find((r) => r.id === id)?.reasons ?? []) : []);
 
   function request(buddy: User) {
     if (!user) {
@@ -48,12 +56,21 @@ export default function Buddies() {
             <label htmlFor="topic" className="label">
               What would you like help with?
             </label>
-            <select id="topic" className="input" value={topic} onChange={(e) => setTopic(e.target.value)}>
-              <option value="">Anything</option>
+            <input
+              id="topic"
+              type="search"
+              className="input"
+              placeholder="In your own words, e.g. video calling my grandchildren"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+            />
+            <div className="mt-2 flex flex-wrap gap-2">
               {TOPICS.map((t) => (
-                <option key={t}>{t}</option>
+                <button key={t} type="button" className="chip bg-white hover:bg-brand-100" onClick={() => setTopic(t)}>
+                  {t}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
           <div>
             <label htmlFor="pricing" className="label">
@@ -68,14 +85,29 @@ export default function Buddies() {
           </div>
         </div>
 
-        <p className="notice mt-6">
+        <p aria-live="polite" className="mt-3 flex min-h-[1.75rem] items-center gap-2 text-sm text-ink/70">
+          {q && ai.loading && (
+            <>
+              <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-violet-600" /> Finding someone who can help…
+            </>
+          )}
+          {q && !ai.loading && ai.results && (
+            <>
+              <Sparkles aria-hidden="true" className="h-4 w-4 text-violet-600" /> Matched by AI to what you described.
+            </>
+          )}
+        </p>
+
+        <p className="notice mt-3">
           You're never expected to give anything in return. If you'd like to share your own skills with a buddy, that's
           entirely your choice.
         </p>
 
         {buddies.length === 0 ? (
           <div className="mt-8">
-            <EmptyState title="No buddies match right now">Try a different topic, or ask our AI companion instead.</EmptyState>
+            <EmptyState title={q && ai.loading ? "Looking…" : "No buddies match right now"}>
+              {!(q && ai.loading) && "Try describing it differently, or ask our AI companion instead."}
+            </EmptyState>
           </div>
         ) : (
           <ul className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -92,6 +124,13 @@ export default function Buddies() {
                   <PricingBadge pricing={b.buddy!.pricing} rate={b.buddy!.rate} />
                   <FormatBadge format={b.buddy!.mode} />
                 </div>
+                {reasonsFor(b.id).length > 0 && (
+                  <ul className="mt-3 space-y-1 rounded-xl bg-violet-50 p-3 text-sm text-violet-900">
+                    {reasonsFor(b.id).map((r) => (
+                      <li key={r}>✓ {r}</li>
+                    ))}
+                  </ul>
+                )}
                 <p className="mt-3 text-ink/80">{b.bio}</p>
                 <p className="mt-3 text-sm font-bold text-brand-900">Can help with</p>
                 <ul className="mt-1 flex flex-wrap gap-2">
@@ -151,7 +190,7 @@ export default function Buddies() {
             kind: "buddy",
             fromId: user.id,
             toId: selected.id,
-            topic: topic || selected.buddy?.topics[0],
+            topic: q || selected.buddy?.topics[0],
             message,
             proposedAt,
           });

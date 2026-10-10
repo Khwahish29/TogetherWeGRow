@@ -120,6 +120,13 @@ export default function Careers() {
               </div>
             </div>
 
+            <p className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
+              Ready to apply somewhere?{" "}
+              <Link to="/resume" className="font-bold text-brand-700 underline">
+                Build a résumé together
+              </Link>{" "}
+              by answering a few questions. It takes about ten minutes.
+            </p>
             <div role="note" className="notice mb-8">
               <strong>Please note:</strong> these are suggestions, not job offers. We can't guarantee a role is physically
               right for you or that you're eligible. Always check the actual requirements and your own circumstances.
