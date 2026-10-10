@@ -124,11 +124,11 @@ export function ChipInput({
 }
 
 export function RequireAuth({ children }: { children: ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, loadedFor } = useAuth();
   const location = useLocation();
   // The session can change (sign up / log in) a moment before the auth context reloads.
   const sessionId = currentUserId();
-  if (loading || (sessionId && user?.id !== sessionId)) return <p className="container-page py-16">Loading…</p>;
+  if (loading || (sessionId && sessionId !== loadedFor)) return <p className="container-page py-16">Loading…</p>;
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   return <>{children}</>;
 }

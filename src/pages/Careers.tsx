@@ -14,6 +14,8 @@ const TYPE_LABEL: Record<CareerType, string> = {
 };
 
 const CACHE_KEY = "twg.careers";
+// Shares one in-flight request between duplicate effect runs (React StrictMode) and quick revisits.
+const inFlight = new Map<string, ReturnType<typeof api.careers>>();
 
 export default function Careers() {
   const { user } = useAuth();
@@ -41,13 +43,22 @@ export default function Careers() {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.careers({
-        skills: user.skills,
-        yearsExperience: user.yearsExperience,
-        workPreferences: user.workPreferences,
-        location: user.location,
-        interests: user.industries,
-      });
+      const key = `${cacheId}:${force ? Date.now() : ""}`;
+      if (!inFlight.has(key)) {
+        inFlight.set(
+          key,
+          api
+            .careers({
+              skills: user.skills,
+              yearsExperience: user.yearsExperience,
+              workPreferences: user.workPreferences,
+              location: user.location,
+              interests: user.industries,
+            })
+            .finally(() => inFlight.delete(key)),
+        );
+      }
+      const res = await inFlight.get(key)!;
       setResult(res);
       try {
         sessionStorage.setItem(CACHE_KEY, JSON.stringify({ id: cacheId, result: res }));

@@ -33,11 +33,20 @@ function write<T>(key: string, value: T) {
 
 function ensureSeeded() {
   if (read(KEYS.seeded, false)) return;
-  write(KEYS.users, SEED_USERS);
-  write(KEYS.listings, SEED_LISTINGS);
-  write(KEYS.requests, SEED_REQUESTS);
-  write(KEYS.reflections, []);
-  write(KEYS.thanks, SEED_THANKS);
+  // Refresh the demo data but keep anything people created themselves.
+  const keep = <T extends { id: string; isDemo?: boolean }>(key: string, seed: T[]) => [
+    ...seed,
+    ...read<T[]>(key, []).filter((item) => !item.isDemo && !seed.some((s) => s.id === item.id)),
+  ];
+  const keepById = <T extends { id: string }>(key: string, seed: T[]) => [
+    ...seed,
+    ...read<T[]>(key, []).filter((item) => !seed.some((s) => s.id === item.id)),
+  ];
+  write(KEYS.users, keep(KEYS.users, SEED_USERS));
+  write(KEYS.listings, keep(KEYS.listings, SEED_LISTINGS));
+  write(KEYS.requests, keepById(KEYS.requests, SEED_REQUESTS));
+  write(KEYS.reflections, read(KEYS.reflections, []));
+  write(KEYS.thanks, keepById(KEYS.thanks, SEED_THANKS));
   write(KEYS.seeded, true);
 }
 
@@ -71,7 +80,14 @@ export function currentUserId(): string | null {
 
 export async function currentUser(): Promise<User | null> {
   const id = currentUserId();
-  return id ? ((await getUser(id)) ?? null) : null;
+  if (!id) return null;
+  const user = await getUser(id);
+  if (!user) {
+    // The saved login points to an account that no longer exists (e.g. demo data was reset).
+    write(KEYS.session, null);
+    return null;
+  }
+  return user;
 }
 
 export async function signUp(
