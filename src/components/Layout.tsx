@@ -18,6 +18,7 @@ import {
 import { useAuth } from "../lib/auth";
 import { getApplications, getRequests, logOut } from "../lib/store";
 import { useStore } from "../lib/useStore";
+import { GoogleTranslate } from "./GoogleTranslate";
 import { HelpPanel } from "./HelpPanel";
 import { Logo } from "./Logo";
 import { TextSizeToggle } from "./TextSizeToggle";
@@ -239,6 +240,8 @@ export function Layout() {
           </div>
         </div>
       </header>
+
+      <GoogleTranslate />
 
       <main id="main" tabIndex={-1} className="flex-1 pb-24 outline-none lg:pb-0 print:pb-0">
         <Outlet />

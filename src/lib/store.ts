@@ -1,5 +1,6 @@
 // Local demo data layer. Every function is async so it can be swapped for Supabase later
 // without changing the pages that call it.
+import { browserLangCode } from "../i18n/languages";
 import { SEED_APPLICATIONS, SEED_LISTINGS, SEED_OPPORTUNITIES, SEED_REQUESTS, SEED_THANKS, SEED_USERS } from "../data/seed";
 import type { NextChapterPlan } from "../../shared/types";
 import type {
@@ -24,7 +25,7 @@ const KEYS = {
   applications: "twg.applications",
   plans: "twg.plans",
   session: "twg.session",
-  seeded: "twg.seeded.v3",
+  seeded: "twg.seeded.v4",
 };
 
 function read<T>(key: string, fallback: T): T {
@@ -107,7 +108,7 @@ export async function currentUser(): Promise<User | null> {
 }
 
 export async function signUp(
-  input: Pick<User, "name" | "email" | "password" | "roles" | "location"> & { comfort?: string[]; org?: User["org"] },
+  input: Pick<User, "name" | "email" | "password" | "roles" | "location"> & { comfort?: string[]; org?: User["org"]; languages?: string[]; preferredLanguage?: string },
 ): Promise<User> {
   const users = await getUsers();
   const email = input.email.trim().toLowerCase();
@@ -128,6 +129,8 @@ export async function signUp(
     workPreferences: [],
     wantToLearn: [],
     format: "both",
+    languages: input.languages?.length ? input.languages : [browserLangCode()],
+    preferredLanguage: input.preferredLanguage ?? input.languages?.[0] ?? browserLangCode(),
     comfort: input.comfort ?? [],
     org: input.org,
     profileApproved: false,

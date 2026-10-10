@@ -77,3 +77,9 @@ Import the repo, set `XAI_API_KEY` or `GROQ_API_KEY` in project settings, and de
 ## Not in this prototype
 
 Real authentication and database (Supabase), payments, community feed, and employer job postings.
+
+## Any language (Google Translate)
+
+The floating globe button (bottom-right) lets anyone read the whole site in any language Google Translate supports. It uses Google's free Website Translator, so it needs an internet connection and no API key. Nothing else in the app depends on it.
+
+People also list the languages they speak when they sign up or edit their profile. Mentors and digital buddies are ranked with a shared language first, and when two people share none, the request form offers short two-language phrases.

@@ -24,6 +24,10 @@ export interface User {
   industries: string[];
   workPreferences: string[];
   wantToLearn: string[];
+  /** Language codes this person can talk in (Google Translate codes, e.g. "en", "es", "hi"). */
+  languages?: string[];
+  /** The language they would most like sessions in. */
+  preferredLanguage?: string;
   format: Format;
   profileApproved: boolean;
   buddy?: BuddyOffer;

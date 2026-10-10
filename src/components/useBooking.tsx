@@ -29,6 +29,7 @@ export function useBooking(users: User[]) {
       submitLabel="Send request"
       messagePlaceholder="Hi! I'd love to learn… My experience so far is…"
       onClose={() => setListing(null)}
+      bridge={user && mentor ? { viewer: user, person: mentor } : undefined}
       summary={
         listing && (
           <>

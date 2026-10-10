@@ -47,6 +47,8 @@ export default function CreateProfile() {
     industries: user.industries,
     workPreferences: user.workPreferences,
     wantToLearn: user.wantToLearn,
+    languages: user.languages,
+    preferredLanguage: user.preferredLanguage,
     location: user.location,
     format: user.format,
     roles: user.roles,

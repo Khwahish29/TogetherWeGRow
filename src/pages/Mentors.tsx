@@ -4,7 +4,7 @@ import { Sparkles } from "lucide-react";
 import { MentorCard } from "../components/cards";
 import { EmptyState, PageHeader, PeopleTabs } from "../components/ui";
 import { useAuth } from "../lib/auth";
-import { scoreMentor, skillsOverlap, type MentorMatch } from "../lib/matching";
+import { languageFit, scoreMentor, skillsOverlap, type MentorMatch } from "../lib/matching";
 import { getListings, getThanks, getUsers } from "../lib/store";
 import type { Format } from "../lib/types";
 import { useAiMatches } from "../lib/useAiMatches";
@@ -46,7 +46,12 @@ export default function Mentors() {
     matches = eligible
       .map((m) => {
         const r = byId.get(m.id);
-        return { mentor: m, score: r?.score ?? 0, matchedSkills: r?.matched ?? [], reasons: r?.reasons ?? [] };
+        const base = r?.score ?? 0;
+        // A shared language nudges people up the list; no shared language nudges them down.
+        const fit = languageFit(user, m);
+        const score = base > 0 && user ? Math.max(0, Math.min(100, base + (fit.shared.length ? 8 : -8))) : base;
+        const reasons = r?.reasons ?? [];
+        return { mentor: m, score, matchedSkills: r?.matched ?? [], reasons, language: fit };
       })
       .filter((m) => !q || m.score > 0)
       .sort((a, b) => b.score - a.score);

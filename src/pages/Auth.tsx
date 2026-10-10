@@ -2,6 +2,8 @@ import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Building2, Check, GraduationCap, HeartHandshake, Hammer } from "lucide-react";
 import { setTextSize } from "../components/TextSizeToggle";
+import { LanguagePicker } from "../components/LanguagePicker";
+import { browserLangCode } from "../i18n/languages";
 import { logIn, signUp } from "../lib/store";
 import type { Role } from "../lib/types";
 
@@ -61,6 +63,7 @@ export function Signup() {
   const [step, setStep] = useState(0);
   const [roles, setRoles] = useState<Role[]>(preset ? [preset] : []);
   const [comfort, setComfort] = useState<string[]>([]);
+  const [languages, setLanguages] = useState<string[]>(() => [browserLangCode()]);
   const [details, setDetails] = useState({ name: "", email: "", location: "", password: "", org: "" });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -86,6 +89,7 @@ export function Signup() {
         location: details.location,
         roles,
         comfort,
+        languages,
         org: roles.includes("employer") ? { name: details.org.trim(), kind: "workshop", about: "", verified: false } : undefined,
       });
       if (comfort.includes("Larger text")) setTextSize("large");
@@ -210,6 +214,12 @@ export function Signup() {
                   Town or city <span className="font-normal text-muted">(optional, helps find people nearby)</span>
                 </label>
                 <input id="location" name="location" className="input" autoComplete="address-level2" value={details.location} onChange={set("location")} />
+              </div>
+              <div>
+                <label htmlFor="signup-langs" className="label">
+                  Languages you speak <span className="font-normal text-muted">(we match you with people you can talk to)</span>
+                </label>
+                <LanguagePicker id="signup-langs" values={languages} onChange={setLanguages} />
               </div>
               <div>
                 <label htmlFor="password" className="label">

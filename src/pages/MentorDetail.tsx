@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { ListingCard } from "../components/cards";
+import { LanguageBadges } from "../components/LanguageBadges";
 import { useBooking } from "../components/useBooking";
 import { Avatar, EmptyState, FormatBadge, PricingBadge } from "../components/ui";
 import { useAuth } from "../lib/auth";
@@ -57,6 +58,7 @@ export default function MentorDetail() {
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <FormatBadge format={person.format} />
+                <LanguageBadges person={person} viewer={user} />
                 {person.isDemo && <span className="badge bg-warm-100 text-warm-800">Demo profile</span>}
               </div>
             </div>

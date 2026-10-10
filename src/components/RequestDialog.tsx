@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import type { User } from "../lib/types";
+import { BridgeNotice } from "./LanguageBadges";
 
 export interface RequestDialogResult {
   message: string;
@@ -14,6 +16,7 @@ export function RequestDialog({
   submitLabel,
   onClose,
   onSubmit,
+  bridge,
 }: {
   open: boolean;
   title: string;
@@ -22,6 +25,8 @@ export function RequestDialog({
   submitLabel: string;
   onClose: () => void;
   onSubmit: (result: RequestDialogResult) => Promise<void>;
+  /** When set and the two people share no language, a translation helper is shown. */
+  bridge?: { viewer: User; person: User };
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const [message, setMessage] = useState("");
@@ -74,6 +79,9 @@ export function RequestDialog({
         ) : (
           <form onSubmit={handleSubmit} className="mt-4 space-y-4">
             <div className="rounded-xl bg-brand-50 p-4">{summary}</div>
+            {bridge && bridge.viewer.id !== bridge.person.id && !(bridge.viewer.languages ?? ["en"]).some((l) => (bridge.person.languages ?? ["en"]).includes(l)) && (
+              <BridgeNotice viewer={bridge.viewer} person={bridge.person} onPhrase={(text) => setMessage((m) => (m ? `${m}\n${text}` : text))} />
+            )}
             <div>
               <label htmlFor="req-when" className="label">
                 Suggested date and time

@@ -1,6 +1,8 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 import { EMPTY_COMFORT } from "../lib/comfort";
 import type { BuddyOffer, BuddyPricing, Format, Organisation, Role, User, WorkComfort } from "../lib/types";
+import { langName } from "../i18n/languages";
+import { LanguagePicker } from "./LanguagePicker";
 import { ChipInput } from "./ui";
 
 export type ProfileFields = Pick<
@@ -11,6 +13,8 @@ export type ProfileFields = Pick<
   | "industries"
   | "workPreferences"
   | "wantToLearn"
+  | "languages"
+  | "preferredLanguage"
   | "location"
   | "format"
   | "roles"
@@ -134,6 +138,31 @@ export function ProfileForm({
           onChange={(v) => set("wantToLearn", v)}
           placeholder="e.g. Video meetings, woodworking"
         />
+        <div>
+          <label htmlFor="spoken-langs" className="label">
+            Languages I speak
+          </label>
+          <LanguagePicker
+            id="spoken-langs"
+            values={f.languages?.length ? f.languages : ["en"]}
+            onChange={(v) => setF((p) => ({ ...p, languages: v, preferredLanguage: v.includes(p.preferredLanguage ?? "") ? p.preferredLanguage : v[0] }))}
+          />
+          {(f.languages?.length ?? 0) > 1 && (
+            <div className="mt-3">
+              <label htmlFor="pref-lang" className="label">
+                Which language do you prefer for sessions?
+              </label>
+              <select id="pref-lang" className="input" value={f.preferredLanguage ?? f.languages![0]} onChange={(e) => set("preferredLanguage", e.target.value)}>
+                {f.languages!.map((c) => (
+                  <option key={c} value={c}>
+                    {langName(c)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <p className="hint mt-1">We use this to match you with people you can talk to.</p>
+        </div>
         <div>
           <label htmlFor="format" className="label">
             How do you prefer to meet?

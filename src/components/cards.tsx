@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
+import { useAuth } from "../lib/auth";
 import type { MentorMatch } from "../lib/matching";
 import { matchStrength } from "../lib/useAiMatches";
 import type { Listing, User } from "../lib/types";
+import { LanguageBadges } from "./LanguageBadges";
 import { Avatar, FormatBadge, formatPrice } from "./ui";
 
 export function ListingCard({
@@ -70,6 +72,7 @@ export function MentorCard({
   fromPrice?: number | null;
 }) {
   const { mentor } = match;
+  const { user: viewer } = useAuth();
   const isMatch = showScore && (match.matchedSkills.length > 0 || match.score >= 50);
   return (
     <article className="card flex h-full flex-col">
@@ -101,6 +104,9 @@ export function MentorCard({
           </li>
         ))}
       </ul>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <LanguageBadges person={mentor} viewer={viewer} />
+      </div>
       {isMatch && match.reasons.length > 0 && (
         <ul className="mt-3 space-y-1 text-sm text-brand-800">
           {match.reasons.map((r) => (

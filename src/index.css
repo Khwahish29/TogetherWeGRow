@@ -90,3 +90,14 @@
   #resume-paper .resume-active { outline: none !important; background: transparent !important; }
   .pop-in { animation: none !important; }
 }
+
+/* Google Website Translator: keep its top banner out of the layout and make the list easy to tap. */
+.goog-te-banner-frame,
+.skiptranslate iframe.skiptranslate,
+#goog-gt-tt,
+.goog-te-balloon-frame {
+  display: none !important;
+}
+body {
+  top: 0 !important;
+}

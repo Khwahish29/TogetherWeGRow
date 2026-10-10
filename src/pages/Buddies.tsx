@@ -4,7 +4,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { RequestDialog } from "../components/RequestDialog";
 import { Avatar, EmptyState, FormatBadge, PageHeader, PricingBadge } from "../components/ui";
 import { useAuth } from "../lib/auth";
-import { skillsOverlap } from "../lib/matching";
+import { LanguageBadges } from "../components/LanguageBadges";
+import { scoreBuddy, skillsOverlap } from "../lib/matching";
 import { createRequest, getUsers } from "../lib/store";
 import type { BuddyPricing, User } from "../lib/types";
 import { useStore } from "../lib/useStore";
@@ -29,11 +30,13 @@ export default function Buddies() {
   const ai = useAiMatches("buddy", null, all, topic);
   const byPricing = all.filter((u) => pricing === "any" || u.buddy!.pricing === pricing);
   const q = topic.trim();
+  const byLanguage = (list: User[]) =>
+    user ? [...list].sort((a, b) => scoreBuddy(user, b).score - scoreBuddy(user, a).score) : list;
   const buddies = !q
-    ? byPricing
+    ? byLanguage(byPricing)
     : ai.results
       ? ai.results.flatMap((r) => byPricing.filter((b) => b.id === r.id))
-      : byPricing.filter((u) => u.buddy!.topics.some((t) => skillsOverlap(t, q) || t.toLowerCase().includes(q.toLowerCase())));
+      : byLanguage(byPricing).filter((u) => u.buddy!.topics.some((t) => skillsOverlap(t, q) || t.toLowerCase().includes(q.toLowerCase())));
   const reasonsFor = (id: string) => (q ? (ai.results?.find((r) => r.id === id)?.reasons ?? []) : []);
 
   function request(buddy: User) {
@@ -123,6 +126,7 @@ export default function Buddies() {
                 <div className="mt-3 flex flex-wrap gap-2">
                   <PricingBadge pricing={b.buddy!.pricing} rate={b.buddy!.rate} />
                   <FormatBadge format={b.buddy!.mode} />
+                  <LanguageBadges person={b} viewer={user} />
                 </div>
                 {reasonsFor(b.id).length > 0 && (
                   <ul className="mt-3 space-y-1 rounded-xl bg-brand-50 p-3 text-sm text-brand-800">
@@ -168,6 +172,7 @@ export default function Buddies() {
         submitLabel="Send request"
         messagePlaceholder="e.g. I'd like help joining a video call with my family."
         onClose={() => setSelected(null)}
+        bridge={user && selected ? { viewer: user, person: selected } : undefined}
         summary={
           selected?.buddy && (
             <>
