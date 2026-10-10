@@ -120,7 +120,7 @@ export function Reveal({ children, className = "", delay = 0 }: { children: Reac
   );
 }
 
-/** A clearly labelled space for a real photo. We never fake photography. */
+/** A clearly labeled space for a real photo. We never fake photography. */
 export function PhotoSlot({ caption, className = "" }: { caption: string; className?: string }) {
   return (
     <figure
@@ -141,7 +141,7 @@ export function PhotoSlot({ caption, className = "" }: { caption: string; classN
 export function SourceLabel({ source }: { source: AiSource }) {
   return source === "ai" ? (
     <span className="badge bg-brand-100 text-brand-800">
-      <Sparkles aria-hidden="true" className="h-4 w-4" /> AI-generated draft · please review
+      <Sparkles aria-hidden="true" className="h-4 w-4" /> Suggested draft · please check it
     </span>
   ) : (
     <span className="badge bg-warm-100 text-warm-800">

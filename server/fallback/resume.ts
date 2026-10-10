@@ -9,7 +9,7 @@ const STRONG: Record<string, string> = {
   run: "Managed the day-to-day running of", manage: "Managed", lead: "Led", help: "Supported", handle: "Handled",
   order: "Managed the ordering of", supervise: "Supervised", serve: "Served", cook: "Prepared", plan: "Planned",
   check: "Inspected", install: "Installed", maintain: "Maintained", sell: "Sold", deal: "Handled", diagnose: "Diagnosed",
-  keep: "Kept", work: "Worked", talk: "Communicated", explain: "Explained", organise: "Organised",
+  keep: "Kept", work: "Worked", talk: "Communicated", explain: "Explained", organise: "Organized",
   organize: "Organized", look: "Looked", sort: "Resolved", show: "Showed", design: "Designed", deliver: "Delivered",
   drive: "Drove", give: "Provided", clean: "Cleaned", measure: "Measured", cut: "Cut", paint: "Painted", fit: "Fitted", test: "Tested",
 };
@@ -65,7 +65,7 @@ function intoThree(points: string[], introPoint: string | null): string[] {
   const list = [...points];
   if (list.length < 3 && introPoint) list.unshift(introPoint);
   const words = (x: string) => x.split(/\s+/).length;
-  // Merge the two neighbouring points that are shortest together, until three remain.
+  // Merge the two neighboring points that are shortest together, until three remain.
   while (list.length > 3) {
     let best = 0;
     for (let i = 1; i < list.length - 1; i++) {

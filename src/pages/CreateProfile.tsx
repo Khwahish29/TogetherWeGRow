@@ -6,7 +6,7 @@ import { PageHeader, SourceLabel } from "../components/ui";
 import { VoiceRecorder } from "../components/VoiceRecorder";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/auth";
-import { saveUser } from "../lib/store";
+import { clearFirstAnswer, saveUser, takeFirstAnswer } from "../lib/store";
 import { EMPTY_COMFORT } from "../lib/comfort";
 
 const EXAMPLE =
@@ -15,7 +15,8 @@ const EXAMPLE =
 export default function CreateProfile() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [text, setText] = useState("");
+  const [firstAnswer] = useState(takeFirstAnswer);
+  const [text, setText] = useState(() => (firstAnswer ? firstAnswer.answer : ""));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState<{ source: AiSource; data: ProfileDraft } | null>(null);
@@ -37,6 +38,7 @@ export default function CreateProfile() {
 
   async function save(fields: ProfileFields) {
     await saveUser({ ...user!, ...fields, profileApproved: true });
+    clearFirstAnswer();
     navigate(fields.roles.includes("mentor") ? "/careers" : "/dashboard");
   }
 
@@ -139,6 +141,12 @@ export default function CreateProfile() {
               while you do this, or you can carry on here at your own pace.
             </p>
           )}
+          {firstAnswer && (
+            <p className="notice">
+              We've started with the answer you gave to <em>“{firstAnswer.question}”</em>. Add anything else about your working life,
+              or change it however you like.
+            </p>
+          )}
           <div className="card p-6 sm:p-10">
             <VoiceRecorder large onText={(t) => setText((prev) => (prev ? `${prev} ${t}` : t))} />
             <div className="my-8 flex items-center gap-4 text-sm font-medium uppercase tracking-[0.14em] text-muted" aria-hidden="true">
@@ -163,7 +171,7 @@ export default function CreateProfile() {
             )}
             <div aria-live="polite" className="mt-8 flex flex-col gap-3 border-t border-warm-200 pt-6 sm:flex-row sm:items-center">
               <button className="btn-primary px-8 text-lg" onClick={generate} disabled={busy || text.trim().length < 15}>
-                {busy ? "Organising your experience…" : "Create my skills profile"}
+                {busy ? "Organizing your experience…" : "Create my skills profile"}
               </button>
               <button className="btn-ghost" onClick={() => setManual(true)}>
                 I'd rather fill in a form
@@ -191,7 +199,7 @@ export default function CreateProfile() {
               Your browser's speech service turns your voice into text. TogetherWeGrow never receives or saves recordings.
             </p>
             <p className="mt-2 text-muted">
-              The text is sent to our AI service provider to draft your profile. Only what you approve is saved. Leave out
+              The text is sent to an outside text service that helps draft your profile. Only what you approve is saved. Leave out
               private details like bank or health information.
             </p>
           </div>

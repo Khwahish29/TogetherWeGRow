@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Building2, CalendarClock, Check, Heart, HeartHandshake, NotebookPen, RotateCcw, Undo2, X } from "lucide-react";
 import { ReflectionDialog } from "../components/ReflectionDialog";
+import { VibeCheck } from "../components/VibeCheck";
 import { Avatar, EmptyState, PageHeader, formatPrice } from "../components/ui";
 import { useAuth } from "../lib/auth";
 import {
@@ -32,6 +33,21 @@ const STATUS_LABEL: Record<RequestStatus, string> = {
   declined: "Not this time",
   withdrawn: "Withdrawn",
 };
+
+/** "What do they mean?" for a received message. Only asks the helper when opened. */
+function MessageVibe({ text, id }: { text: string; id: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <details className="mt-2" onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
+      <summary className="cursor-pointer text-sm font-semibold text-brand-700 underline underline-offset-4">Not sure what they mean? Vibe Check it</summary>
+      {open && (
+        <div className="mt-3">
+          <VibeCheck initialText={text} autoRun compact idPrefix={`vc-${id}`} />
+        </div>
+      )}
+    </details>
+  );
+}
 
 export function formatWhen(iso: string) {
   if (!iso) return "Time to be agreed";
@@ -123,12 +139,17 @@ export function RequestItem({
             <CalendarClock aria-hidden="true" className="h-5 w-5 text-brand-600" /> {formatWhen(req.proposedAt)}
           </p>
           {listing && (
-            <p className="mt-1 text-sm text-ink/70">
-              {formatPrice(listing.price)} for {listing.durationMins} minutes. Payment is arranged once confirmed (not part of
-              this demo).
+            <p className="mt-1 text-sm text-muted">
+              {formatPrice(listing.price)} for {listing.durationMins} minutes. Payment is arranged between you once
+              confirmed.
             </p>
           )}
-          {req.message && <p className="mt-3 rounded-xl bg-brand-50 p-3 italic">“{req.message}”</p>}
+          {req.message && (
+            <div className="mt-3 rounded-xl bg-brand-50 p-3">
+              <p className="italic">“{req.message}”</p>
+              {incoming && <MessageVibe text={req.message} id={req.id} />}
+            </div>
+          )}
 
           {/* Actions */}
           <div className="mt-4 flex flex-wrap gap-2">
@@ -177,7 +198,7 @@ export function RequestItem({
             )}
           </div>
           {req.status === "declined" && !incoming && (
-            <p className="mt-3 text-sm text-ink/70">
+            <p className="mt-3 text-sm text-muted">
               Not every time works out, and that's okay. There are{" "}
               <Link to="/mentors" className="font-bold underline">
                 other mentors
@@ -187,7 +208,7 @@ export function RequestItem({
           )}
           {rescheduling && <Reschedule req={req} onDone={() => setRescheduling(false)} />}
           {reflection && (reflection.learned || reflection.next) && (
-            <p className="mt-3 rounded-xl border border-dashed border-brand-200 p-3 text-sm text-ink/75">
+            <p className="mt-3 rounded-xl border border-dashed border-brand-200 p-3 text-sm text-muted">
               <strong>Your note:</strong> {reflection.learned || reflection.next}
             </p>
           )}
@@ -207,8 +228,8 @@ export function RequestItem({
 }
 
 const APP_STATUS: Record<Application["status"], { label: string; style: string; text: string }> = {
-  submitted: { label: "Sent", style: "bg-warm-100 text-warm-800", text: "Waiting for the organisation to look at it." },
-  reviewing: { label: "Being reviewed", style: "bg-brand-100 text-brand-800", text: "The organisation is reviewing your application." },
+  submitted: { label: "Sent", style: "bg-warm-100 text-warm-800", text: "Waiting for the organization to look at it." },
+  reviewing: { label: "Being reviewed", style: "bg-brand-100 text-brand-800", text: "The organization is reviewing your application." },
   invited: { label: "Invited to talk", style: "bg-emerald-100 text-emerald-800", text: "They'd like to talk with you about this role." },
   closed: { label: "Closed", style: "bg-warm-100 text-warm-800", text: "This application is closed." },
 };
@@ -237,7 +258,7 @@ function WorkItem({ app, opp, org }: { app: Application; opp?: Opportunity; org?
       </h3>
       <p className="flex items-center gap-1.5 text-ink/80">
         <Building2 aria-hidden="true" className="h-4 w-4" /> {opp?.orgName ?? org?.org?.name}
-        {opp && <span className="text-ink/60"> · {payLabel(opp.pay)} · {opp.hoursPerWeek}</span>}
+        {opp && <span className="text-muted"> · {payLabel(opp.pay)} · {opp.hoursPerWeek}</span>}
       </p>
       <p className="mt-2 text-ink/80">{st.text}</p>
       {app.message && (
@@ -251,7 +272,7 @@ function WorkItem({ app, opp, org }: { app: Application; opp?: Opportunity; org?
         </p>
       )}
       {app.helperRequested && (
-        <p className="mt-2 flex items-center gap-1 text-sm text-ink/70">
+        <p className="mt-2 flex items-center gap-1 text-sm text-muted">
           <HeartHandshake aria-hidden="true" className="h-4 w-4" /> You asked for help.{" "}
           <Link to="/learn/buddies" className="font-bold underline">Find a buddy</Link>
         </p>
@@ -326,19 +347,20 @@ export default function Requests() {
         Reply to requests and follow the ones you've sent. Saying no is always fine, and so is changing your mind.
       </PageHeader>
       <div className="container-page py-10 [&>*]:max-w-4xl">
-        <div role="tablist" aria-label="Request direction" className="mb-6 inline-flex rounded-full bg-brand-100 p-1">
+        <div role="tablist" aria-label="Request direction" className="mb-6 inline-flex max-w-full flex-wrap rounded-3xl bg-brand-100 p-1">
           {(["incoming", "outgoing", "work"] as const).map((t) => (
             <button
               key={t}
               role="tab"
               aria-selected={tab === t}
               onClick={() => setTab(t)}
-              className={`min-h-[44px] rounded-full px-5 font-bold ${tab === t ? "bg-white text-brand-900 shadow" : "text-brand-800"}`}
+              className={`min-h-[44px] rounded-full px-4 font-semibold sm:px-5 ${tab === t ? "bg-white text-brand-900 shadow" : "text-brand-800"}`}
             >
               {t === "incoming" ? `Received (${incoming.length})` : t === "outgoing" ? `Sent (${outgoing.length})` : `Work (${work.length})`}
             </button>
           ))}
         </div>
+        <h2 className="sr-only">{tab === "incoming" ? "Requests you received" : tab === "outgoing" ? "Requests you sent" : "Work applications and invitations"}</h2>
         {tab === "work" ? (
           work.length === 0 ? (
             <EmptyState title="No job applications or invitations yet">

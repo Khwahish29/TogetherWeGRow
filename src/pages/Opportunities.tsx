@@ -62,14 +62,14 @@ export default function Opportunities() {
   return (
     <>
       <PageHeader eyebrow="Work" title="Paid opportunities that value experience">
-        Mentoring, training, advisory and consulting roles posted by organisations. Every listing shows pay, duties and
+        Mentoring, training, advisory and consulting roles posted by organizations. Every listing shows pay, duties and
         physical requirements up front, or tells you clearly when they're missing.
       </PageHeader>
       <WorkTabs />
       <div className="container-page py-8">
         <div className="notice mb-6">
-          <strong>Demo listings:</strong> the organisations and opportunities here are fictional examples for this prototype.
-          None are verified or live jobs.
+          <strong>Good to know:</strong> roles are posted by the organizations themselves. We don't verify them, so please check the
+          details and never pay to apply.
         </div>
 
         <form role="search" onSubmit={(e) => e.preventDefault()} className="card grid gap-4 md:grid-cols-[2fr_1fr_1fr]">
@@ -116,7 +116,7 @@ export default function Opportunities() {
           </label>
         </form>
 
-        <p aria-live="polite" className="mt-3 flex min-h-[1.75rem] items-center gap-2 text-sm text-ink/70">
+        <p aria-live="polite" className="mt-3 flex min-h-[1.75rem] items-center gap-2 text-sm text-muted">
           {ai.active && ai.loading && (
             <>
               <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-brand-600" /> Finding roles that use your experience…
@@ -124,13 +124,13 @@ export default function Opportunities() {
           )}
           {ai.active && !ai.loading && ai.results && (
             <>
-              <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-600" /> Ordered by AI using {q ? "what you typed" : "your skills and preferences"}. Please read each listing yourself.
+              <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-600" /> Ordered using {q ? "what you typed" : "your skills and preferences"}. Please read each listing yourself.
             </>
           )}
         </p>
 
         {!user && (
-          <p className="mb-4 text-ink/75">
+          <p className="mb-4 text-muted">
             <Link to="/signup" className="font-bold text-brand-700 underline">
               Join free
             </Link>{" "}
@@ -138,12 +138,13 @@ export default function Opportunities() {
           </p>
         )}
 
+        <h2 className="sr-only">Opportunities</h2>
         {list.length === 0 ? (
           <EmptyState title={ai.loading ? "Looking…" : "No opportunities match that yet"}>
             {!ai.loading && "Try different words or remove a filter."}
           </EmptyState>
         ) : (
-          <ul className="mt-2 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <ul className="mt-2 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {list.map((o) => {
               const app = mine(o.id);
               const reasons = aiById.get(o.id)?.reasons ?? [];
@@ -157,7 +158,7 @@ export default function Opportunities() {
                     </p>
                   )}
                   {fitCheck(user?.workComfort, o).verdict === "unclear" && (
-                    <p className="px-2 text-xs text-ink/60">Some physical details aren't stated. Ask before accepting.</p>
+                    <p className="px-2 text-xs text-muted">Some physical details aren't stated. Ask before accepting.</p>
                   )}
                 </li>
               );

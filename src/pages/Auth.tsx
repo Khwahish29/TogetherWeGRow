@@ -1,10 +1,10 @@
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Building2, Check, GraduationCap, HeartHandshake, Hammer } from "lucide-react";
+import { Heart, ArrowLeft, ArrowRight, Building2, Check, GraduationCap, HeartHandshake, Hammer } from "lucide-react";
 import { setTextSize } from "../components/TextSizeToggle";
 import { LanguagePicker } from "../components/LanguagePicker";
 import { browserLangCode } from "../i18n/languages";
-import { logIn, signUp } from "../lib/store";
+import { forgotPassword, logIn, resetPassword, signUp } from "../lib/store";
 import type { Role } from "../lib/types";
 
 const COMFORT_OPTIONS = [
@@ -18,6 +18,7 @@ const ROLE_OPTIONS: { value: Role; title: string; body: string; icon: typeof Ham
   { value: "mentor", title: "Share my experience", body: "Offer paid mentoring, training or advice based on your working life.", icon: Hammer },
   { value: "learner", title: "Learn something new", body: "Learn practical skills from experienced people, or technology at your own pace.", icon: GraduationCap },
   { value: "buddy", title: "Be a digital buddy", body: "Patiently help others feel at home with technology.", icon: HeartHandshake },
+  { value: "family", title: "Support someone I love", body: "Help a parent, grandparent or friend take a first step, without deciding for them.", icon: Heart },
   { value: "employer", title: "Offer paid work", body: "For workshops, schools and community groups posting mentoring, training or advisory roles.", icon: Building2 },
 ];
 
@@ -93,7 +94,8 @@ export function Signup() {
         org: roles.includes("employer") ? { name: details.org.trim(), kind: "workshop", about: "", verified: false } : undefined,
       });
       if (comfort.includes("Larger text")) setTextSize("large");
-      navigate(roles.length === 1 && roles[0] === "employer" ? "/employer" : "/profile/create");
+      const only = roles.length === 1 ? roles[0] : null;
+      navigate(only === "employer" ? "/employer" : only === "family" ? "/dashboard" : "/profile/create");
     } catch (err) {
       setError((err as Error).message);
       setBusy(false);
@@ -192,7 +194,7 @@ export function Signup() {
               {roles.includes("employer") && (
                 <div>
                   <label htmlFor="org" className="label">
-                    Organisation name
+                    Organization name
                   </label>
                   <input id="org" name="org" className="input" required autoComplete="organization" value={details.org} onChange={set("org")} />
                 </div>
@@ -231,14 +233,14 @@ export function Signup() {
                   type="password"
                   className="input"
                   required
-                  minLength={6}
+                  minLength={8}
                   autoComplete="new-password"
                   aria-describedby="pw-hint"
                   value={details.password}
                   onChange={set("password")}
                 />
                 <p id="pw-hint" className="hint mt-1.5">
-                  At least 6 characters. Demo only: it's stored in this browser, so please don't reuse a real password.
+                  At least 8 characters. A short sentence you'll remember works well.
                 </p>
               </div>
             </div>
@@ -318,21 +320,37 @@ export function Login() {
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from ?? "/dashboard";
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [forgot, setForgot] = useState<"no" | "asking" | "sent" | "no-email">("no");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
+    setBusy(true);
+    setError(null);
     try {
       const u = await logIn(String(form.get("email")), String(form.get("password")));
       navigate(u.roles.length === 1 && u.roles[0] === "employer" && from === "/dashboard" ? "/employer" : from, { replace: true });
     } catch (err) {
       setError((err as Error).message);
+    } finally {
+      setBusy(false);
     }
   }
 
-  async function demoLogin(email: string) {
-    const u = await logIn(email, "demo1234");
-    navigate(u.roles.length === 1 && u.roles[0] === "employer" && from === "/dashboard" ? "/employer" : from, { replace: true });
+  async function handleForgot(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    setBusy(true);
+    setError(null);
+    try {
+      const out = await forgotPassword(String(form.get("forgot-email")));
+      setForgot(out.emailEnabled ? "sent" : "no-email");
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -347,49 +365,131 @@ export function Login() {
               Create a free account
             </Link>
           </p>
-          <div className="mt-10 rounded-3xl bg-brand-100/70 p-6">
-            <p className="font-semibold text-brand-900">Exploring the demo?</p>
-            <p className="text-muted">Step into a sample account. All demo people and organisations are fictional.</p>
-            <div className="mt-4 grid gap-2">
-              <button className="btn-secondary justify-start" onClick={() => demoLogin("robert@demo.twg")}>
-                <Hammer aria-hidden="true" className="h-5 w-5" /> Robert · carpenter
-              </button>
-              <button className="btn-secondary justify-start" onClick={() => demoLogin("maya@demo.twg")}>
-                <GraduationCap aria-hidden="true" className="h-5 w-5" /> Maya · student
-              </button>
-              <button className="btn-secondary justify-start" onClick={() => demoLogin("hiring@woodcenter.demo")}>
-                <Building2 aria-hidden="true" className="h-5 w-5" /> Community Woodworking Center · employer
-              </button>
-            </div>
-          </div>
+          <p className="mt-4 text-lg text-muted">
+            Or simply{" "}
+            <Link to="/start" className="link">
+              start with one question
+            </Link>
+            . No email needed.
+          </p>
         </>
       }
     >
       <div className="card p-6 sm:p-10">
-        <h1 className="text-3xl sm:text-4xl">Log in</h1>
+        {forgot === "no" ? (
+          <>
+            <h1 className="text-3xl sm:text-4xl">Sign in</h1>
+            <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+              <div>
+                <label htmlFor="email" className="label">
+                  Email address
+                </label>
+                <input id="email" name="email" type="email" className="input" required autoComplete="email" />
+              </div>
+              <div>
+                <label htmlFor="password" className="label">
+                  Password
+                </label>
+                <input id="password" name="password" type="password" className="input" required autoComplete="current-password" />
+              </div>
+              {error && (
+                <p role="alert" className="notice">
+                  {error}
+                </p>
+              )}
+              <button type="submit" className="btn-primary w-full text-lg" disabled={busy}>
+                {busy ? "Signing in…" : "Sign in"}
+              </button>
+            </form>
+            <button type="button" className="link mt-6" onClick={() => setForgot("asking")}>
+              Forgot your password?
+            </button>
+          </>
+        ) : forgot === "asking" ? (
+          <>
+            <h1 className="text-3xl sm:text-4xl">Choose a new password</h1>
+            <p className="mt-3 text-muted">Tell us your email and we'll send you a link to choose a new password.</p>
+            <form onSubmit={handleForgot} className="mt-8 space-y-5">
+              <div>
+                <label htmlFor="forgot-email" className="label">
+                  Email address
+                </label>
+                <input id="forgot-email" name="forgot-email" type="email" className="input" required autoComplete="email" />
+              </div>
+              {error && (
+                <p role="alert" className="notice">
+                  {error}
+                </p>
+              )}
+              <button type="submit" className="btn-primary w-full text-lg" disabled={busy}>
+                Send me a link
+              </button>
+            </form>
+            <button type="button" className="link mt-6" onClick={() => setForgot("no")}>
+              Back to sign in
+            </button>
+          </>
+        ) : (
+          <div role="status">
+            <h1 className="text-3xl sm:text-4xl">{forgot === "sent" ? "Check your email" : "We can't send email yet"}</h1>
+            <p className="mt-4 text-lg">
+              {forgot === "sent"
+                ? "If there's an account with that email, a link is on its way. It works for one hour. Please check your spam folder too."
+                : "Password reset emails aren't switched on for this site yet. Please ask the person who runs it to help, or create a new account."}
+            </p>
+            <button type="button" className="link mt-6" onClick={() => setForgot("no")}>
+              Back to sign in
+            </button>
+          </div>
+        )}
+      </div>
+    </AuthFrame>
+  );
+}
+
+export function ResetPassword() {
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    setBusy(true);
+    setError(null);
+    try {
+      await resetPassword(params.get("token") ?? "", String(form.get("new-password")));
+      navigate("/account", { replace: true });
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="container-page max-w-xl py-14">
+      <div className="card p-6 sm:p-10">
+        <h1 className="text-3xl sm:text-4xl">Choose a new password</h1>
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           <div>
-            <label htmlFor="email" className="label">
-              Email address
+            <label htmlFor="new-password" className="label">
+              New password
             </label>
-            <input id="email" name="email" type="email" className="input" required autoComplete="email" />
-          </div>
-          <div>
-            <label htmlFor="password" className="label">
-              Password
-            </label>
-            <input id="password" name="password" type="password" className="input" required autoComplete="current-password" />
+            <input id="new-password" name="new-password" type="password" minLength={8} className="input" required autoComplete="new-password" />
+            <p className="hint mt-1.5">At least 8 characters.</p>
           </div>
           {error && (
             <p role="alert" className="notice">
               {error}
             </p>
           )}
-          <button type="submit" className="btn-primary w-full text-lg">
-            Log in
+          <button type="submit" className="btn-primary w-full text-lg" disabled={busy}>
+            Save my new password
           </button>
         </form>
       </div>
-    </AuthFrame>
+    </div>
   );
 }

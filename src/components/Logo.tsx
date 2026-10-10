@@ -8,7 +8,7 @@ export function Logo({ light = false }: { light?: boolean }) {
         <path d="M18 17c0-4.4 3.3-7.6 7.6-7.6 0 4.4-3.3 7.6-7.6 7.6Z" fill="#D8AB67" />
         <path d="M18 20.2c0-3.7-2.8-6.4-6.4-6.4 0 3.7 2.8 6.4 6.4 6.4Z" fill={light ? "#4C7461" : "#CADBCF"} />
       </svg>
-      <span>
+      <span className="max-[359px]:sr-only">
         Together<span className={light ? "text-warm-400" : "text-warm-700"}>We</span>Grow
       </span>
     </span>

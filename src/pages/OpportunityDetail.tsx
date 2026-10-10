@@ -11,8 +11,8 @@ import { useStore } from "../lib/useStore";
 const POSTURE = { sitting: "Mostly sitting", standing: "Mostly standing", mix: "A mix of sitting and standing", unspecified: "Not stated", "": "Not stated" };
 const LIFTING = { none: "No routine heavy lifting", occasional: "Occasional lifting", regular: "Regular heavy lifting", unspecified: "Not stated" };
 const STATUS_TEXT = {
-  submitted: "You've applied. The organisation hasn't replied yet.",
-  reviewing: "The organisation is reviewing your application.",
+  submitted: "You've applied. The organization hasn't replied yet.",
+  reviewing: "The organization is reviewing your application.",
   invited: "You've been invited to talk about this role.",
   closed: "This application is closed.",
 };
@@ -71,42 +71,42 @@ export default function OpportunityDetail() {
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">{opp.title}</h1>
           <p className="mt-2 flex items-center gap-2 text-lg text-ink/80">
             <Building2 aria-hidden="true" className="h-5 w-5" /> {opp.orgName}
-            <span className="text-sm text-ink/60">· Not verified</span>
+            <span className="text-sm text-muted">· Not verified</span>
           </p>
           <p className="mt-5 text-xl leading-relaxed">{opp.summary}</p>
 
-          <dl className="mt-6 grid gap-4 rounded-3xl bg-white p-6 shadow-sm sm:grid-cols-2">
+          <div className="mt-6 grid gap-4 rounded-3xl bg-white p-6 shadow-sm sm:grid-cols-2">
             <div className="flex gap-3">
               <Wallet aria-hidden="true" className="h-6 w-6 shrink-0 text-brand-600" />
               <div>
-                <dt className="text-sm text-ink/60">Pay</dt>
-                <dd className="text-2xl font-bold text-brand-900">{payLabel(opp.pay)}</dd>
+                <p className="text-sm text-muted">Pay</p>
+                <p className="text-2xl font-bold text-brand-900">{payLabel(opp.pay)}</p>
               </div>
             </div>
             <div className="flex gap-3">
               <Clock aria-hidden="true" className="h-6 w-6 shrink-0 text-brand-600" />
               <div>
-                <dt className="text-sm text-ink/60">Time</dt>
-                <dd className="font-bold">{opp.hoursPerWeek || "Not stated"}</dd>
-                {opp.schedule && <dd className="text-sm">{opp.schedule}</dd>}
+                <p className="text-sm text-muted">Time</p>
+                <p className="font-bold">{opp.hoursPerWeek || "Not stated"}</p>
+                {opp.schedule && <p className="text-sm">{opp.schedule}</p>}
               </div>
             </div>
             <div className="flex gap-3">
               <MapPin aria-hidden="true" className="h-6 w-6 shrink-0 text-brand-600" />
               <div>
-                <dt className="text-sm text-ink/60">Where</dt>
-                <dd className="font-bold capitalize">{opp.setting}</dd>
-                <dd className="text-sm">{opp.location}</dd>
+                <p className="text-sm text-muted">Where</p>
+                <p className="font-bold capitalize">{opp.setting}</p>
+                <p className="text-sm">{opp.location}</p>
               </div>
             </div>
             <div className="flex gap-3">
               <CalendarDays aria-hidden="true" className="h-6 w-6 shrink-0 text-brand-600" />
               <div>
-                <dt className="text-sm text-ink/60">How long</dt>
-                <dd className="font-bold">{opp.duration || "Not stated"}</dd>
+                <p className="text-sm text-muted">How long</p>
+                <p className="font-bold">{opp.duration || "Not stated"}</p>
               </div>
             </div>
-          </dl>
+          </div>
 
           <section className="mt-8">
             <h2 className="text-2xl font-bold">What you'd do</h2>
@@ -121,15 +121,15 @@ export default function OpportunityDetail() {
             <h2 className="text-2xl font-bold">Physical duties</h2>
             <dl className="mt-3 grid gap-3 sm:grid-cols-2">
               <div className="rounded-2xl bg-brand-50 p-4">
-                <dt className="text-sm text-ink/60">Sitting or standing</dt>
+                <dt className="text-sm text-muted">Sitting or standing</dt>
                 <dd className="font-bold">{POSTURE[opp.physical.posture]}</dd>
               </div>
               <div className="rounded-2xl bg-brand-50 p-4">
-                <dt className="text-sm text-ink/60">Lifting</dt>
+                <dt className="text-sm text-muted">Lifting</dt>
                 <dd className="font-bold">{LIFTING[opp.physical.heavyLifting]}</dd>
               </div>
             </dl>
-            <p className="mt-3">{opp.physical.notes || "The organisation hasn't described the physical side of this role yet."}</p>
+            <p className="mt-3">{opp.physical.notes || "The organization hasn't described the physical side of this role yet."}</p>
           </section>
 
           <section className="mt-8">

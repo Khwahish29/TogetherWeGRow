@@ -161,7 +161,7 @@ export default function NextChapter() {
 
   return (
     <>
-      <PageHeader eyebrow="My Next Chapter" title="Your experience can take you somewhere new">
+      <PageHeader eyebrow="Explore your next chapter" title="Your experience can take you somewhere new">
         A step-by-step plan for moving from the work you've done into work that suits you now. You decide every step.
       </PageHeader>
       <WorkTabs />
@@ -173,7 +173,7 @@ export default function NextChapter() {
               <Compass aria-hidden="true" className="h-8 w-8" />
             </span>
             <h2 className="mt-4 text-2xl font-bold">Where would you like to go next?</h2>
-            <p className="mt-1 text-ink/75">
+            <p className="mt-1 text-muted">
               Pick a direction, or leave it blank and we'll suggest one from your profile
               {user.skills.length === 0 && (
                 <>
@@ -188,12 +188,12 @@ export default function NextChapter() {
               .
             </p>
             <label htmlFor="target" className="label mt-5">
-              The kind of role I'm aiming for <span className="font-normal text-ink/60">(optional)</span>
+              The kind of role I'm aiming for <span className="font-normal text-muted">(optional)</span>
             </label>
             <input id="target" className="input text-lg" placeholder="e.g. Paid workshop mentor" value={target} onChange={(e) => setTarget(e.target.value)} />
             {roles.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="text-sm text-ink/70">From your career ideas:</span>
+                <span className="text-sm text-muted">From your career ideas:</span>
                 {roles.map((r) => (
                   <button key={r} type="button" className="chip border border-brand-200 bg-white hover:border-brand-600 hover:bg-brand-50" onClick={() => setTarget(r)}>
                     {r}
@@ -233,7 +233,7 @@ export default function NextChapter() {
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <SourceLabel source={plan.source} />
-              <p className="text-sm text-ink/60">Saved automatically. Edit any step to make it yours.</p>
+              <p className="text-sm text-muted">Saved automatically. Edit any step to make it yours.</p>
             </div>
 
             <ol className="mt-6 space-y-5">

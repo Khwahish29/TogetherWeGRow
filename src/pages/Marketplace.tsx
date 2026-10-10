@@ -13,6 +13,7 @@ const CATEGORIES = ["Carpentry", "Business", "Mechanical", "Cooking", "Plumbing"
 function CreateOfferForm({ onDone }: { onDone: () => void }) {
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
+  const [price, setPrice] = useState(25);
   if (!user) return null;
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -38,7 +39,7 @@ function CreateOfferForm({ onDone }: { onDone: () => void }) {
       <h2 id="create-title" className="text-2xl font-bold">
         Create a mentoring offer
       </h2>
-      <p className="text-ink/75">
+      <p className="text-muted">
         Your knowledge is valuable. Set a price that feels fair. You can change or remove the offer any time.
       </p>
       <div>
@@ -97,7 +98,22 @@ function CreateOfferForm({ onDone }: { onDone: () => void }) {
           <label htmlFor="price" className="label">
             Price per session ($)
           </label>
-          <input id="price" name="price" type="number" min={1} max={1000} className="input" required defaultValue={25} />
+          <input
+            id="price"
+            name="price"
+            type="number"
+            min={1}
+            max={1000}
+            className="input"
+            required
+            defaultValue={25}
+            aria-describedby="price-share"
+            onChange={(e) => setPrice(Number(e.target.value) || 0)}
+          />
+          <p id="price-share" className="hint mt-1.5">
+            Under our proposed model you'd keep 90%: ${(price * 0.9).toFixed(2)} a session. The other 10% (${(price * 0.1).toFixed(2)}) would
+            cover running the platform. Payments aren't handled through the site yet.
+          </p>
         </div>
         <div className="sm:col-span-2">
           <label htmlFor="cancellation" className="label">
@@ -186,10 +202,11 @@ export default function Marketplace() {
           </div>
         )}
 
+        <h2 className="sr-only">Mentoring sessions</h2>
         {shown.length === 0 ? (
           <EmptyState title="No sessions in this category yet" />
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {shown.map((l) => (
               <ListingCard
                 key={l.id}

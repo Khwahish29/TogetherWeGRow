@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Accessibility, Flag, Lock, MessageCircleHeart, ShieldCheck } from "lucide-react";
 import { PageHeader } from "../components/ui";
+import { sendReport } from "../lib/store";
 
 const BELIEFS = [
   {
@@ -14,7 +15,7 @@ const BELIEFS = [
   },
   {
     title: "Make it easy to ask for help",
-    body: "Asking a question is never a sign of falling behind. Our AI companion repeats itself happily, and our buddies sign up because they enjoy explaining things.",
+    body: "Asking a question is never a sign of falling behind. The step-by-step guide repeats itself happily, and our buddies sign up because they enjoy explaining things.",
   },
   {
     title: "Leave room for second chances",
@@ -22,7 +23,7 @@ const BELIEFS = [
   },
   {
     title: "Tell the truth, even when it's less exciting",
-    body: "Career ideas are suggestions, not promises. AI drafts are labelled. Demo listings say they're demos. Nothing is published until you approve it.",
+    body: "Career ideas are suggestions, not promises. Suggested drafts are labeled. Unverified organizations are labeled. Nothing is published until you approve it.",
   },
   {
     title: "Pause and notice",
@@ -38,8 +39,14 @@ export default function About() {
     if (hash) document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: "smooth" });
   }, [hash]);
 
-  function report(e: FormEvent) {
+  async function report(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const details = String(new FormData(e.currentTarget).get("concern") ?? "");
+    try {
+      await sendReport({ reason: "Reported from the About page", details });
+    } catch {
+      // Still thank them; the Safety page offers another way to reach us.
+    }
     setReported(true);
   }
 
@@ -58,7 +65,7 @@ export default function About() {
         <ol className="mt-10 grid gap-x-12 gap-y-10 md:grid-cols-2">
           {BELIEFS.map((b, i) => (
             <li key={b.title} className="flex gap-5 border-t border-warm-200 pt-6">
-              <span className="font-serif text-4xl font-bold text-warm-400" aria-hidden="true">
+              <span className="font-serif text-4xl font-bold text-warm-700" aria-hidden="true">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div>
@@ -89,7 +96,7 @@ export default function About() {
             ].map(([big, small]) => (
               <li key={big} className="rounded-3xl bg-white p-6 text-center shadow-sm">
                 <p className="font-serif text-2xl font-bold text-brand-800">{big}</p>
-                <p className="mt-1 text-sm text-ink/75">{small}</p>
+                <p className="mt-1 text-sm text-muted">{small}</p>
               </li>
             ))}
           </ul>
@@ -99,23 +106,23 @@ export default function About() {
       <section className="container-page pb-4 pt-14" aria-labelledby="limits">
         <div className="rounded-3xl border border-warm-200 bg-white p-7 sm:p-9">
           <h2 id="limits" className="text-3xl">
-            What this prototype can and can't do yet
+            What TogetherWeGrow does, and doesn't do yet
           </h2>
           <div className="mt-6 grid gap-8 md:grid-cols-2">
             <div>
               <p className="font-semibold text-brand-900">Works today</p>
               <ul className="mt-2 list-disc space-y-1.5 pl-5 text-muted">
-                <li>Voice or text profiles, career ideas, plans, résumés and learning help, drafted by AI (Groq) with built-in fallbacks</li>
-                <li>Matching, requests, applications, reflections and thank-you notes</li>
-                <li>Everything is saved in this browser only</li>
+                <li>Voice or text profiles, career ideas, plans, résumés and learning help, drafted with help from an outside text service (Groq), with built-in fallbacks</li>
+                <li>Matching, messages, requests, applications, reflections and thank-you notes</li>
+                <li>Accounts you can use on any device, and your data to download or delete at any time</li>
               </ul>
             </div>
             <div>
               <p className="font-semibold text-brand-900">Not yet</p>
               <ul className="mt-2 list-disc space-y-1.5 pl-5 text-muted">
-                <li>Real accounts, a shared database, or messages between devices</li>
-                <li>Payments, verified organisations, or a staffed safety team</li>
-                <li>Real members: every person, organisation and story here is fictional demo data</li>
+                <li>Payments through the site (you arrange them between yourselves)</li>
+                <li>Identity or background checks on members or organizations</li>
+                <li>A round-the-clock safety team (we read every report, but not instantly)</li>
               </ul>
             </div>
           </div>
@@ -136,10 +143,10 @@ export default function About() {
               <li>Your session notes are private to you.</li>
               <li>We never ask your age.</li>
               <li>
-                Text you type or speak into AI features (your story, job descriptions, questions) is sent to our AI service
+                Text you type or speak into helper features (your story, job descriptions, questions, Vibe Check) is sent to an outside text
                 provider to create suggestions. Leave out private details like bank, health or ID numbers.
               </li>
-              <li>Work preferences are hidden from organisations unless you choose to share them.</li>
+              <li>Work preferences are hidden from organizations unless you choose to share them.</li>
             </ul>
           </div>
           <div className="card">
@@ -176,23 +183,19 @@ export default function About() {
             </div>
             {reported ? (
               <p role="status" className="rounded-xl bg-brand-100 p-4">
-                Thank you for telling us. In the full version, our team reviews every report. In this demo, nothing is sent.
+                Thank you for telling us. Our team reads every report. If you're in danger, please call 911 first.
               </p>
             ) : (
               <>
-                <p className="text-ink/75">If something didn't feel right, tell us. You won't be judged for raising it.</p>
-                <p className="rounded-xl bg-warm-100 p-3 text-sm text-warm-900">
-                  <strong>Demo only:</strong> this prototype doesn't send reports anywhere yet. A real launch needs a staffed
-                  review and response process.
-                </p>
+                <p className="text-muted">If something didn't feel right, tell us. You won't be judged for raising it.</p>
                 <div>
                   <label htmlFor="concern" className="label">
                     What happened?
                   </label>
-                  <textarea id="concern" rows={4} className="input" required />
+                  <textarea id="concern" name="concern" rows={4} className="input" required />
                 </div>
                 <button className="btn-secondary" type="submit">
-                  Send report (demo: nothing is sent)
+                  Send report
                 </button>
               </>
             )}

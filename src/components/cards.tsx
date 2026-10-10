@@ -31,7 +31,7 @@ export function ListingCard({
           <Avatar name={mentor.name} size="sm" />
           <span>
             <span className="block font-bold text-brand-900">{mentor.name}</span>
-            <span className="block text-sm text-ink/70">
+            <span className="block text-sm text-muted">
               {mentor.yearsExperience ? `${mentor.yearsExperience} years' experience` : mentor.industries[0] ?? "Mentor"}
             </span>
           </span>
@@ -40,7 +40,7 @@ export function ListingCard({
       <div className="mt-4 flex flex-wrap items-end justify-between gap-3 border-t border-warm-200 pt-4">
         <div>
           <p className="text-2xl font-bold text-brand-900">{formatPrice(listing.price)}</p>
-          <p className="text-sm text-ink/70">per {listing.durationMins}-minute session</p>
+          <p className="text-sm text-muted">per {listing.durationMins}-minute session</p>
         </div>
         {isOwn ? (
           <span className="badge bg-brand-100 text-brand-800">Your offer</span>
@@ -52,8 +52,8 @@ export function ListingCard({
           )
         )}
       </div>
-      <p className="mt-2 text-xs text-ink/60">
-        {listing.cancellation ?? "Cancellation terms not stated"} · Payment isn't processed in this prototype
+      <p className="mt-2 text-xs text-muted">
+        {listing.cancellation ?? "Cancellation terms not stated"} · The mentor keeps 90% under our planned model · Payment is arranged between you
         {listing.isDemo && " · Illustrative price; not a live listing"}
       </p>
     </article>
@@ -77,7 +77,7 @@ export function MentorCard({
   return (
     <article className="card flex h-full flex-col">
       {isMatch && (
-        <span className="badge mb-3 self-start bg-brand-700 text-white" title="AI-assisted suggestion based on what you shared. Not a measured compatibility score.">
+        <span className="badge mb-3 self-start bg-brand-700 text-white" title="A suggestion based on what you shared. Not a measured compatibility score.">
           {matchStrength(match.score)}
         </span>
       )}
@@ -89,8 +89,8 @@ export function MentorCard({
               {mentor.name}
             </Link>
           </h3>
-          <p className="text-sm text-ink/70">{mentor.industries[0] ?? "Mentor"}</p>
-          <p className="text-sm text-ink/70">
+          <p className="text-sm text-muted">{mentor.industries[0] ?? "Mentor"}</p>
+          <p className="text-sm text-muted">
             {mentor.yearsExperience ? `${mentor.yearsExperience} years · ` : ""}
             {mentor.location}
           </p>
@@ -120,7 +120,7 @@ export function MentorCard({
             <Heart aria-hidden="true" className="h-4 w-4" /> {thanksCount} {thanksCount === 1 ? "note" : "notes"} of thanks
           </p>
         )}
-        <div className="flex items-center justify-between gap-3 border-t border-warm-200 pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-warm-200 pt-4">
           <span className="flex flex-col gap-1">
             {fromPrice != null && (
               <span className="font-semibold text-brand-900">

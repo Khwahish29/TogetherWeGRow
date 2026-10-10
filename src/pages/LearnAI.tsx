@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Bot, FileText, Mail, MousePointerClick, ShieldAlert, Sparkles, Video, type LucideIcon } from "lucide-react";
+import { ListChecks, FileText, Mail, MousePointerClick, ShieldAlert, Sparkles, Video, type LucideIcon } from "lucide-react";
 import type { AiSource, CompanionRequest } from "../../shared/types";
 import { SourceLabel } from "../components/ui";
 import { VoiceRecorder } from "../components/VoiceRecorder";
@@ -12,7 +12,7 @@ const TOPICS: { id: string; label: string; icon: LucideIcon; tone: string }[] = 
   { id: "resume", label: "Build my résumé together", icon: FileText, tone: "bg-warm-100 text-warm-700" },
   { id: "job-application", label: "Apply for a job online", icon: MousePointerClick, tone: "bg-brand-100 text-brand-600" },
   { id: "scams", label: "Spot suspicious messages", icon: ShieldAlert, tone: "bg-warm-100 text-warm-700" },
-  { id: "ai-tools", label: "Use basic AI tools", icon: Sparkles, tone: "bg-warm-100 text-warm-800" },
+  { id: "ai-tools", label: "Try a chat assistant", icon: Sparkles, tone: "bg-warm-100 text-warm-800" },
 ];
 
 type Feeling = NonNullable<CompanionRequest["feeling"]>;
@@ -141,7 +141,7 @@ export default function LearnAI() {
         </Link>
         <div className="mt-4 flex items-center gap-3">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-100 text-brand-600">
-            <Bot aria-hidden="true" className="h-7 w-7" />
+            <ListChecks aria-hidden="true" className="h-7 w-7" />
           </span>
           <h1 className="text-4xl font-bold">What would you like to learn?</h1>
         </div>
@@ -161,7 +161,7 @@ export default function LearnAI() {
             </li>
           ))}
         </ul>
-        <p className="mt-10 text-ink/75">
+        <p className="mt-10 text-muted">
           Prefer a person?{" "}
           <Link to="/learn/buddies" className="font-bold text-brand-700 underline">
             Find a digital buddy
@@ -185,7 +185,7 @@ export default function LearnAI() {
           <h1 className="mt-4 text-3xl font-bold">{topic.label}</h1>
           <fieldset className="mt-6">
             <legend className="text-xl font-bold text-brand-900">Before we start, how are you feeling about this?</legend>
-            <p className="mt-1 text-ink/70">There's no wrong answer. It just helps us explain things in a way that suits you.</p>
+            <p className="mt-1 text-muted">There's no wrong answer. It just helps us explain things in a way that suits you.</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {FEELINGS.map((f) => (
                 <button key={f.value} className="btn-secondary justify-start text-left" onClick={() => choose(topic, f.value)}>
@@ -244,7 +244,7 @@ export default function LearnAI() {
               <>
                 <p className="font-serif text-2xl text-brand-900">That's every step.</p>
                 <p className="mt-2 text-lg">
-                  Come back and practise whenever you like. If something didn't work, that's alright. Everyone gets stuck
+                  Come back and practice whenever you like. If something didn't work, that's alright. Everyone gets stuck
                   sometimes, and you can try again or ask a person for help.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
@@ -291,7 +291,7 @@ export default function LearnAI() {
             <h2 id="ask" className="text-2xl font-bold">
               Ask anything
             </h2>
-            <p className="text-ink/75">There are no silly questions. Ask the same thing as many times as you like.</p>
+            <p className="text-muted">There are no silly questions. Ask the same thing as many times as you like.</p>
             {chat.length > 0 && (
               <ol aria-live="polite" className="mt-4 space-y-3">
                 {chat.map((m, i) => (
@@ -305,7 +305,7 @@ export default function LearnAI() {
                     {m.text}
                   </li>
                 ))}
-                {asking && <li className="rounded-2xl bg-white p-4 text-ink/60">Thinking…</li>}
+                {asking && <li className="rounded-2xl bg-white p-4 text-muted">Thinking…</li>}
               </ol>
             )}
             <form onSubmit={ask} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-start">

@@ -1,4 +1,4 @@
-export type Role = "mentor" | "learner" | "buddy" | "employer";
+export type Role = "mentor" | "learner" | "buddy" | "employer" | "family";
 export type Format = "online" | "in-person" | "both";
 export type BuddyPricing = "free" | "volunteer" | "paid";
 
@@ -14,8 +14,10 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  /** Demo only: stored locally in plain text. Never do this with real accounts. */
-  password: string;
+  /** Only used when signing up; the server never sends passwords back. */
+  password?: string;
+  /** On your own record: whether you can sign in with an email and password (not just on this device). */
+  hasLogin?: boolean;
   roles: Role[];
   location: string;
   bio: string;
@@ -35,8 +37,8 @@ export interface User {
   comfort?: string[];
   /** Optional "what kind of work feels right for you" answers. Preferences, never medical information. */
   workComfort?: WorkComfort;
-  /** For employers, schools and community organisations. */
-  org?: Organisation;
+  /** For employers, schools and community organizations. */
+  org?: Organization;
   isDemo?: boolean;
   createdAt: string;
 }
@@ -56,11 +58,11 @@ export interface WorkComfort {
   shareWithEmployers: boolean;
 }
 
-export interface Organisation {
+export interface Organization {
   name: string;
   kind: "workshop" | "school" | "community" | "business";
   about: string;
-  /** Demo organisations are never verified. */
+  /** Demo organizations are never verified. */
   verified: false;
 }
 
@@ -158,7 +160,30 @@ export interface ThankYou {
   toId: string;
   requestId?: string;
   message: string;
-  /** Seeded example notes are fictional and labelled as such. */
+  /** Seeded example notes are fictional and labeled as such. */
+  isDemo?: boolean;
+  createdAt: string;
+}
+
+export interface QuestionAnswer {
+  id: string;
+  /** null when answered before creating an account. */
+  authorId: string | null;
+  text: string;
+  createdAt: string;
+}
+
+/** A practical question someone learning a trade has asked. */
+export interface PracticalQuestion {
+  id: string;
+  text: string;
+  trade: string;
+  /** Who is asking, in a few words ("Someone learning home repairs"). */
+  askerLabel: string;
+  askerId?: string;
+  answers: QuestionAnswer[];
+  /** One of the common questions written by the team, so there's always something to answer. */
+  isStarter?: boolean;
   isDemo?: boolean;
   createdAt: string;
 }

@@ -21,7 +21,7 @@ export function WorkTabs() {
 
 export function IllustrativeBadge() {
   return (
-    <span className="badge bg-warm-100 text-warm-800" title="Fictional organisation and listing for this prototype">
+    <span className="badge bg-warm-100 text-warm-800" title="Posted by the organization; not checked by TogetherWeGrow">
       Illustrative listing · not verified
     </span>
   );
@@ -43,7 +43,7 @@ export function FitPanel({ fit, hasPrefs }: { fit: FitCheck; hasPrefs: boolean }
     <div className="rounded-2xl border border-brand-100 bg-white p-5">
       <h3 className="text-lg font-bold">How this compares with your preferences</h3>
       {!hasPrefs && (
-        <p className="mt-1 text-sm text-ink/70">
+        <p className="mt-1 text-sm text-muted">
           Tell us <Link to="/profile#work-comfort" className="font-bold text-brand-700 underline">what kind of work feels right for you</Link>{" "}
           and we'll compare each opportunity with it.
         </p>
@@ -65,7 +65,7 @@ export function FitPanel({ fit, hasPrefs }: { fit: FitCheck; hasPrefs: boolean }
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-xs text-ink/60">
+      <p className="mt-3 text-xs text-muted">
         This only compares what the listing says with what you told us. It can't tell whether a role is physically right for
         you. Ask about the actual day-to-day duties.
       </p>
@@ -99,14 +99,14 @@ export function KnowBeforeYouAccept({ opp, compact = false }: { opp: Parameters<
             )}
             <span>
               {i.label}
-              {!i.ok && <span className="block text-sm">Not stated. Ask the organisation before you agree to anything.</span>}
+              {!i.ok && <span className="block text-sm">Not stated. Ask the organization before you agree to anything.</span>}
             </span>
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-xs text-ink/60">
-        This checklist only reflects what the listing says. In this prototype TogetherWeGrow doesn't verify organisations or
-        handle payments.
+      <p className="mt-3 text-xs text-muted">
+        This checklist only reflects what the listing says. TogetherWeGrow doesn't verify organizations or handle payments, so
+        please confirm the details with them.
       </p>
     </section>
   );
@@ -125,18 +125,18 @@ export function OpportunityCard({ opp, comfort, applied }: { opp: Opportunity; c
           {opp.title}
         </Link>
       </h3>
-      <p className="mt-1 flex items-center gap-1.5 text-ink/75">
+      <p className="mt-1 flex items-center gap-1.5 text-muted">
         <Building2 aria-hidden="true" className="h-4 w-4" /> {opp.orgName}
       </p>
-      <p className="mt-1 text-sm text-muted">{opp.isDemo ? "Illustrative listing · not verified" : "Organisation not verified"}</p>
+      <p className="mt-1 text-sm text-muted">{opp.isDemo ? "Illustrative listing · not verified" : "Organization not verified"}</p>
       <p className="mt-3 flex-1 text-ink/80">{opp.summary}</p>
       <dl className="mt-4 grid grid-cols-2 gap-3 rounded-2xl bg-brand-50 p-3 text-sm">
         <div>
-          <dt className="text-ink/60">Pay</dt>
+          <dt className="text-muted">Pay</dt>
           <dd className="text-lg font-bold text-brand-900">{payLabel(opp.pay)}</dd>
         </div>
         <div>
-          <dt className="text-ink/60">Time</dt>
+          <dt className="text-muted">Time</dt>
           <dd className="flex items-center gap-1 font-bold">
             <Clock aria-hidden="true" className="h-4 w-4" /> {opp.hoursPerWeek || "Not stated"}
           </dd>
@@ -218,7 +218,7 @@ export function ApplyDialog({
             <p className="mt-3">
               {sentText ?? (
                 <>
-                  The organisation will see your message and profile. You can follow progress under <strong>Requests → Work</strong>.
+                  The organization will see your message and profile. You can follow progress under <strong>Requests → Work</strong>.
                   {helper && " A digital buddy can help you with the next steps."}
                 </>
               )}
@@ -240,7 +240,7 @@ export function ApplyDialog({
             {picker}
             <div>
               <label htmlFor="apply-msg" className="label">
-                A short message <span className="font-normal text-ink/60">(optional)</span>
+                A short message <span className="font-normal text-muted">(optional)</span>
               </label>
               <textarea
                 id="apply-msg"
@@ -255,7 +255,7 @@ export function ApplyDialog({
               <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-brand-700" checked={helper} onChange={(e) => setHelper(e.target.checked)} />
               <span>
                 <strong>I'd like a person to help me with this</strong>
-                <span className="block text-sm text-ink/70">
+                <span className="block text-sm text-muted">
                   A digital buddy can sit with you and explain each step. You stay in control: never share your password.
                 </span>
               </span>

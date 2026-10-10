@@ -15,7 +15,7 @@ export function fallbackPlan(input: NextChapterInput): NextChapterPlan {
     intro: "A possible pathway based on your experience and preferences. Change any step so it fits your life.",
     steps: [
       {
-        title: "Recognise your strengths",
+        title: "Recognize your strengths",
         detail: `${years}experience${strengths ? ` in ${strengths}` : ""}. Make sure your profile tells that story in your own words.`,
         actions: [{ kind: "profile", label: "Review my profile" }],
       },
@@ -29,16 +29,16 @@ export function fallbackPlan(input: NextChapterInput): NextChapterPlan {
       },
       {
         title: "Check what might be missing",
-        detail: "Some organisations ask for a teaching credential, references or a certificate. Note what local employers require. Many will support you to get it.",
+        detail: "Some organizations ask for a teaching credential, references or a certificate. Note what local employers require. Many will support you to get it.",
         actions: [{ kind: "opportunities", label: "Compare requirements" }],
       },
       {
         title: "Get ready",
-        detail: `${input.hasResume ? "Update your résumé" : "Create a résumé"}${input.hasOffer ? "" : ", set up a paid mentoring offer"}, and practise a short introduction about what you'd like to do next.`,
+        detail: `${input.hasResume ? "Update your résumé" : "Create a résumé"}${input.hasOffer ? "" : ", set up a paid mentoring offer"}, and practice a short introduction about what you'd like to do next.`,
         actions: [
           { kind: "resume", label: input.hasResume ? "Update my résumé" : "Build my résumé" },
           ...(input.hasOffer ? [] : [{ kind: "offer" as const, label: "Create a mentoring offer" }]),
-          { kind: "practise", label: "Practise with the AI companion" },
+          { kind: "practise", label: "Practice step by step" },
         ],
       },
       {

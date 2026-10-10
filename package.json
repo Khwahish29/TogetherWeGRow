@@ -10,9 +10,11 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "dotenv": "^18.0.7",
     "express": "^5.3.0",
     "lucide-react": "^0.460.0",
+    "pg": "^8.23.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.6",
@@ -21,6 +23,7 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.5",
+    "@types/pg": "^8.23.1",
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
     "@vercel/node": "^23.0.1",

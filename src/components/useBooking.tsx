@@ -43,7 +43,7 @@ export function useBooking(users: User[]) {
             <ul className="mt-2 space-y-0.5 text-sm text-ink/80">
               <li>✓ Price shown up front: {formatPrice(listing.price)} for {listing.durationMins} minutes</li>
               <li>✓ Cancellation: {listing.cancellation ?? "not stated. Ask the mentor."}</li>
-              <li>✓ No payment is taken now. This prototype doesn't process payments.</li>
+              <li>✓ No payment is taken through TogetherWeGrow. You agree how to pay once they accept.</li>
             </ul>
           </>
         )

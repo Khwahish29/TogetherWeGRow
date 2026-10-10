@@ -85,7 +85,7 @@ export function ReflectionDialog({
               <h2 id="reflect-title" className="text-2xl font-bold">
                 How did it go?
               </h2>
-              <p className="mt-1 text-ink/75">
+              <p className="mt-1 text-muted">
                 {sessionTitle} with {other?.name ?? "your partner"}. Every question is optional. Answer one, all, or none.
               </p>
               <p className="mt-2 inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-sm font-bold text-brand-800">
@@ -154,7 +154,7 @@ export function ReflectionDialog({
                 <label htmlFor="rf-thanks" className="label">
                   <Heart aria-hidden="true" className="mr-1 inline h-5 w-5 align-[-3px] text-warm-700" />
                   Send {firstName} a thank-you note
-                  <span className="block text-sm font-normal text-ink/60">Optional. It will be shown on their profile.</span>
+                  <span className="block text-sm font-normal text-muted">Optional. It will be shown on their profile.</span>
                 </label>
                 <textarea
                   id="rf-thanks"

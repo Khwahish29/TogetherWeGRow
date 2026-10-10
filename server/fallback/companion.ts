@@ -85,6 +85,25 @@ export const GUIDES: Record<string, Guide> = {
       "Press Submit. You're done!",
     ],
   },
+  photos: {
+    intro: "Sending a photo is just a few taps. We'll go slowly.",
+    steps: [
+      "Open the app you use to send messages, like WhatsApp or your phone's Messages app.",
+      "Tap the name of the person you want to send the photo to.",
+      "Look for a small picture of a camera, a paperclip, or a plus sign (+) next to where you type. Tap it.",
+      "Choose Gallery or Photos to see the pictures on your phone.",
+      "Tap the photo you'd like to send. A small tick may appear on it.",
+      "Tap Send (often an arrow). The photo will appear in your conversation.",
+    ],
+    simpler: [
+      "Open the place where you send messages.",
+      "Choose who it's for.",
+      "Find the little camera, paperclip or plus sign, and tap it.",
+      "Open your pictures.",
+      "Tap the picture you want.",
+      "Press the arrow to send it. That's it!",
+    ],
+  },
   scams: {
     intro: "Scam messages try to rush or frighten you. Knowing the signs keeps you safe.",
     steps: [
@@ -105,17 +124,17 @@ export const GUIDES: Record<string, Guide> = {
     ],
   },
   "ai-tools": {
-    intro: "AI tools are programs you can talk to in plain words. You don't need special skills.",
+    intro: "Chat assistants (like ChatGPT) are programs you can talk to in plain words. You don't need special skills.",
     steps: [
-      "Open an AI assistant website or app.",
+      "Open a chat assistant website or app.",
       "Type a question the way you would ask a person, for example 'How do I write a thank-you note?'",
       "Read the answer. If it's unclear, ask it to 'explain more simply'.",
       "You can ask follow-up questions. It remembers the conversation.",
-      "Check important facts elsewhere. AI can make mistakes.",
-      "Never type passwords or private bank details into an AI tool.",
+      "Check important facts elsewhere. These assistants can make mistakes.",
+      "Never type passwords or private bank details into a chat assistant.",
     ],
     simpler: [
-      "Open the AI program.",
+      "Open the chat assistant.",
       "Ask it a question in your own words.",
       "If you don't understand, ask it to say it more simply.",
       "Keep asking. It's like a conversation.",

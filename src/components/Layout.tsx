@@ -11,6 +11,7 @@ import {
   Lightbulb,
   LogOut,
   PlusCircle,
+  MessageCircleQuestion,
   Search,
   UserRound,
   type LucideIcon,
@@ -35,10 +36,11 @@ interface NavItem {
 }
 
 const PUBLIC_NAV: NavItem[] = [
-  { to: "/", label: "Home", icon: HomeIcon, exact: true },
+  { to: "/explore", label: "Home", icon: HomeIcon, exact: true, also: ["/introduce"] },
+  { to: "/questions", label: "Share What You Know", short: "Share", icon: MessageCircleQuestion },
   { to: "/mentors", label: "Find Mentors", short: "Mentors", icon: Search, also: ["/marketplace"] },
   { to: "/opportunities", label: "Opportunities", short: "Work", icon: Briefcase, also: ["/careers", "/next-chapter"] },
-  { to: "/learn", label: "Learn", icon: Lightbulb, also: ["/resume"] },
+  { to: "/learn", label: "Learn", icon: Lightbulb, also: ["/resume", "/vibe-check"] },
 ];
 
 const EMPLOYER_NAV: NavItem[] = [
@@ -83,11 +85,18 @@ function AccountMenu({ waiting, onLogOut }: { waiting: number; onLogOut: () => v
         type="button"
         aria-haspopup="true"
         aria-expanded={open}
-        aria-label="Your account"
+        aria-label={`Your account${waiting ? `, ${waiting} waiting for you` : ""}`}
         onClick={() => setOpen((o) => !o)}
-        className="flex min-h-[48px] min-w-[48px] items-center justify-center gap-1.5 rounded-full p-1 hover:bg-brand-50 sm:pr-2"
+        className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full p-0.5 hover:bg-brand-50 sm:min-h-[48px] sm:min-w-[48px] sm:p-1 sm:pr-2"
       >
-        <Avatar name={user.name} size="sm" />
+        <span className="relative">
+          <Avatar name={user.name} size="sm" />
+          {waiting > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-warm-600 px-1 text-xs font-semibold text-white ring-2 ring-warm-50 xl:hidden">
+              {waiting}
+            </span>
+          )}
+        </span>
         <ChevronDown aria-hidden="true" className={`hidden h-4 w-4 text-muted transition sm:block ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
@@ -133,11 +142,12 @@ export function Layout() {
       applications.filter((a) => a.workerId === user.id && a.status === "invited" && a.initiatedBy === "employer" && !a.reply).length
     : 0;
   const employerOnly = Boolean(user?.roles.includes("employer") && user.roles.length === 1);
+  // The logo always links home, so the desktop menu can stay short.
   const nav: NavItem[] = employerOnly
     ? EMPLOYER_NAV
     : user
-      ? [...PUBLIC_NAV, { to: "/dashboard", label: "My Space", icon: LayoutGrid, also: ["/requests", "/profile"] }]
-      : PUBLIC_NAV;
+      ? [...PUBLIC_NAV.filter((n) => n.to !== "/explore"), { to: "/dashboard", label: "My Home", icon: LayoutGrid, also: ["/requests", "/profile"] }]
+      : PUBLIC_NAV.filter((n) => n.to !== "/explore");
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -145,7 +155,7 @@ export function Layout() {
 
   async function handleLogOut() {
     await logOut();
-    navigate("/");
+    navigate("/explore");
   }
 
   // Mobile tab bar: five clear destinations.
@@ -153,18 +163,18 @@ export function Layout() {
     ? EMPLOYER_NAV
     : user
       ? [
-          { to: "/dashboard", label: "My Space", icon: LayoutGrid, also: ["/profile"] },
+          { to: "/dashboard", label: "My Home", icon: HomeIcon, also: ["/profile", "/requests"], badge: waiting },
+          { to: "/questions", label: "Share", icon: MessageCircleQuestion },
           { to: "/mentors", label: "Mentors", icon: Search, also: ["/marketplace"] },
           { to: "/opportunities", label: "Work", icon: Briefcase, also: ["/careers", "/next-chapter"] },
-          { to: "/learn", label: "Learn", icon: Lightbulb, also: ["/resume"] },
-          { to: "/requests", label: "Requests", icon: Inbox, badge: waiting },
+          { to: "/learn", label: "Learn", icon: Lightbulb, also: ["/resume", "/vibe-check"] },
         ]
       : [
-          { to: "/", label: "Home", icon: HomeIcon, exact: true },
+          { to: "/explore", label: "Home", icon: HomeIcon, exact: true, also: ["/introduce"] },
+          { to: "/questions", label: "Share", icon: MessageCircleQuestion },
           { to: "/mentors", label: "Mentors", icon: Search, also: ["/marketplace"] },
           { to: "/opportunities", label: "Work", icon: Briefcase, also: ["/careers", "/next-chapter"] },
-          { to: "/learn", label: "Learn", icon: Lightbulb, also: ["/resume"] },
-          { to: "/login", label: "Log in", icon: UserRound, also: ["/signup"] },
+          { to: "/learn", label: "Learn", icon: Lightbulb, also: ["/resume", "/vibe-check"] },
         ];
 
   return (
@@ -174,12 +184,12 @@ export function Layout() {
       </a>
 
       <header className="sticky top-0 z-40 border-b border-warm-200/80 bg-warm-50/90 backdrop-blur-md print:hidden">
-        <div className="container-wide flex h-[72px] items-center justify-between gap-2 sm:gap-4">
+        <div className="container-wide flex h-[72px] items-center justify-between gap-2 max-sm:px-4 sm:gap-4">
           <Link to="/" className="rounded-xl" aria-label="TogetherWeGrow, home">
             <Logo />
           </Link>
 
-          <nav aria-label="Main" className="hidden h-full items-stretch gap-1 lg:flex">
+          <nav aria-label="Main" className="hidden h-full items-stretch xl:flex">
             {nav.map((item) => {
               const active = isActive(location.pathname, item);
               return (
@@ -187,8 +197,8 @@ export function Layout() {
                   key={item.to}
                   to={item.to}
                   aria-current={active ? "page" : undefined}
-                  className={`relative flex items-center whitespace-nowrap px-3.5 font-medium transition-colors ${
-                    active ? "text-brand-900" : "text-ink/75 hover:text-brand-800"
+                  className={`relative flex items-center whitespace-nowrap px-3 font-medium transition-colors ${
+                    active ? "text-brand-900" : "text-muted hover:text-brand-800"
                   }`}
                 >
                   {item.label}
@@ -201,21 +211,22 @@ export function Layout() {
             })}
           </nav>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center sm:gap-0.5">
+            <GoogleTranslate />
             <button
               type="button"
-              className="flex min-h-[48px] min-w-[48px] items-center justify-center gap-2 rounded-full px-3 font-medium text-brand-800 hover:bg-brand-50"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full px-2 font-medium text-brand-800 hover:bg-brand-50 sm:min-h-[48px] sm:min-w-[48px] sm:px-3"
               onClick={() => setHelpOpen(true)}
-              aria-label="Help: what would you like to do?"
+              aria-label="Get a little help"
             >
               <LifeBuoy aria-hidden="true" className="h-5 w-5" />
-              <span className="hidden xl:inline">Help</span>
+              <span className="hidden 2xl:inline">Get a little help</span>
             </button>
             {user && !employerOnly && (
               <Link
                 to="/requests"
                 aria-label={`Requests${waiting ? `, ${waiting} waiting for you` : ""}`}
-                className="relative hidden min-h-[48px] min-w-[48px] items-center justify-center rounded-full text-brand-800 hover:bg-brand-50 lg:flex"
+                className="relative hidden min-h-[48px] min-w-[48px] items-center justify-center rounded-full text-brand-800 hover:bg-brand-50 xl:flex"
               >
                 <Inbox aria-hidden="true" className="h-5 w-5" />
                 {waiting > 0 && (
@@ -229,7 +240,7 @@ export function Layout() {
               <AccountMenu waiting={waiting} onLogOut={handleLogOut} />
             ) : (
               <>
-                <Link to="/login" className="hidden min-h-[48px] items-center rounded-full px-4 font-medium text-brand-800 hover:bg-brand-50 sm:flex">
+                <Link to="/login" className="hidden min-h-[48px] items-center whitespace-nowrap rounded-full px-4 font-medium text-brand-800 hover:bg-brand-50 sm:flex">
                   Log in
                 </Link>
                 <Link to="/signup" className="btn-primary hidden whitespace-nowrap px-5 sm:inline-flex">
@@ -241,13 +252,12 @@ export function Layout() {
         </div>
       </header>
 
-      <GoogleTranslate />
 
-      <main id="main" tabIndex={-1} className="flex-1 pb-24 outline-none lg:pb-0 print:pb-0">
+      <main id="main" tabIndex={-1} className="flex-1 pb-24 outline-none xl:pb-0 print:pb-0">
         <Outlet />
       </main>
 
-      <footer className="mb-[76px] bg-brand-900 text-brand-100 lg:mb-0 print:hidden">
+      <footer className="mb-[76px] bg-brand-900 text-brand-100 xl:mb-0 print:hidden">
         <div className="container-wide grid gap-10 py-14 md:grid-cols-12">
           <div className="md:col-span-4">
             <Logo light />
@@ -258,10 +268,12 @@ export function Layout() {
           <nav aria-label="Footer" className="text-[0.95rem] md:col-span-2">
             <p className="font-semibold text-white">Explore</p>
             <ul className="mt-3 space-y-2.5">
+              <li><Link className="hover:text-white hover:underline" to="/questions">Share what you know</Link></li>
               <li><Link className="hover:text-white hover:underline" to="/mentors">Find a mentor</Link></li>
               <li><Link className="hover:text-white hover:underline" to="/opportunities">Opportunities</Link></li>
               <li><Link className="hover:text-white hover:underline" to="/marketplace">Mentoring sessions</Link></li>
               <li><Link className="hover:text-white hover:underline" to="/learn">Learn your way</Link></li>
+              <li><Link className="hover:text-white hover:underline" to="/vibe-check">Vibe Check</Link></li>
             </ul>
           </nav>
           <nav aria-label="About" className="text-[0.95rem] md:col-span-2">
@@ -269,7 +281,8 @@ export function Layout() {
             <ul className="mt-3 space-y-2.5">
               <li><Link className="hover:text-white hover:underline" to="/about">Our story</Link></li>
               <li><Link className="hover:text-white hover:underline" to="/about#safety">Safety & support</Link></li>
-              <li><Link className="hover:text-white hover:underline" to="/signup?role=employer">For organisations</Link></li>
+              <li><Link className="hover:text-white hover:underline" to="/introduce">For family and friends</Link></li>
+              <li><Link className="hover:text-white hover:underline" to="/signup?role=employer">For organizations</Link></li>
             </ul>
           </nav>
           <div className="text-[0.95rem] md:col-span-4">
@@ -277,8 +290,9 @@ export function Layout() {
             <p className="mt-1">Make the text bigger anytime.</p>
             <TextSizeToggle dark />
             <p className="mt-6 text-sm text-brand-200">
-              Hackathon prototype. Data stays in this browser; demo listings and people are fictional and labelled; no
-              payments are taken.
+              Organizations and members aren't verified by us. No payments are taken through TogetherWeGrow.{" "}
+              <Link to="/privacy" className="underline">Privacy</Link> · <Link to="/terms" className="underline">Terms</Link> ·{" "}
+              <Link to="/safety" className="underline">Safety</Link>
             </p>
           </div>
         </div>
@@ -286,7 +300,7 @@ export function Layout() {
 
       <nav
         aria-label="Quick"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-warm-200 bg-white/95 backdrop-blur lg:hidden print:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-warm-200 bg-white/95 backdrop-blur xl:hidden print:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <ul className="mx-auto grid max-w-xl" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>

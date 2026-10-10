@@ -1,18 +1,16 @@
 import "dotenv/config";
-import express from "express";
 import { aiProviderName } from "./lib/ai";
-import { runRoute } from "./routes";
-
-const app = express();
-app.use(express.json({ limit: "100kb" }));
-
-app.post("/api/:name", async (req, res) => {
-  const { status, json } = await runRoute(req.params.name, req.body);
-  res.status(status).json(json);
-});
+import { createApp } from "./app";
+import { db } from "./db";
 
 const port = Number(process.env.API_PORT ?? 8787);
-app.listen(port, () => {
+createApp().listen(port, async () => {
   const provider = aiProviderName();
-  console.log(`API on http://localhost:${port} (AI: ${provider ?? "built-in rules. Set XAI_API_KEY or GROQ_API_KEY in .env to enable"})`);
+  console.log(`API on http://localhost:${port} (guidance: ${provider ?? "built-in rules. Set GROQ_API_KEY or XAI_API_KEY in .env to enable"})`);
+  try {
+    await db();
+    console.log(`Database ready (${process.env.DATABASE_URL || process.env.POSTGRES_URL ? "DATABASE_URL" : "local PGlite in .data/pglite"})`);
+  } catch (err) {
+    console.error("Database failed to start:", err);
+  }
 });

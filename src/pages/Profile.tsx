@@ -37,7 +37,7 @@ export default function Profile() {
           <div className="card text-center">
             <Avatar name={user.name} size="lg" />
             <p className="mt-3 font-bold">{user.name}</p>
-            <p className="text-sm text-ink/70">{user.email}</p>
+            <p className="text-sm text-muted">{user.email}</p>
             <Link to={`/mentors/${user.id}`} className="btn-secondary mt-4 w-full">
               View public profile
             </Link>

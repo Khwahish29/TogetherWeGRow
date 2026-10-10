@@ -69,7 +69,7 @@ export function RequestDialog({
         {sent ? (
           <>
             <p className="mt-3">
-              Your request is waiting for a reply. You'll see the status under <strong>Requests</strong> on your dashboard.
+              Your request is waiting for a reply. You can follow it under <strong>Requests</strong>, from My Home.
               You can change your mind at any time.
             </p>
             <button className="btn-primary mt-6 w-full" onClick={onClose}>
@@ -99,7 +99,7 @@ export function RequestDialog({
             </div>
             <div>
               <label htmlFor="req-msg" className="label">
-                A short message <span className="font-normal text-ink/60">(optional)</span>
+                A short message <span className="font-normal text-muted">(optional)</span>
               </label>
               <textarea
                 id="req-msg"

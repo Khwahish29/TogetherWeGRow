@@ -9,6 +9,8 @@ import type {
   MatchResult,
   NextChapterInput,
   NextChapterPlan,
+  VibeCheckRequest,
+  VibeCheckResult,
   ProfileDraft,
   ResumeJobResult,
   ResumeSummaryInput,
@@ -18,6 +20,7 @@ import { fallbackCareers, fallbackProfileDraft } from "../fallback/profile";
 import { fallbackCompanion, GUIDES } from "../fallback/companion";
 import { fallbackResumeJob, fallbackResumeSummary } from "../fallback/resume";
 import { fallbackPlan } from "../fallback/plan";
+import { fallbackVibeCheck } from "../fallback/vibe";
 
 export class BadRequest extends Error {}
 
@@ -82,9 +85,9 @@ export async function careers(body: unknown): Promise<ApiResult<CareerRec[]>> {
   };
   const ai = await askStructured(
     CareersSchema,
-    `Recommend exactly 4 career transition options that let this person earn from their existing knowledge, favouring paid mentoring, advisory, training, inspection, or consulting work.
+    `Recommend exactly 4 career transition options that let this person earn from their existing knowledge, favoring paid mentoring, advisory, training, inspection, or consulting work.
 For each: explain "why" in 1-2 plain sentences addressed to the person ("You..."), list which of THEIR skills transfer, state honestly whether further qualifications or certification may be needed, rate physicalDemand (low or medium only), and say concretely where to look for openings.
-Respect their work preferences and any "comfort" answers (e.g. preferring to sit, avoiding routine heavy lifting, part-time hours, remote work); favour roles that fit them. Do not assume physical limitations they haven't stated.`,
+Respect their work preferences and any "comfort" answers (e.g. preferring to sit, avoiding routine heavy lifting, part-time hours, remote work); favor roles that fit them. Do not assume physical limitations they haven't stated.`,
     JSON.stringify(input),
   );
   return ai
@@ -285,11 +288,85 @@ export async function nextChapter(body: unknown): Promise<ApiResult<NextChapterP
     `Create a realistic, encouraging career transition plan ("My Next Chapter") for this experienced worker.
 - from: their current kind of work in a few words (e.g. "Construction carpentry"). to: one realistic target role in a few words (use targetRole if given).
 - intro: one sentence saying this is a possible pathway based on their experience and preferences, not a promise.
-- steps: exactly 5 steps, in this order: 1) recognise their strengths (name their actual skills and years), 2) choose a direction that fits their stated preferences, 3) identify what may be missing (credentials, references, certificates; say "may"), 4) prepare (résumé, a mentoring offer, practising an introduction), 5) take a first step (contact a specific listed opportunity if one fits, or get help applying from a digital buddy).
-- Each step: short title, a 1-2 sentence detail written to them ("you"), and 1-2 actions from the allowed kinds with short button labels. Use "resume" only for résumé work, "offer" for creating a paid mentoring offer, "opportunities" for paid openings, "buddy" for asking a person to help, "practise" for practising with the AI companion.
+- steps: exactly 5 steps, in this order: 1) recognize their strengths (name their actual skills and years), 2) choose a direction that fits their stated preferences, 3) identify what may be missing (credentials, references, certificates; say "may"), 4) prepare (résumé, a mentoring offer, practicing an introduction), 5) take a first step (contact a specific listed opportunity if one fits, or get help applying from a digital buddy).
+- Each step: short title, a 1-2 sentence detail written to them ("you"), and 1-2 actions from the allowed kinds with short button labels. Use "resume" only for résumé work, "offer" for creating a paid mentoring offer, "opportunities" for paid openings, "buddy" for asking a person to help, "practise" for practicing with the AI companion.
 Never promise a job or say a role is physically suitable; tell them to check each listing's actual duties. Use only facts given.`,
     JSON.stringify(clean),
   );
   if (ai) return { source: "ai", data: { ...ai, steps: ai.steps.slice(0, 6) } };
   return { source: "fallback", data: fallbackPlan(clean) };
+}
+
+const VibeSchema = z.object({
+  meaning: z.string(),
+  tone: z.string(),
+  certainty: z.enum(["clear", "likely", "unsure"]),
+  phrases: z.array(z.object({ phrase: z.string(), meaning: z.string() })),
+  reply: z.string(),
+  askBack: z.string(),
+});
+
+/** Vibe Check: helps people of different generations understand each other's words. */
+export async function vibeCheck(body: unknown): Promise<ApiResult<VibeCheckResult>> {
+  const req = body as VibeCheckRequest;
+  const text = requireText(req?.text, "text", 600);
+  const mode = req.mode === "rephrase" ? "rephrase" : "explain";
+  const ai = await askStructured(
+    VibeSchema,
+    mode === "explain"
+      ? `You help two people from different generations understand each other. Someone received the message below and wants to know what it means.
+- meaning: in 1-2 plain sentences, what the sender most likely means. Explain slang, abbreviations, idioms or trade sayings in everyday words.
+- tone: 2-4 words describing how it probably feels (e.g. "Warm and appreciative", "Friendly teasing", "Mildly frustrated").
+- certainty: "clear" if the meaning is obvious, "likely" if it's the usual meaning, "unsure" if it could mean different things. Never present an uncertain reading as fact.
+- phrases: each expression you explained, with its plain meaning (empty list if none).
+- reply: one short, friendly possible reply the reader could send (empty string if a reply wouldn't fit).
+- askBack: if certainty is not "clear", a gentle way to ask what they meant; otherwise "".
+Never mock either generation, never assume the writer's age from their words, and assume good intent unless the words are clearly unkind.`
+      : `You help someone say what they mean clearly and kindly to a person from a different generation.
+- meaning: a rewritten version of their message: same meaning and warmth, plain everyday words, no slang or jargon, roughly the same length. Keep their voice.
+- tone: 2-4 words describing how the new version will feel.
+- certainty: "clear".
+- phrases: any expressions you replaced, each with its plain meaning (empty list if none).
+- reply: "".
+- askBack: "".
+Don't add apologies, emojis or new information.`,
+    text,
+  );
+  if (ai) {
+    return {
+      source: "ai",
+      data: { ...ai, reply: ai.reply || undefined, askBack: ai.askBack || undefined, phrases: ai.phrases.slice(0, 8) },
+    };
+  }
+  return { source: "fallback", data: fallbackVibeCheck({ text, mode }) };
+}
+
+const SKILL_WORDS: [RegExp, string][] = [
+  [/joint|square|level|plumb line|grain|chisel|saw|wood/i, "Carpentry"],
+  [/inspect|check|test|look (at|for)|signs?|quality|properly/i, "Quality checking"],
+  [/safe|safety|guard|ppe|careful/i, "Workplace safety"],
+  [/weld|bead|spatter|torch/i, "Welding"],
+  [/pipe|tap|washer|leak|drain/i, "Plumbing"],
+  [/engine|brake|oil|noise|car/i, "Mechanical diagnosis"],
+  [/soil|plant|seed|water|harvest/i, "Growing know-how"],
+  [/stitch|fabric|seam|thread|tension/i, "Sewing"],
+  [/paint|brush|roller|primer|sand/i, "Surface preparation"],
+  [/money|receipt|book|account|price|cost/i, "Bookkeeping"],
+  [/calm|organiz|order|prep|list/i, "Staying organized under pressure"],
+  [/teach|show|explain|apprentice|new (people|starters)/i, "Teaching others"],
+];
+
+/** Names, gently, the practical skills a short answer shows. Only what's clearly there. */
+export async function answerSkills(body: unknown): Promise<ApiResult<{ skills: string[] }>> {
+  const b = body as { question?: unknown; answer?: unknown };
+  const question = requireText(b?.question, "question", 400);
+  const answer = requireText(b?.answer, "answer", 2000);
+  const ai = await askStructured(
+    z.object({ skills: z.array(z.string()) }),
+    `Someone answered a practical question from a learner. Name 1-4 practical skills their answer clearly demonstrates, in 1-4 words each, Title Case (e.g. "Quality Inspection", "Joinery", "Safe Tool Use"). Only skills genuinely shown in the answer; no flattery, no invented expertise. Return an empty list if none are clear.`,
+    `Question: ${question}\nAnswer: ${answer}`,
+  );
+  if (ai) return { source: "ai", data: { skills: ai.skills.slice(0, 4) } };
+  const skills = SKILL_WORDS.filter(([re]) => re.test(answer)).map(([, s]) => s).slice(0, 4);
+  return { source: "fallback", data: { skills } };
 }

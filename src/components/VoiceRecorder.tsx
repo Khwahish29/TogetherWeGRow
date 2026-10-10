@@ -1,7 +1,7 @@
 import { Mic, Square } from "lucide-react";
 import { useSpeech } from "../lib/useSpeech";
 
-/** Start/stop microphone button that appends recognised speech via `onText`. */
+/** Start/stop microphone button that appends recognized speech via `onText`. */
 export function VoiceRecorder({
   onText,
   compact = false,
@@ -9,7 +9,7 @@ export function VoiceRecorder({
 }: {
   onText: (text: string) => void;
   compact?: boolean;
-  /** A big, centred microphone for the main voice-first screens. */
+  /** A big, centered microphone for the main voice-first screens. */
   large?: boolean;
 }) {
   const { supported, listening, interim, error, start, stop } = useSpeech(onText);

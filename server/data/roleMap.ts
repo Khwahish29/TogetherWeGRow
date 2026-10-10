@@ -31,7 +31,7 @@ export const TRADES: Record<string, TradeEntry> = {
         why: "You can teach woodworking and guide apprentices using decades of hands-on experience, mostly by showing and explaining rather than lifting.",
         qualificationsNeeded: "Usually none beyond your experience.",
         physicalDemand: "low",
-        howToFind: "Offer sessions in the TogetherWeGrow marketplace, or ask local makerspaces and apprenticeship programmes.",
+        howToFind: "Offer sessions in the TogetherWeGrow marketplace, or ask local makerspaces and apprenticeship programs.",
       },
       {
         title: "Workshop Adviser",
@@ -65,7 +65,7 @@ export const TRADES: Record<string, TradeEntry> = {
     skills: { plumb: "Plumbing", pipe: "Pipe fitting", heating: "Heating systems", boiler: "Boiler servicing", repair: "Repairs", apprentic: "Apprentice training" },
     roles: [
       { title: "Plumbing Mentor", type: "paid-mentoring", why: "Guide apprentices and new plumbers through real problems you have already solved many times.", qualificationsNeeded: "Usually none beyond your experience.", physicalDemand: "low", howToFind: "Offer sessions in the marketplace or contact apprenticeship schemes." },
-      { title: "Technical Phone/Video Adviser", type: "advisory", why: "Diagnose problems remotely for younger plumbers or homeowners.", qualificationsNeeded: "Usually none; some firms ask for a trade licence.", physicalDemand: "low", howToFind: "Plumbing firms, home-services companies, and trade supply stores." },
+      { title: "Technical Phone/Video Adviser", type: "advisory", why: "Diagnose problems remotely for younger plumbers or homeowners.", qualificationsNeeded: "Usually none; some firms ask for a trade license.", physicalDemand: "low", howToFind: "Plumbing firms, home-services companies, and trade supply stores." },
       { title: "Trade School Instructor", type: "training", why: "Teach the practical skills and safety habits that textbooks miss.", qualificationsNeeded: "May need a teaching credential.", physicalDemand: "low", howToFind: "Vocational schools and community colleges." },
     ],
   },
@@ -74,7 +74,7 @@ export const TRADES: Record<string, TradeEntry> = {
     industry: "Electrical work",
     skills: { electric: "Electrical installation", wiring: "Wiring", safety: "Safety practices", apprentic: "Apprentice training" },
     roles: [
-      { title: "Electrical Apprentice Mentor", type: "paid-mentoring", why: "Pass on safe working habits and problem-solving to new electricians.", qualificationsNeeded: "Usually your existing trade licence.", physicalDemand: "low", howToFind: "Apprenticeship programmes and the marketplace." },
+      { title: "Electrical Apprentice Mentor", type: "paid-mentoring", why: "Pass on safe working habits and problem-solving to new electricians.", qualificationsNeeded: "Usually your existing trade license.", physicalDemand: "low", howToFind: "Apprenticeship programs and the marketplace." },
       { title: "Safety Educator", type: "training", why: "Your experience with what goes wrong makes you a credible safety teacher.", qualificationsNeeded: "May need a safety-training certificate.", physicalDemand: "low", howToFind: "Training providers, unions, and large employers." },
       { title: "Electrical Inspector", type: "inspection", why: "Check others' installations instead of doing heavy installs yourself.", qualificationsNeeded: "Usually requires an inspector certification.", physicalDemand: "medium", howToFind: "Local building authorities and inspection firms." },
     ],
@@ -85,8 +85,8 @@ export const TRADES: Record<string, TradeEntry> = {
     skills: { account: "Accounting", bookkeep: "Bookkeeping", finance: "Finance", manag: "Team management", admin: "Administration", payroll: "Payroll", sales: "Sales", marketing: "Marketing", "human resources": "Human resources" },
     roles: [
       { title: "Small Business Consultant", type: "consulting", why: "Small businesses need practical advice from people who have run real offices.", qualificationsNeeded: "Usually none; some areas (e.g. tax) need certification.", physicalDemand: "low", howToFind: "Local business associations, chambers of commerce, and the marketplace." },
-      { title: "Career Mentor", type: "paid-mentoring", why: "Help younger people navigate workplaces, interviews, and early careers.", qualificationsNeeded: "Usually none.", physicalDemand: "low", howToFind: "Universities, youth employment programmes, and the marketplace." },
-      { title: "Workplace Trainer", type: "training", why: "Teach processes and professional skills you have practised for years.", qualificationsNeeded: "May need a trainer certificate for formal programmes.", physicalDemand: "low", howToFind: "Training companies and HR departments." },
+      { title: "Career Mentor", type: "paid-mentoring", why: "Help younger people navigate workplaces, interviews, and early careers.", qualificationsNeeded: "Usually none.", physicalDemand: "low", howToFind: "Universities, youth employment programs, and the marketplace." },
+      { title: "Workplace Trainer", type: "training", why: "Teach processes and professional skills you have practiced for years.", qualificationsNeeded: "May need a trainer certificate for formal programs.", physicalDemand: "low", howToFind: "Training companies and HR departments." },
     ],
   },
   care: {
@@ -95,7 +95,7 @@ export const TRADES: Record<string, TradeEntry> = {
     skills: { nurs: "Nursing", care: "Patient care", caregiv: "Caregiving", hospital: "Hospital procedures", health: "Health education" },
     roles: [
       { title: "Clinical Mentor", type: "paid-mentoring", why: "Support new nurses and carers through their first years.", qualificationsNeeded: "Often requires current or recent registration.", physicalDemand: "low", howToFind: "Hospitals, care homes, and nursing schools." },
-      { title: "Health Educator", type: "training", why: "Teach communities and families about care and prevention.", qualificationsNeeded: "May need a health-education certificate.", physicalDemand: "low", howToFind: "Community centres, NGOs, and clinics." },
+      { title: "Health Educator", type: "training", why: "Teach communities and families about care and prevention.", qualificationsNeeded: "May need a health-education certificate.", physicalDemand: "low", howToFind: "Community centers, NGOs, and clinics." },
     ],
   },
   teaching: {
@@ -121,7 +121,7 @@ export const TRADES: Record<string, TradeEntry> = {
     industry: "Mechanical & automotive",
     skills: { mechanic: "Mechanical repair", engine: "Engine diagnostics", auto: "Automotive repair", vehicle: "Vehicle maintenance", machin: "Machinery" },
     roles: [
-      { title: "Diagnostics Mentor", type: "paid-mentoring", why: "Teach young mechanics how to find faults by sound, feel, and logic.", qualificationsNeeded: "Usually none beyond experience.", physicalDemand: "low", howToFind: "Garages, training centres, and the marketplace." },
+      { title: "Diagnostics Mentor", type: "paid-mentoring", why: "Teach young mechanics how to find faults by sound, feel, and logic.", qualificationsNeeded: "Usually none beyond experience.", physicalDemand: "low", howToFind: "Garages, training centers, and the marketplace." },
       { title: "Service Quality Adviser", type: "advisory", why: "Review work and advise garages on quality and customer trust.", qualificationsNeeded: "Usually none.", physicalDemand: "low", howToFind: "Independent garages and dealerships." },
     ],
   },

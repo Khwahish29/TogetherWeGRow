@@ -1,4 +1,4 @@
-import type { Application, ConnectionRequest, Listing, Opportunity, ThankYou, User } from "../lib/types";
+import type { PracticalQuestion, Application, ConnectionRequest, Listing, Opportunity, ThankYou, User } from "../lib/types";
 
 const now = "2026-10-01T09:00:00.000Z";
 const base = { password: "demo1234", isDemo: true, createdAt: now, profileApproved: true };
@@ -39,14 +39,14 @@ export const SEED_USERS: User[] = [
     location: "Portland",
     languages: ["en", "es"],
     preferredLanguage: "en",
-    bio: "Design student who wants to build real furniture, not just render it. Happy to help anyone get comfortable with laptops, phones, and AI tools.",
-    skills: ["Video Meetings", "AI Tools", "Social Media", "Online Applications"],
+    bio: "Design student who wants to build real furniture, not just render it. Happy to help anyone get comfortable with laptops, phones, and chat assistants like ChatGPT.",
+    skills: ["Video Meetings", "Chat Assistants", "Social Media", "Online Applications"],
     yearsExperience: null,
     industries: ["Design"],
     workPreferences: [],
     wantToLearn: ["Carpentry", "Woodworking", "Furniture Making"],
     format: "both",
-    buddy: { topics: ["Video meetings", "Email", "AI tools", "Smartphones"], availability: "Weekday evenings", mode: "both", pricing: "volunteer" },
+    buddy: { topics: ["Video meetings", "Email", "Chat assistants", "Smartphones"], availability: "Weekday evenings", mode: "both", pricing: "volunteer" },
   },
   {
     ...base,
@@ -62,7 +62,7 @@ export const SEED_USERS: User[] = [
     yearsExperience: 30,
     industries: ["Business & office"],
     workPreferences: ["Part-time or flexible hours", "Open to online work"],
-    wantToLearn: ["AI tools"],
+    wantToLearn: ["Chat assistants"],
     format: "online",
   },
   {
@@ -127,13 +127,13 @@ export const SEED_USERS: User[] = [
     languages: ["en"],
     preferredLanguage: "en",
     bio: "Digital skills tutor. I offer longer paid lessons as well as free quick help.",
-    skills: ["Video Meetings", "Smartphones", "AI Tools"],
+    skills: ["Video Meetings", "Smartphones", "Chat Assistants"],
     yearsExperience: 4,
     industries: ["Education"],
     workPreferences: [],
     wantToLearn: [],
     format: "online",
-    buddy: { topics: ["Smartphones", "Video meetings", "AI tools", "Résumés"], availability: "Flexible, by appointment", mode: "online", pricing: "paid", rate: 15 },
+    buddy: { topics: ["Smartphones", "Video meetings", "Chat assistants", "Résumés"], availability: "Flexible, by appointment", mode: "online", pricing: "paid", rate: 15 },
   },
   {
     ...base,
@@ -219,7 +219,7 @@ export const SEED_USERS: User[] = [
     yearsExperience: 32,
     industries: ["Electrical work"],
     workPreferences: ["Less physically demanding work", "Part-time or flexible hours"],
-    wantToLearn: ["AI tools"],
+    wantToLearn: ["Chat assistants"],
     format: "both",
   },
   {
@@ -263,14 +263,14 @@ export const SEED_USERS: User[] = [
     email: "dorothy@demo.twg",
     roles: ["mentor", "learner"],
     location: "Portland",
-    bio: "Retired schoolteacher, 34 years. I tutor reading, writing and study habits, and I am learning AI tools.",
+    bio: "Retired schoolteacher, 34 years. I tutor reading, writing and study habits, and I am learning to use chat assistants.",
     languages: ["en"],
     preferredLanguage: "en",
     skills: ["Teaching", "Tutoring", "Curriculum design"],
     yearsExperience: 34,
     industries: ["Education"],
     workPreferences: ["Part-time or flexible hours", "Open to online work"],
-    wantToLearn: ["AI tools"],
+    wantToLearn: ["Chat assistants"],
     format: "online",
   },
   {
@@ -287,7 +287,7 @@ export const SEED_USERS: User[] = [
     yearsExperience: 18,
     industries: ["Business & office"],
     workPreferences: ["Open to online work"],
-    wantToLearn: ["AI tools"],
+    wantToLearn: ["Chat assistants"],
     format: "online",
   },
   {
@@ -300,13 +300,13 @@ export const SEED_USERS: User[] = [
     bio: "Engineering student. Happy to explain phones and video calls in Spanish or English, slowly.",
     languages: ["es", "en"],
     preferredLanguage: "es",
-    skills: ["Smartphones", "Video Meetings", "Email", "AI Tools"],
+    skills: ["Smartphones", "Video Meetings", "Email", "Chat Assistants"],
     yearsExperience: null,
     industries: [],
     workPreferences: [],
     wantToLearn: ["Carpentry", "Cooking"],
     format: "both",
-    buddy: { topics: ["Smartphones", "Video meetings", "Email", "AI tools"], availability: "Weekday evenings", mode: "both", pricing: "free" },
+    buddy: { topics: ["Smartphones", "Video meetings", "Email", "Chat assistants"], availability: "Weekday evenings", mode: "both", pricing: "free" },
   },
   {
     ...base,
@@ -336,13 +336,13 @@ export const SEED_USERS: User[] = [
     bio: "High school senior who is good with phones and social media. English only, very patient.",
     languages: ["en"],
     preferredLanguage: "en",
-    skills: ["Smartphones", "Social Media", "AI Tools"],
+    skills: ["Smartphones", "Social Media", "Chat Assistants"],
     yearsExperience: null,
     industries: [],
     workPreferences: [],
     wantToLearn: ["Plumbing", "Electrical installation"],
     format: "both",
-    buddy: { topics: ["Smartphones", "AI tools", "Video meetings"], availability: "Saturday mornings", mode: "in-person", pricing: "volunteer" },
+    buddy: { topics: ["Smartphones", "Chat assistants", "Video meetings"], availability: "Saturday mornings", mode: "in-person", pricing: "volunteer" },
   },
   {
     ...base,
@@ -445,13 +445,13 @@ export const SEED_USERS: User[] = [
     yearsExperience: 34,
     industries: ["Business & office"],
     workPreferences: ["Open to online work"],
-    wantToLearn: ["AI tools"],
+    wantToLearn: ["Chat assistants"],
     format: "online",
-    buddy: { topics: ["Online safety", "Email", "AI tools"], availability: "Mornings", mode: "online", pricing: "free" },
+    buddy: { topics: ["Online safety", "Email", "Chat assistants"], availability: "Mornings", mode: "online", pricing: "free" },
   },
 ];
 
-// Demo organisations. Fictional, and never shown as verified.
+// Demo organizations. Fictional, and never shown as verified.
 SEED_USERS.push(
   {
     ...base,
@@ -460,7 +460,7 @@ SEED_USERS.push(
     email: "hiring@woodcenter.demo",
     roles: ["employer"],
     location: "Portland",
-    bio: "Programme lead at a community woodworking center.",
+    bio: "Program lead at a community woodworking center.",
     skills: [],
     yearsExperience: null,
     industries: ["Community workshop"],
@@ -470,7 +470,7 @@ SEED_USERS.push(
     org: {
       name: "Community Woodworking Center",
       kind: "workshop",
-      about: "A non-profit shared workshop offering classes and apprenticeships. (Fictional demo organisation.)",
+      about: "A non-profit shared workshop offering classes and apprenticeships. (Fictional demo organization.)",
       verified: false,
     },
   },
@@ -491,7 +491,7 @@ SEED_USERS.push(
     org: {
       name: "Cascade Vocational College",
       kind: "school",
-      about: "Trade and technical courses for school leavers and adults. (Fictional demo organisation.)",
+      about: "Trade and technical courses for school leavers and adults. (Fictional demo organization.)",
       verified: false,
     },
   },
@@ -842,4 +842,30 @@ export const SEED_THANKS: ThankYou[] = [
     message: "Grace's advice saved my little bakery from a tax mess. Calm, clear, and kind.",
     createdAt: "2026-09-25T12:00:00.000Z",
   },
+];
+
+const q = (id: string, trade: string, askerLabel: string, text: string): PracticalQuestion => ({
+  id,
+  trade,
+  askerLabel,
+  text,
+  answers: [],
+  isDemo: true,
+  createdAt: "2026-10-01T09:00:00.000Z",
+});
+
+// Example questions (fictional) showing the kind of things learners ask.
+export const SEED_QUESTIONS: PracticalQuestion[] = [
+  q("q-repair", "Home repair", "Someone learning home repairs", "How can you tell when a repair has been done properly?"),
+  q("q-wood", "Carpentry", "An apprentice carpenter", "My cuts keep drifting off the line. What am I doing wrong with the saw?"),
+  q("q-plumb", "Plumbing", "Someone fixing up their first flat", "A tap keeps dripping even after I changed the washer. What should I check next?"),
+  q("q-weld", "Welding", "A welding student", "How do you know when a weld is strong, just by looking at it?"),
+  q("q-mech", "Mechanics", "Someone learning to look after their car", "What sounds from an engine mean I should stop driving straight away?"),
+  q("q-cook", "Cooking", "A new line cook", "How do you keep calm and organized when every order comes in at once?"),
+  q("q-garden", "Gardening & farming", "Someone starting a vegetable plot", "How do you know when soil is ready for planting?"),
+  q("q-books", "Small business", "Someone opening a small bakery", "What's the simplest way to keep track of money coming in and going out?"),
+  q("q-sew", "Sewing & tailoring", "A student learning to sew", "How do I stop fabric from puckering when I sew a seam?"),
+  q("q-paint", "Painting & decorating", "Someone painting their home for the first time", "Why does my paint look streaky, and how do pros get a smooth finish?"),
+  q("q-safe", "Workplace safety", "A first-year construction worker", "What's one safety habit you wish someone had taught you on your first day?"),
+  q("q-work", "Working life", "Someone starting their first full-time job", "How do you earn the respect of people who've been there much longer than you?"),
 ];

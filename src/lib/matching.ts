@@ -21,7 +21,7 @@ const RELATED: string[][] = [
   ["email", "e mail", "correo", "correo electronico"],
   ["sewing", "tailoring", "costura", "sastreria"],
   ["smartphone", "smartphones", "phone", "telefono", "celular", "movil"],
-  ["ai tools", "artificial intelligence", "inteligencia artificial", "herramientas de ia", "herramientas ia"],
+  ["chat assistants", "chat assistant", "chatgpt", "ai tools", "artificial intelligence", "inteligencia artificial", "herramientas de ia", "herramientas ia"],
   ["online safety", "scams", "seguridad en linea", "seguridad en internet", "estafas"],
   ["resume", "resumes", "curriculum", "curriculo", "cv"],
 ];

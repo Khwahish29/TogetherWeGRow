@@ -51,7 +51,7 @@ export default function MentorDetail() {
             <Avatar name={person.name} size="lg" />
             <div>
               <h1 className="text-4xl font-bold">{person.name}</h1>
-              <p className="mt-1 text-lg text-ink/75">
+              <p className="mt-1 text-lg text-muted">
                 {person.industries[0] ?? "Member"}
                 {person.yearsExperience ? ` · ${person.yearsExperience} years' experience` : ""}
                 {person.location ? ` · ${person.location}` : ""}
@@ -101,7 +101,7 @@ export default function MentorDetail() {
                   .map((t) => (
                     <li key={t.id} className="rounded-3xl bg-warm-100/70 p-5">
                       <p className="font-serif text-lg leading-relaxed text-brand-900">“{t.message}”</p>
-                      <p className="mt-2 text-sm text-ink/70">
+                      <p className="mt-2 text-sm text-muted">
                         {users.find((u) => u.id === t.fromId)?.name ?? "A member"}
                         {t.isDemo && <span className="badge ml-2 bg-warm-100 text-warm-800">Fictional example</span>}
                       </p>

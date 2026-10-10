@@ -117,7 +117,7 @@ export default function Mentors() {
           </div>
         </form>
 
-        <p aria-live="polite" className="mt-3 flex min-h-[1.75rem] items-center gap-2 text-sm text-ink/70">
+        <p aria-live="polite" className="mt-3 flex min-h-[1.75rem] items-center gap-2 text-sm text-muted">
           {ai.active && ai.loading && (
             <>
               <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-brand-600" /> Finding the best people for you…
@@ -125,7 +125,7 @@ export default function Mentors() {
           )}
           {ai.active && !ai.loading && ai.results && (
             <>
-              <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-600" /> How matching works: AI compares what you want to learn
+              <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-600" /> How matching works: we compare what you want to learn
               with what each mentor teaches. "Strong match" is a suggestion, not a score. Please read profiles yourself.
             </>
           )}
@@ -152,7 +152,7 @@ export default function Mentors() {
             <h2 id="best" className="text-2xl font-bold">
               {bestTitle}
             </h2>
-            {!q && <p className="text-ink/70">Based on what you want to learn: {user!.wantToLearn.join(", ")}</p>}
+            {!q && <p className="text-muted">Based on what you want to learn: {user!.wantToLearn.join(", ")}</p>}
             <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {best.map((m) => (
                 <MentorCard key={m.mentor.id} match={m} showScore thanksCount={thanksFor(m.mentor.id)} fromPrice={lowestPrice(m.mentor.id)} />
@@ -165,7 +165,7 @@ export default function Mentors() {
           <section aria-labelledby="all" className="mt-10">
             <h2 id="all" className="text-2xl font-bold">
               {best.length ? (q ? "Other possible matches" : "More mentors") : "All mentors"}{" "}
-              <span className="text-base font-normal text-ink/60">({rest.length})</span>
+              <span className="text-base font-normal text-muted">({rest.length})</span>
             </h2>
             {rest.length === 0 && best.length === 0 ? (
               <div className="mt-4">

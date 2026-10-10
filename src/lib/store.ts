@@ -1,7 +1,6 @@
-// Local demo data layer. Every function is async so it can be swapped for Supabase later
-// without changing the pages that call it.
+// The site's data layer. Every function talks to the server (/api/auth and /api/data), so pages never
+// deal with HTTP directly. Reads are cached briefly and refreshed whenever something changes.
 import { browserLangCode } from "../i18n/languages";
-import { SEED_APPLICATIONS, SEED_LISTINGS, SEED_OPPORTUNITIES, SEED_REQUESTS, SEED_THANKS, SEED_USERS } from "../data/seed";
 import type { NextChapterPlan } from "../../shared/types";
 import type {
   Application,
@@ -9,279 +8,399 @@ import type {
   ConnectionRequest,
   Listing,
   Opportunity,
+  PracticalQuestion,
   Reflection,
   RequestStatus,
   ThankYou,
   User,
 } from "./types";
 
-const KEYS = {
-  users: "twg.users",
-  listings: "twg.listings",
-  requests: "twg.requests",
-  reflections: "twg.reflections",
-  thanks: "twg.thanks",
-  opportunities: "twg.opportunities",
-  applications: "twg.applications",
-  plans: "twg.plans",
-  session: "twg.session",
-  seeded: "twg.seeded.v4",
-};
+// ---- Plumbing ----
 
-function read<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
+export class ApiError extends Error {
+  constructor(
+    public status: number,
+    message: string,
+  ) {
+    super(message);
   }
 }
 
-function write<T>(key: string, value: T) {
+async function call<T>(method: string, path: string, body?: unknown): Promise<T> {
+  let res: Response;
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    res = await fetch(`/api/${path}`, {
+      method,
+      credentials: "same-origin",
+      headers: body === undefined ? undefined : { "Content-Type": "application/json" },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
   } catch {
-    // Storage unavailable (private mode): the demo still runs for this page view.
+    throw new ApiError(0, "We couldn't connect. Please check your internet connection and try again.");
   }
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new ApiError(res.status, (json as { error?: string }).error ?? "Something went wrong. Please try again.");
+  return json as T;
+}
+
+const cache = new Map<string, { at: number; value: Promise<unknown> }>();
+const FRESH_MS = 3000;
+
+function get<T>(path: string): Promise<T> {
+  const hit = cache.get(path);
+  if (hit && Date.now() - hit.at < FRESH_MS) return hit.value as Promise<T>;
+  const value = call<T>("GET", path).catch((err) => {
+    cache.delete(path);
+    throw err;
+  });
+  cache.set(path, { at: Date.now(), value });
+  return value;
+}
+
+function notify() {
+  cache.clear();
   window.dispatchEvent(new Event("twg:change"));
 }
 
-function ensureSeeded() {
-  if (read(KEYS.seeded, false)) return;
-  // Refresh the demo data but keep anything people created themselves.
-  const keep = <T extends { id: string; isDemo?: boolean }>(key: string, seed: T[]) => [
-    ...seed,
-    ...read<T[]>(key, []).filter((item) => !item.isDemo && !seed.some((s) => s.id === item.id)),
-  ];
-  const keepById = <T extends { id: string }>(key: string, seed: T[]) => [
-    ...seed,
-    ...read<T[]>(key, []).filter((item) => !seed.some((s) => s.id === item.id)),
-  ];
-  write(KEYS.users, keep(KEYS.users, SEED_USERS));
-  write(KEYS.listings, keep(KEYS.listings, SEED_LISTINGS));
-  write(KEYS.requests, keepById(KEYS.requests, SEED_REQUESTS));
-  write(KEYS.reflections, read(KEYS.reflections, []));
-  write(KEYS.thanks, keepById(KEYS.thanks, SEED_THANKS));
-  write(KEYS.opportunities, keep(KEYS.opportunities, SEED_OPPORTUNITIES));
-  write(KEYS.applications, keepById(KEYS.applications, SEED_APPLICATIONS));
-  write(KEYS.seeded, true);
+async function change<T>(method: string, path: string, body?: unknown): Promise<T> {
+  const out = await call<T>(method, path, body);
+  notify();
+  return out;
 }
+
+/** Quietly returns a fallback when a read fails, so one hiccup doesn't break a whole page. */
+const soft = <T,>(p: Promise<T>, fallback: T) => p.catch(() => fallback);
 
 export function newId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-// ---- Users & auth ----
+// ---- Accounts ----
+
+let me: User | null = null;
+let meLoaded = false;
+
+export function currentUserId(): string | null {
+  return me?.id ?? null;
+}
+
+export async function currentUser(): Promise<User | null> {
+  const out = await soft(get<{ user: User | null; emailEnabled: boolean }>("auth/me"), { user: me, emailEnabled: false });
+  me = out.user;
+  meLoaded = true;
+  emailOn = out.emailEnabled;
+  return me;
+}
+
+let emailOn = false;
+/** Whether the site can send email (password resets, message alerts). */
+export function emailEnabled() {
+  return emailOn;
+}
+
+export function authLoaded() {
+  return meLoaded;
+}
+
+type SignUpInput = Pick<User, "name" | "email" | "roles" | "location"> & {
+  password: string;
+  comfort?: string[];
+  org?: User["org"];
+  languages?: string[];
+  preferredLanguage?: string;
+};
+
+export async function signUp(input: SignUpInput): Promise<User> {
+  const languages = input.languages?.length ? input.languages : [browserLangCode()];
+  const { user } = await change<{ user: User }>("POST", "auth/signup", {
+    ...input,
+    languages,
+    preferredLanguage: input.preferredLanguage ?? languages[0],
+  });
+  me = user;
+  return user;
+}
+
+/** Joins with just a first name (or adds roles to the person already signed in). */
+export async function quickJoin(name: string, roles: User["roles"] = []): Promise<User> {
+  const { user } = await change<{ user: User }>("POST", "auth/quick", { name, roles });
+  me = user;
+  return user;
+}
+
+/** Adds an email and password to a first-name-only account, so it can be used on other devices. */
+export async function claimAccount(email: string, password: string): Promise<User> {
+  if (!me) throw new ApiError(401, "Please sign in first.");
+  const { user } = await change<{ user: User }>("POST", "auth/signup", { ...me, email, password });
+  me = user;
+  return user;
+}
+
+export async function logIn(email: string, password: string): Promise<User> {
+  const { user } = await change<{ user: User }>("POST", "auth/login", { email, password });
+  me = user;
+  return user;
+}
+
+export async function logOut() {
+  await change("POST", "auth/logout");
+  me = null;
+}
+
+export async function forgotPassword(email: string) {
+  return call<{ ok: boolean; emailEnabled: boolean }>("POST", "auth/forgot", { email });
+}
+
+export async function resetPassword(token: string, password: string) {
+  const { user } = await change<{ user: User }>("POST", "auth/reset", { token, password });
+  me = user;
+  return user;
+}
+
+export async function changePassword(current: string, password: string) {
+  await call("POST", "auth/password", { current, password });
+}
+
+export async function deleteAccount() {
+  await change("DELETE", "auth/account");
+  me = null;
+}
+
+export const EXPORT_URL = "/api/auth/export";
+
+// ---- People ----
 
 export async function getUsers(): Promise<User[]> {
-  ensureSeeded();
-  return read<User[]>(KEYS.users, []);
+  return soft(get<User[]>("data/users"), []);
 }
 
 export async function getUser(id: string): Promise<User | undefined> {
   return (await getUsers()).find((u) => u.id === id);
 }
 
+/** Saves your own profile. */
 export async function saveUser(user: User): Promise<User> {
-  const users = await getUsers();
-  const index = users.findIndex((u) => u.id === user.id);
-  if (index >= 0) users[index] = user;
-  else users.push(user);
-  write(KEYS.users, users);
-  return user;
-}
-
-export function currentUserId(): string | null {
-  return read<string | null>(KEYS.session, null);
-}
-
-export async function currentUser(): Promise<User | null> {
-  const id = currentUserId();
-  if (!id) return null;
-  const user = await getUser(id);
-  if (!user) {
-    // The saved login points to an account that no longer exists (e.g. demo data was reset).
-    write(KEYS.session, null);
-    return null;
-  }
-  return user;
-}
-
-export async function signUp(
-  input: Pick<User, "name" | "email" | "password" | "roles" | "location"> & { comfort?: string[]; org?: User["org"]; languages?: string[]; preferredLanguage?: string },
-): Promise<User> {
-  const users = await getUsers();
-  const email = input.email.trim().toLowerCase();
-  if (users.some((u) => u.email.toLowerCase() === email)) {
-    throw new Error("An account with this email already exists. Try logging in instead.");
-  }
-  const user: User = {
-    id: newId("u"),
-    name: input.name.trim(),
-    email,
-    password: input.password,
-    roles: input.roles,
-    location: input.location.trim(),
-    bio: "",
-    skills: [],
-    yearsExperience: null,
-    industries: [],
-    workPreferences: [],
-    wantToLearn: [],
-    format: "both",
-    languages: input.languages?.length ? input.languages : [browserLangCode()],
-    preferredLanguage: input.preferredLanguage ?? input.languages?.[0] ?? browserLangCode(),
-    comfort: input.comfort ?? [],
-    org: input.org,
-    profileApproved: false,
-    createdAt: new Date().toISOString(),
-  };
-  await saveUser(user);
-  write(KEYS.session, user.id);
-  return user;
-}
-
-export async function logIn(email: string, password: string): Promise<User> {
-  const user = (await getUsers()).find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
-  if (!user || user.password !== password) throw new Error("That email and password don't match. Please try again.");
-  write(KEYS.session, user.id);
-  return user;
-}
-
-export async function logOut() {
-  write(KEYS.session, null);
+  const saved = await change<User>("PUT", "data/users/me", user);
+  me = saved;
+  return saved;
 }
 
 // ---- Listings ----
 
 export async function getListings(): Promise<Listing[]> {
-  ensureSeeded();
-  return read<Listing[]>(KEYS.listings, []);
+  return soft(get<Listing[]>("data/listings"), []);
 }
 
 export async function createListing(listing: Omit<Listing, "id" | "createdAt">): Promise<Listing> {
-  const created: Listing = { ...listing, id: newId("l"), createdAt: new Date().toISOString() };
-  write(KEYS.listings, [created, ...(await getListings())]);
-  return created;
+  return change<Listing>("POST", "data/listings", listing);
 }
 
 export async function deleteListing(id: string) {
-  write(KEYS.listings, (await getListings()).filter((l) => l.id !== id));
+  await change("DELETE", `data/listings/${encodeURIComponent(id)}`);
 }
 
 // ---- Requests (mentoring sessions and buddy help) ----
 
 export async function getRequests(): Promise<ConnectionRequest[]> {
-  ensureSeeded();
-  return read<ConnectionRequest[]>(KEYS.requests, []);
+  return soft(get<ConnectionRequest[]>("data/requests"), []);
 }
 
-export async function createRequest(
-  req: Omit<ConnectionRequest, "id" | "createdAt" | "status">,
-): Promise<ConnectionRequest> {
-  const created: ConnectionRequest = { ...req, id: newId("r"), status: "pending", createdAt: new Date().toISOString() };
-  write(KEYS.requests, [created, ...(await getRequests())]);
-  return created;
+export async function createRequest(req: Omit<ConnectionRequest, "id" | "createdAt" | "status">): Promise<ConnectionRequest> {
+  return change<ConnectionRequest>("POST", "data/requests", req);
 }
 
 export async function setRequestStatus(id: string, status: RequestStatus) {
-  write(
-    KEYS.requests,
-    (await getRequests()).map((r) => (r.id === id ? { ...r, status } : r)),
-  );
+  await change("PATCH", `data/requests/${encodeURIComponent(id)}`, { status });
 }
 
 /** Suggest a new time. The request goes back to "pending" so the other person can say yes again. */
 export async function rescheduleRequest(id: string, proposedAt: string) {
-  write(
-    KEYS.requests,
-    (await getRequests()).map((r) => (r.id === id ? { ...r, proposedAt, status: "pending" as const } : r)),
-  );
+  await change("PATCH", `data/requests/${encodeURIComponent(id)}`, { proposedAt });
 }
 
 // ---- Reflections (private) and thank-you notes (public) ----
 
-export async function getReflections(authorId: string): Promise<Reflection[]> {
-  ensureSeeded();
-  return read<Reflection[]>(KEYS.reflections, []).filter((r) => r.authorId === authorId);
+export async function getReflections(_authorId: string): Promise<Reflection[]> {
+  return soft(get<Reflection[]>("data/reflections"), []);
 }
 
 export async function saveReflection(reflection: Omit<Reflection, "id" | "createdAt">): Promise<Reflection> {
-  const all = read<Reflection[]>(KEYS.reflections, []).filter(
-    (r) => !(r.requestId === reflection.requestId && r.authorId === reflection.authorId),
-  );
-  const created: Reflection = { ...reflection, id: newId("rf"), createdAt: new Date().toISOString() };
-  write(KEYS.reflections, [created, ...all]);
-  return created;
+  return change<Reflection>("POST", "data/reflections", reflection);
 }
 
 export async function getThanks(): Promise<ThankYou[]> {
-  ensureSeeded();
-  return read<ThankYou[]>(KEYS.thanks, []);
+  return soft(get<ThankYou[]>("data/thanks"), []);
 }
 
 export async function sendThanks(note: Omit<ThankYou, "id" | "createdAt">): Promise<ThankYou> {
-  const created: ThankYou = { ...note, id: newId("ty"), createdAt: new Date().toISOString() };
-  write(KEYS.thanks, [created, ...(await getThanks())]);
-  return created;
+  return change<ThankYou>("POST", "data/thanks", note);
 }
 
 // ---- Paid opportunities and applications ----
 
 export async function getOpportunities(): Promise<Opportunity[]> {
-  ensureSeeded();
-  return read<Opportunity[]>(KEYS.opportunities, []);
+  return soft(get<Opportunity[]>("data/opportunities"), []);
 }
 
-export async function saveOpportunity(
-  opp: Omit<Opportunity, "id" | "createdAt"> & { id?: string; createdAt?: string },
-): Promise<Opportunity> {
-  const all = await getOpportunities();
-  const saved: Opportunity = { ...opp, id: opp.id ?? newId("o"), createdAt: opp.createdAt ?? new Date().toISOString() };
-  write(KEYS.opportunities, all.some((o) => o.id === saved.id) ? all.map((o) => (o.id === saved.id ? saved : o)) : [saved, ...all]);
-  return saved;
+export async function saveOpportunity(opp: Omit<Opportunity, "id" | "createdAt"> & { id?: string; createdAt?: string }): Promise<Opportunity> {
+  return change<Opportunity>("POST", "data/opportunities", opp);
 }
 
 export async function getApplications(): Promise<Application[]> {
-  ensureSeeded();
-  return read<Application[]>(KEYS.applications, []);
+  return soft(get<Application[]>("data/applications"), []);
 }
 
 export async function createApplication(
   app: Omit<Application, "id" | "createdAt" | "updatedAt" | "status"> & { status?: ApplicationStatus },
 ): Promise<Application> {
-  const now = new Date().toISOString();
-  const created: Application = { status: "submitted", ...app, id: newId("a"), createdAt: now, updatedAt: now };
-  write(KEYS.applications, [created, ...(await getApplications())]);
-  return created;
+  return change<Application>("POST", "data/applications", app);
 }
 
 export async function updateApplication(id: string, patch: Partial<Pick<Application, "status" | "reply" | "helperRequested">>) {
-  write(
-    KEYS.applications,
-    (await getApplications()).map((a) => (a.id === id ? { ...a, ...patch, updatedAt: new Date().toISOString() } : a)),
-  );
+  await change("PATCH", `data/applications/${encodeURIComponent(id)}`, patch);
 }
 
-// ---- My Next Chapter plans (one per person) ----
+// ---- My Next Chapter plans (one per person, private) ----
 
 export interface SavedPlan extends NextChapterPlan {
   source: "ai" | "fallback";
   updatedAt: string;
 }
 
-export async function getPlan(userId: string): Promise<SavedPlan | null> {
-  return read<Record<string, SavedPlan>>(KEYS.plans, {})[userId] ?? null;
+export async function getPlan(_userId: string): Promise<SavedPlan | null> {
+  return soft(get<SavedPlan | null>("data/plan"), null);
 }
 
-export async function savePlan(userId: string, plan: SavedPlan | null) {
-  const all = read<Record<string, SavedPlan>>(KEYS.plans, {});
-  if (plan) all[userId] = { ...plan, updatedAt: new Date().toISOString() };
-  else delete all[userId];
-  write(KEYS.plans, all);
+export async function savePlan(_userId: string, plan: SavedPlan | null) {
+  if (plan) await change("PUT", "data/plan", plan);
+  else await change("DELETE", "data/plan");
 }
 
-export async function resetDemo() {
-  for (const key of Object.values(KEYS)) localStorage.removeItem(key);
-  ensureSeeded();
+// ---- Practical questions (the question-first way in) ----
+
+export async function getQuestions(): Promise<PracticalQuestion[]> {
+  return soft(get<PracticalQuestion[]>("data/questions"), []);
+}
+
+export async function askQuestion(input: { text: string; trade: string; askerLabel: string; askerId?: string }) {
+  return change<PracticalQuestion>("POST", "data/questions", input);
+}
+
+export async function answerQuestion(questionId: string, _authorId: string | null, text: string) {
+  return change<{ id: string; authorId: string | null; text: string; createdAt: string }>(
+    "POST",
+    `data/questions/${encodeURIComponent(questionId)}/answers`,
+    { text },
+  );
+}
+
+export async function updateAnswer(_questionId: string, answerId: string, text: string | null) {
+  if (text === null) await change("DELETE", `data/answers/${encodeURIComponent(answerId)}`);
+  else await change("PATCH", `data/answers/${encodeURIComponent(answerId)}`, { text });
+}
+
+/** A guest's first answer, kept in this tab so it can start their profile if they choose to join. */
+const FIRST_ANSWER = "twg.firstAnswer";
+export function saveFirstAnswer(question: string, answer: string) {
+  try {
+    sessionStorage.setItem(FIRST_ANSWER, JSON.stringify({ question, answer }));
+  } catch {
+    // ignore
+  }
+}
+export function takeFirstAnswer(): { question: string; answer: string } | null {
+  try {
+    return JSON.parse(sessionStorage.getItem(FIRST_ANSWER) ?? "null");
+  } catch {
+    return null;
+  }
+}
+export function clearFirstAnswer() {
+  try {
+    sessionStorage.removeItem(FIRST_ANSWER);
+  } catch {
+    // ignore
+  }
+}
+
+// ---- Messages: questions, help requests, booking requests and replies ----
+
+export interface SimpleNote {
+  id: string;
+  toId: string;
+  fromId?: string;
+  fromName: string;
+  kind: "question" | "help" | "session" | "interest" | "reply";
+  text: string;
+  contact?: string;
+  replyTo?: string;
+  read?: boolean;
+  createdAt: string;
+}
+
+export async function getNotes(): Promise<SimpleNote[]> {
+  return soft(get<SimpleNote[]>("data/notes"), []);
+}
+
+export async function addNote(note: Omit<SimpleNote, "id" | "createdAt" | "read" | "fromId">) {
+  return change<SimpleNote>("POST", "data/notes", note);
+}
+
+export async function markNoteRead(id: string) {
+  await change("POST", `data/notes/${encodeURIComponent(id)}/read`);
+}
+
+// ---- Safety ----
+
+export async function sendReport(input: { aboutId?: string; reason: string; details: string }) {
+  await call("POST", "data/reports", input);
+}
+
+// ---- Measuring what matters (anonymous) ----
+
+export async function addFeedback(f: { flow: string; rating: number; comfortable?: boolean }) {
+  await call("POST", "data/feedback", f).catch(() => undefined);
+}
+
+export interface SiteStats {
+  elders: number;
+  helpers: number;
+  connections: number;
+  sessionsAccepted: number;
+  listings: number;
+  returningPairs: number;
+  firstTimes: number;
+  firstUnder5: number;
+  comfortAsked: number;
+  comfortable: number;
+  rated: number;
+  ratedGood: number;
+}
+
+export async function getStats(): Promise<SiteStats | null> {
+  return soft(get<SiteStats>("data/stats"), null);
+}
+
+const VISIT_START = "twg.visitStart";
+
+/** Called when someone first picks who they are. */
+export function startVisitClock() {
+  try {
+    if (!sessionStorage.getItem(VISIT_START)) sessionStorage.setItem(VISIT_START, String(Date.now()));
+  } catch {
+    // ignore
+  }
+}
+
+/** Records how long the first completed interaction of this visit took (once per visit, anonymously). */
+export function markFirstInteraction(flow: string) {
+  try {
+    const start = Number(sessionStorage.getItem(VISIT_START));
+    if (!start || sessionStorage.getItem("twg.firstDone")) return;
+    sessionStorage.setItem("twg.firstDone", "1");
+    const seconds = Math.round((Date.now() - start) / 1000);
+    void call("POST", "data/first-time", { flow, seconds }).catch(() => undefined);
+  } catch {
+    // ignore
+  }
 }

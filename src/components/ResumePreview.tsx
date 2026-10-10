@@ -24,7 +24,7 @@ function Spot({ active, children, className = "" }: { active: boolean; children:
       } ${className}`}
     >
       {active && (
-        <span className="resume-active-label absolute -top-3 right-2 rounded-full bg-warm-500 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-white">
+        <span className="resume-active-label absolute -top-3 right-2 rounded-full bg-warm-600 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-white">
           Filling in now
         </span>
       )}
@@ -35,7 +35,7 @@ function Spot({ active, children, className = "" }: { active: boolean; children:
 
 function Placeholder({ children }: { children: ReactNode }) {
   return (
-    <span className="resume-placeholder inline-block rounded border border-dashed border-ink/20 px-2 text-ink/35">{children}</span>
+    <span className="resume-placeholder inline-block rounded border border-dashed border-ink/25 px-2 text-muted">{children}</span>
   );
 }
 
@@ -100,10 +100,10 @@ export function ResumePreview({ data, active }: { data: ResumeData; active: Resu
                 <p className="font-bold text-brand-900">
                   {job.title || "Role"}
                   {job.employer && <span className="font-normal text-ink/80"> · {job.employer}</span>}
-                  {job.location && <span className="font-normal text-ink/60">, {job.location}</span>}
+                  {job.location && <span className="font-normal text-muted">, {job.location}</span>}
                 </p>
                 {(job.start || job.end) && (
-                  <p className="text-sm text-ink/60">
+                  <p className="text-sm text-muted">
                     {job.start}
                     {job.start && job.end ? " – " : ""}
                     {job.end}
@@ -148,7 +148,7 @@ export function ResumePreview({ data, active }: { data: ResumeData; active: Resu
                 ))}
               </ul>
             ) : (
-              <Placeholder>Any courses, licences, or certificates</Placeholder>
+              <Placeholder>Any courses, licenses, or certificates</Placeholder>
             )}
           </Spot>
         </section>

@@ -1,14 +1,17 @@
 # Image credits
 
-- `workshop-tools.jpg`: "Woodworking workshop" by s w wengenroad (via Unsplash / Wikimedia Commons),
-  CC0 1.0 (public domain). https://commons.wikimedia.org/w/index.php?curid=61684081
+All photos are openly licensed and stored in this folder (no external links).
 
-## Photo slots to fill
+| File | Photo | Author | Licence | Source |
+|---|---|---|---|---|
+| `workshop-tools.jpg` | "Woodworking workshop" | s w wengenroad (via Unsplash) | CC0 1.0 (public domain) | https://commons.wikimedia.org/w/index.php?curid=61684081 |
+| `welding-mentor.jpg` | "Welding with an instructor" | Rwebogora | CC BY-SA 4.0 | https://commons.wikimedia.org/wiki/File:Welding_with_an_instructor.jpg |
+| `welding-open-house.jpg` | "Welding open house" | University of the Fraser Valley | CC BY 2.0 | https://commons.wikimedia.org/wiki/File:Welding_open_house_(13222190783).jpg |
 
-The homepage marks a few spots as "Photo to come". They are meant for real, consented photos of
-TogetherWeGrow members (or properly licensed images) showing:
+Files were resized and recompressed for the web; no other changes. The photographers and pictured people are not
+affiliated with TogetherWeGrow and do not endorse it.
 
-1. An experienced tradesperson guiding a younger learner at a workbench.
-2. A younger digital buddy and an older adult sitting side by side at a laptop, the older person in control.
+## Photo slot still to fill
 
-Replace the `PhotoSlot` usages in `src/pages/Home.tsx` with `<img>` tags once you have them.
+The homepage marks one spot as "Photo to come": a younger person and an older adult side by side at a laptop, the older
+person at the keyboard. Use a real, consented photo of members (or a properly licensed image).

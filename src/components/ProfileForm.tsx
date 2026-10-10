@@ -1,6 +1,6 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 import { EMPTY_COMFORT } from "../lib/comfort";
-import type { BuddyOffer, BuddyPricing, Format, Organisation, Role, User, WorkComfort } from "../lib/types";
+import type { BuddyOffer, BuddyPricing, Format, Organization, Role, User, WorkComfort } from "../lib/types";
 import { langName } from "../i18n/languages";
 import { LanguagePicker } from "./LanguagePicker";
 import { ChipInput } from "./ui";
@@ -27,7 +27,8 @@ const ROLE_LABELS: Record<Role, string> = {
   mentor: "Mentor / expert",
   learner: "Learner",
   buddy: "Digital buddy",
-  employer: "Organisation (hiring)",
+  employer: "Organization (hiring)",
+  family: "Supporting someone I love",
 };
 
 function Choice<T extends string | boolean | null>({
@@ -78,8 +79,8 @@ export function ProfileForm({
   const setBuddy = (patch: Partial<BuddyOffer>) => set("buddy", { ...buddy, ...patch });
   const wc = f.workComfort ?? EMPTY_COMFORT;
   const setWc = (patch: Partial<WorkComfort>) => set("workComfort", { ...wc, ...patch });
-  const org: Organisation = f.org ?? { name: "", kind: "workshop", about: "", verified: false };
-  const setOrg = (patch: Partial<Organisation>) => set("org", { ...org, ...patch });
+  const org: Organization = f.org ?? { name: "", kind: "workshop", about: "", verified: false };
+  const setOrg = (patch: Partial<Organization>) => set("org", { ...org, ...patch });
   const showsComfort = f.roles.some((r) => r === "mentor" || r === "learner");
 
   async function handleSubmit(e: FormEvent) {
@@ -196,7 +197,7 @@ export function ProfileForm({
       {showsComfort && (
         <fieldset id="work-comfort" className="card scroll-mt-28 space-y-5">
           <legend className="px-1 font-serif text-xl font-bold text-brand-900">What kind of work feels right for you?</legend>
-          <p className="text-ink/75">
+          <p className="text-muted">
             Optional. These are <strong>work preferences, not medical questions</strong>. We use them to point out roles
             that seem to fit and to flag duties worth asking about. Answer only what you want to.
           </p>
@@ -243,8 +244,8 @@ export function ProfileForm({
           <label className="flex cursor-pointer items-start gap-3 rounded-xl bg-brand-50 p-4">
             <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-brand-700" checked={wc.shareWithEmployers} onChange={(e) => setWc({ shareWithEmployers: e.target.checked })} />
             <span>
-              <strong>Let organisations see these preferences</strong>
-              <span className="block text-sm text-ink/70">Off by default. When off, only you see them.</span>
+              <strong>Let organizations see these preferences</strong>
+              <span className="block text-sm text-muted">Off by default. When off, only you see them.</span>
             </span>
           </label>
         </fieldset>
@@ -252,17 +253,17 @@ export function ProfileForm({
 
       {f.roles.includes("employer") && (
         <fieldset className="card space-y-4">
-          <legend className="px-1 font-serif text-xl font-bold text-brand-900">Your organisation</legend>
+          <legend className="px-1 font-serif text-xl font-bold text-brand-900">Your organization</legend>
           <div>
-            <label htmlFor="org-name" className="label">Organisation name</label>
+            <label htmlFor="org-name" className="label">Organization name</label>
             <input id="org-name" className="input" value={org.name} onChange={(e) => setOrg({ name: e.target.value })} />
           </div>
           <div>
             <label htmlFor="org-kind" className="label">Type</label>
-            <select id="org-kind" className="input" value={org.kind} onChange={(e) => setOrg({ kind: e.target.value as Organisation["kind"] })}>
+            <select id="org-kind" className="input" value={org.kind} onChange={(e) => setOrg({ kind: e.target.value as Organization["kind"] })}>
               <option value="workshop">Workshop</option>
               <option value="school">Vocational school or college</option>
-              <option value="community">Community organisation</option>
+              <option value="community">Community organization</option>
               <option value="business">Business</option>
             </select>
           </div>

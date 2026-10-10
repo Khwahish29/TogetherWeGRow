@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Sparkles } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { RequestDialog } from "../components/RequestDialog";
 import { Avatar, EmptyState, FormatBadge, PageHeader, PricingBadge } from "../components/ui";
 import { useAuth } from "../lib/auth";
@@ -11,14 +11,15 @@ import type { BuddyPricing, User } from "../lib/types";
 import { useStore } from "../lib/useStore";
 import { useAiMatches } from "../lib/useAiMatches";
 
-const TOPICS = ["Video meetings", "Email", "Smartphones", "AI tools", "Online safety", "Résumés", "Online job applications"];
+const TOPICS = ["Video meetings", "Email", "Smartphones", "Chat assistants", "Online safety", "Résumés", "Online job applications"];
 
 export default function Buddies() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const users = useStore(getUsers, []);
-  const [topic, setTopic] = useState("");
+  const [params] = useSearchParams();
+  const [topic, setTopic] = useState(params.get("need") ?? "");
   const [pricing, setPricing] = useState<"any" | BuddyPricing>("any");
   const [selected, setSelected] = useState<User | null>(null);
 
@@ -88,7 +89,7 @@ export default function Buddies() {
           </div>
         </div>
 
-        <p aria-live="polite" className="mt-3 flex min-h-[1.75rem] items-center gap-2 text-sm text-ink/70">
+        <p aria-live="polite" className="mt-3 flex min-h-[1.75rem] items-center gap-2 text-sm text-muted">
           {q && ai.loading && (
             <>
               <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-brand-600" /> Finding someone who can help…
@@ -96,7 +97,7 @@ export default function Buddies() {
           )}
           {q && !ai.loading && ai.results && (
             <>
-              <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-600" /> Matched by AI to what you described.
+              <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-600" /> Matched to what you described.
             </>
           )}
         </p>
@@ -109,7 +110,7 @@ export default function Buddies() {
         {buddies.length === 0 ? (
           <div className="mt-8">
             <EmptyState title={q && ai.loading ? "Looking…" : "No buddies match right now"}>
-              {!(q && ai.loading) && "Try describing it differently, or ask our AI companion instead."}
+              {!(q && ai.loading) && "Try describing it differently, or try the step-by-step guide instead."}
             </EmptyState>
           </div>
         ) : (
@@ -120,7 +121,7 @@ export default function Buddies() {
                   <Avatar name={b.name} />
                   <div>
                     <h2 className="text-xl font-bold">{b.name}</h2>
-                    <p className="text-sm text-ink/70">{b.location}</p>
+                    <p className="text-sm text-muted">{b.location}</p>
                   </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -157,10 +158,10 @@ export default function Buddies() {
           </ul>
         )}
 
-        <p className="mt-10 text-ink/75">
+        <p className="mt-10 text-muted">
           Would you rather learn privately first?{" "}
           <Link to="/learn/ai" className="font-bold text-brand-700 underline">
-            Try the AI companion
+            Try the step-by-step guide
           </Link>
           .
         </p>
@@ -182,9 +183,9 @@ export default function Buddies() {
                 <PricingBadge pricing={selected.buddy.pricing} rate={selected.buddy.rate} />
               </div>
               {selected.buddy.pricing === "paid" ? (
-                <p className="mt-1 text-sm text-ink/70">This buddy charges for their time. You'll agree the cost before meeting.</p>
+                <p className="mt-1 text-sm text-muted">This buddy charges for their time. You'll agree the cost before meeting.</p>
               ) : (
-                <p className="mt-1 text-sm text-ink/70">This help is free of charge.</p>
+                <p className="mt-1 text-sm text-muted">This help is free of charge.</p>
               )}
             </>
           )

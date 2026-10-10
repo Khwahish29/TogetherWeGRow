@@ -42,7 +42,7 @@ function ApplicationRow({ app, worker }: { app: Application; worker?: User }) {
             {app.initiatedBy === "employer" && <span className="badge ml-1 bg-brand-100 text-brand-800">You invited</span>}
           </p>
           {worker && (
-            <p className="text-sm text-ink/70">
+            <p className="text-sm text-muted">
               {worker.yearsExperience ? `${worker.yearsExperience} years · ` : ""}
               {worker.skills.slice(0, 3).join(", ")}
             </p>
@@ -54,7 +54,7 @@ function ApplicationRow({ app, worker }: { app: Application; worker?: User }) {
             </p>
           )}
           {app.helperRequested && (
-            <p className="mt-2 flex items-center gap-1 text-sm text-ink/70">
+            <p className="mt-2 flex items-center gap-1 text-sm text-muted">
               <HeartHandshake aria-hidden="true" className="h-4 w-4" /> Getting help from a digital buddy. Please be patient with replies.
             </p>
           )}
@@ -101,7 +101,10 @@ export default function EmployerPortal() {
   if (!user.roles.includes("employer")) {
     return (
       <div className="container-page py-16">
-        <p className="notice">The employer portal is for organisations that want to offer paid work.</p>
+        <h1 className="text-4xl">Employer portal</h1>
+        <p className="notice mt-4">
+          The employer portal is for organizations that want to offer paid work. You can add the organization role when you sign up.
+        </p>
       </div>
     );
   }
@@ -117,11 +120,11 @@ export default function EmployerPortal() {
 
   return (
     <>
-      <PageHeader eyebrow="Employer portal" title={user.org?.name ?? "Your organisation"}>
+      <PageHeader eyebrow="Employer portal" title={user.org?.name ?? "Your organization"}>
         Post paid mentoring, training and advisory work, and find people with decades of experience.
         <span className="mt-2 block text-base">
           <span className="badge bg-warm-100 text-warm-800">Not verified</span>{" "}
-          {user.isDemo && <span className="badge bg-warm-100 text-warm-800">Fictional demo organisation</span>}
+          {user.isDemo && <span className="badge bg-warm-100 text-warm-800">Fictional demo organization</span>}
         </span>
       </PageHeader>
 
@@ -152,7 +155,7 @@ export default function EmployerPortal() {
                             {o.title}
                           </Link>
                         </h3>
-                        <p className="text-ink/70">
+                        <p className="text-muted">
                           {payLabel(o.pay)} · {o.hoursPerWeek} · <span className="capitalize">{o.setting}</span>
                           {o.status === "closed" && <span className="badge ml-2 bg-warm-100 text-warm-800">Closed</span>}
                         </p>
@@ -170,10 +173,10 @@ export default function EmployerPortal() {
                       </div>
                     </div>
                     <h4 className="mt-4 font-bold">
-                      Applications <span className="font-normal text-ink/60">({apps.length})</span>
+                      Applications <span className="font-normal text-muted">({apps.length})</span>
                     </h4>
                     {apps.length === 0 ? (
-                      <p className="text-sm text-ink/70">None yet. You can also invite people below.</p>
+                      <p className="text-sm text-muted">None yet. You can also invite people below.</p>
                     ) : (
                       <ul className="mt-2 space-y-3">
                         {apps.map((a) => (
@@ -192,7 +195,7 @@ export default function EmployerPortal() {
           <h2 id="find" className="flex items-center gap-2 text-2xl font-bold">
             <Search aria-hidden="true" className="h-6 w-6 text-brand-700" /> Find experienced people
           </h2>
-          <p className="mt-1 text-ink/75">Describe the experience you need. We never show or use anyone's age.</p>
+          <p className="mt-1 text-muted">Describe the experience you need. We never show or use anyone's age.</p>
           <label htmlFor="wq" className="sr-only">
             Experience you need
           </label>
@@ -204,7 +207,7 @@ export default function EmployerPortal() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <p aria-live="polite" className="mt-2 flex min-h-[1.5rem] items-center gap-2 text-sm text-ink/70">
+          <p aria-live="polite" className="mt-2 flex min-h-[1.5rem] items-center gap-2 text-sm text-muted">
             {ai.active && ai.loading && (
               <>
                 <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-brand-600" /> Searching…
@@ -212,12 +215,12 @@ export default function EmployerPortal() {
             )}
             {ai.active && !ai.loading && ai.results && (
               <>
-                <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-600" /> AI-assisted suggestions based on what people chose to share.
+                <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-600" /> Suggestions based on what people chose to share.
               </>
             )}
           </p>
           {ai.active && !ai.loading && results.length === 0 && (
-            <p className="mt-2 text-ink/70">{ai.results ? "No one matches that yet. Try describing it differently." : "Search is unavailable right now."}</p>
+            <p className="mt-2 text-muted">{ai.results ? "No one matches that yet. Try describing it differently." : "Search is unavailable right now."}</p>
           )}
           <ul className="mt-4 grid gap-4 md:grid-cols-2">
             {results.map((r) => {
@@ -228,7 +231,7 @@ export default function EmployerPortal() {
                     <Avatar name={r.worker.name} />
                     <div className="min-w-0 flex-1">
                       <p className="text-lg font-bold">{r.worker.name}</p>
-                      <p className="text-sm text-ink/70">
+                      <p className="text-sm text-muted">
                         {r.worker.industries[0] ?? "Experienced professional"}
                         {r.worker.yearsExperience ? ` · ${r.worker.yearsExperience} years` : ""} · {r.worker.location}
                       </p>
@@ -241,7 +244,7 @@ export default function EmployerPortal() {
                     ))}
                   </ul>
                   {shared.length > 0 && (
-                    <p className="mt-2 text-sm text-ink/70">
+                    <p className="mt-2 text-sm text-muted">
                       <strong>Shared work preferences:</strong> {shared.join(" · ")}
                     </p>
                   )}
@@ -267,8 +270,8 @@ export default function EmployerPortal() {
           {openMine.length === 0 && results.length > 0 && <p className="mt-3 text-sm">Post an open opportunity first to invite people.</p>}
         </section>
 
-        <p className="flex items-center gap-2 text-sm text-ink/60">
-          <Building2 aria-hidden="true" className="h-4 w-4" /> In a real launch, organisations would be verified before posting.
+        <p className="flex items-center gap-2 text-sm text-muted">
+          <Building2 aria-hidden="true" className="h-4 w-4" /> In a real launch, organizations would be verified before posting.
         </p>
       </div>
 

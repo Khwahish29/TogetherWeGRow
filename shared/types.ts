@@ -142,3 +142,24 @@ export interface NextChapterInput {
   hasResume: boolean;
   hasOffer: boolean;
 }
+
+export interface VibeCheckRequest {
+  text: string;
+  /** "explain": what does this message mean? "rephrase": help me say this clearly and kindly. */
+  mode: "explain" | "rephrase";
+}
+
+export interface VibeCheckResult {
+  /** Plain-language meaning (explain) or a suggested clearer version (rephrase). */
+  meaning: string;
+  /** How the message is likely to feel, e.g. "Warm and appreciative". */
+  tone: string;
+  /** How sure the explanation is. Uncertain readings are never presented as facts. */
+  certainty: "clear" | "likely" | "unsure";
+  /** Phrases that were explained, each with its plain meaning. */
+  phrases: { phrase: string; meaning: string }[];
+  /** A friendly possible reply (explain mode). */
+  reply?: string;
+  /** A gentle way to ask what they meant, when it's unclear. */
+  askBack?: string;
+}

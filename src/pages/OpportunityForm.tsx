@@ -132,7 +132,7 @@ function Form({ initial, existing }: { initial: Draft; existing?: Opportunity })
 
         <fieldset className="card space-y-4">
           <legend className="px-1 font-serif text-xl font-bold text-brand-900">Physical duties</legend>
-          <p className="text-sm text-ink/70">Describe what the job actually involves, so people can decide for themselves.</p>
+          <p className="text-sm text-muted">Describe what the job actually involves, so people can decide for themselves.</p>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="po" className="label">Sitting or standing</label>
@@ -183,8 +183,8 @@ function Form({ initial, existing }: { initial: Draft; existing?: Opportunity })
         <button type="submit" className="btn-primary w-full text-lg">
           {existing ? "Save changes" : "Publish opportunity"}
         </button>
-        <p className="text-xs text-ink/60">
-          Listings from your organisation are shown as "not verified" in this prototype.
+        <p className="text-xs text-muted">
+          Roles are shown as "not verified" until we can check organizations.
         </p>
       </aside>
     </form>
@@ -201,7 +201,7 @@ export default function OpportunityForm() {
   if (!user?.roles.includes("employer")) {
     return (
       <div className="container-page py-16">
-        <p className="notice">Posting opportunities is for organisations. You can add the organisation role when you sign up.</p>
+        <p className="notice">Posting opportunities is for organizations. You can add the organization role when you sign up.</p>
       </div>
     );
   }

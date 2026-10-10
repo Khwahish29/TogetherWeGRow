@@ -29,8 +29,8 @@ const STEPS: { id: StepId; question: string; hint?: string; optional?: boolean }
   { id: "skills", question: "What are you good at?", hint: "Practical skills count just as much as anything else. I've added some from your profile." },
   {
     id: "training",
-    question: "Any training, licences, or certificates?",
-    hint: "Courses, apprenticeships, a driving licence, first aid... It's completely fine if there's nothing here.",
+    question: "Any training, licenses, or certificates?",
+    hint: "Courses, apprenticeships, a driving license, first aid... It's completely fine if there's nothing here.",
     optional: true,
   },
   { id: "summary", question: "Last step: a short introduction for the top of your résumé.", hint: "I'll write one from everything you've told me. Change any words you like." },
@@ -123,7 +123,7 @@ export default function ResumeBuilder() {
       saved?.data ?? {
         ...EMPTY,
         name: user?.name ?? "",
-        email: user?.email.endsWith("@demo.twg") ? "" : (user?.email ?? ""),
+        email: user?.email ?? "",
         location: user?.location ?? "",
         skills: user?.skills.slice(0, 8) ?? [],
       },
@@ -249,8 +249,8 @@ export default function ResumeBuilder() {
           <Link to="/learn" className="inline-flex items-center gap-1 font-bold text-brand-700 hover:underline">
             <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Learn your way
           </Link>
-          <p className="text-sm text-ink/70">
-            Your draft saves on this device. What you describe is sent to our AI provider to write résumé points.
+          <p className="text-sm text-muted">
+            Your draft saves in this browser. What you describe is sent to an outside text service that helps write résumé points.
           </p>
         </div>
         <div className="mt-4 flex items-center gap-3 print:hidden">
@@ -273,7 +273,7 @@ export default function ResumeBuilder() {
                     ? "bg-brand-700 text-white"
                     : i < stepIndex
                       ? "bg-brand-100 text-brand-800 hover:bg-brand-200"
-                      : "bg-white text-ink/60 hover:bg-brand-50"
+                      : "bg-white text-muted hover:bg-brand-50"
                 }`}
               >
                 {i < stepIndex && <Check aria-hidden="true" className="mr-1 inline h-3.5 w-3.5" />}
@@ -294,7 +294,7 @@ export default function ResumeBuilder() {
                 <h2 id="question" ref={headingRef} tabIndex={-1} className="scroll-mt-32 font-sans text-xl font-bold text-brand-900 outline-none sm:text-2xl">
                   {step.question}
                 </h2>
-                {step.hint && <p className="mt-1 text-ink/75">{step.hint}</p>}
+                {step.hint && <p className="mt-1 text-muted">{step.hint}</p>}
               </div>
             </div>
 
@@ -397,7 +397,7 @@ export default function ResumeBuilder() {
                               <p>
                                 <strong>{job.title || "Job"}</strong>
                                 {job.employer && ` · ${job.employer}`}
-                                <span className="block text-sm text-ink/70">{job.bullets.length} points</span>
+                                <span className="block text-sm text-muted">{job.bullets.length} points</span>
                               </p>
                               <button
                                 type="button"
@@ -479,7 +479,7 @@ export default function ResumeBuilder() {
                   />
                   {step.id === "skills" && user && user.skills.some((s) => !data.skills.includes(s)) && (
                     <div className="flex flex-wrap gap-2">
-                      <span className="text-sm text-ink/70">From your profile:</span>
+                      <span className="text-sm text-muted">From your profile:</span>
                       {user.skills
                         .filter((s) => !data.skills.includes(s))
                         .map((s) => (

@@ -147,18 +147,18 @@ export function GoogleTranslate() {
   }
 
   return (
-    <div ref={root} translate="no" className="notranslate fixed bottom-[88px] right-4 z-50 lg:bottom-4 print:hidden">
+    <div ref={root} translate="no" className="notranslate relative print:hidden">
       {/* Google's own control, kept off-screen so it can do the translating. */}
-      <div id="google_translate_element" aria-hidden="true" style={{ position: "fixed", left: -9999, top: 0 }} />
+      <div id="google_translate_element" aria-hidden="true" {...{ inert: "" }} style={{ position: "fixed", left: -9999, top: 0 }} />
 
       {open && (
         <div
           role="dialog"
           aria-label="Choose a language"
-          className="absolute bottom-full right-0 mb-2 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-xl"
+          className="fixed left-4 right-4 top-[80px] z-50 overflow-hidden rounded-2xl border border-warm-200 bg-white shadow-[0_24px_60px_-24px_rgba(20,43,33,0.5)] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80"
         >
           <div className="border-b border-brand-100 bg-brand-50 p-3">
-            <p className="font-serif text-lg font-bold text-brand-900">Read this site in your language</p>
+            <p className="font-serif text-xl text-brand-900">Read this site in your language</p>
             <label htmlFor="lang-search" className="sr-only">
               Search languages
             </label>
@@ -178,7 +178,7 @@ export function GoogleTranslate() {
               <button
                 type="button"
                 onClick={() => choose("en")}
-                className={`flex min-h-[44px] w-full items-center justify-between rounded-lg px-3 text-left font-bold ${current === "en" ? "bg-brand-100 text-brand-900" : "text-ink hover:bg-brand-50"}`}
+                className={`flex min-h-[44px] w-full items-center justify-between rounded-lg px-3 text-left font-medium ${current === "en" ? "bg-brand-100 text-brand-900" : "text-ink hover:bg-brand-50"}`}
               >
                 English
                 {current === "en" && <span aria-hidden="true">✓</span>}
@@ -193,16 +193,16 @@ export function GoogleTranslate() {
                     type="button"
                     onClick={() => choose(o.code)}
                     aria-current={current === o.code}
-                    className={`flex min-h-[44px] w-full items-center justify-between rounded-lg px-3 text-left font-bold ${current === o.code ? "bg-brand-100 text-brand-900" : "text-ink hover:bg-brand-50"}`}
+                    className={`flex min-h-[44px] w-full items-center justify-between rounded-lg px-3 text-left font-medium ${current === o.code ? "bg-brand-100 text-brand-900" : "text-ink hover:bg-brand-50"}`}
                   >
                     {o.name}
                     {current === o.code && <span aria-hidden="true">✓</span>}
                   </button>
                 </li>
               ))}
-            {list.filter((o) => o.code !== "en").length === 0 && !"english".includes(query.trim().toLowerCase()) && <li className="px-3 py-3 text-ink/70">No language found.</li>}
+            {list.filter((o) => o.code !== "en").length === 0 && !"english".includes(query.trim().toLowerCase()) && <li className="px-3 py-3 text-muted">No language found.</li>}
           </ul>
-          <p className="border-t border-brand-100 px-3 py-2 text-xs text-ink/70">
+          <p className="border-t border-brand-100 px-3 py-2 text-xs text-muted">
             {ready ? "Translated automatically by Google Translate." : "Connecting to Google Translate… (needs an internet connection)"}
           </p>
         </div>
@@ -213,13 +213,14 @@ export function GoogleTranslate() {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="dialog"
-        className="inline-flex min-h-[48px] items-center gap-2 rounded-xl border-2 border-brand-600 bg-white px-4 font-bold text-brand-900 shadow-lg transition hover:bg-brand-50"
+        aria-label={`Language: ${nameOf(current)}. Change language`}
+        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 rounded-full px-2 font-medium text-brand-800 transition hover:bg-brand-50 sm:min-h-[48px] sm:px-3"
       >
         <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="9" />
           <path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18" />
         </svg>
-        {nameOf(current)}
+        <span className="hidden text-sm font-semibold uppercase sm:inline">{(current.split("-")[0] || "en").slice(0, 2)}</span>
       </button>
     </div>
   );
