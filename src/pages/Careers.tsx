@@ -177,7 +177,7 @@ export default function Careers() {
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="badge bg-warm-100 text-warm-700">{TYPE_LABEL[rec.type] ?? rec.type}</span>
                           <span
-                            className={`badge ${rec.physicalDemand === "low" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}
+                            className={`badge ${rec.physicalDemand === "low" ? "bg-emerald-100 text-emerald-800" : "bg-warm-100 text-warm-800"}`}
                           >
                             {rec.physicalDemand === "low" ? "Usually low physical demand" : "Some physical demand"}
                           </span>

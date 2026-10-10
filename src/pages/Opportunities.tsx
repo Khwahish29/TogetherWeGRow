@@ -119,12 +119,12 @@ export default function Opportunities() {
         <p aria-live="polite" className="mt-3 flex min-h-[1.75rem] items-center gap-2 text-sm text-ink/70">
           {ai.active && ai.loading && (
             <>
-              <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-violet-600" /> Finding roles that use your experience…
+              <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-brand-600" /> Finding roles that use your experience…
             </>
           )}
           {ai.active && !ai.loading && ai.results && (
             <>
-              <Sparkles aria-hidden="true" className="h-4 w-4 text-violet-600" /> Ordered by AI using {q ? "what you typed" : "your skills and preferences"}. Please read each listing yourself.
+              <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-600" /> Ordered by AI using {q ? "what you typed" : "your skills and preferences"}. Please read each listing yourself.
             </>
           )}
         </p>
@@ -151,7 +151,7 @@ export default function Opportunities() {
                 <li key={o.id} className="flex flex-col gap-2">
                   <OpportunityCard opp={o} comfort={user?.workComfort} applied={app ? STATUS_LABEL[app.status] : undefined} />
                   {reasons.length > 0 && (
-                    <p className="px-2 text-sm text-violet-900">
+                    <p className="px-2 text-sm text-brand-800">
                       <Sparkles aria-hidden="true" className="mr-1 inline h-4 w-4" />
                       {reasons.join(" · ")}
                     </p>

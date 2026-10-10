@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 import { MentorCard } from "../components/cards";
-import { EmptyState, PageHeader } from "../components/ui";
+import { EmptyState, PageHeader, PeopleTabs } from "../components/ui";
 import { useAuth } from "../lib/auth";
 import { scoreMentor, skillsOverlap, type MentorMatch } from "../lib/matching";
 import { getListings, getThanks, getUsers } from "../lib/store";
@@ -68,6 +68,7 @@ export default function Mentors() {
       <PageHeader eyebrow="Find mentors" title="Learn from people who've done it for decades">
         Practical knowledge you can't get from a textbook: craft, trade, business, and life on the job.
       </PageHeader>
+      <PeopleTabs />
       <div className="container-page py-10">
         <form role="search" onSubmit={(e) => e.preventDefault()} className="card grid gap-4 md:grid-cols-[2fr_1fr_1fr]">
           <div>
@@ -114,13 +115,13 @@ export default function Mentors() {
         <p aria-live="polite" className="mt-3 flex min-h-[1.75rem] items-center gap-2 text-sm text-ink/70">
           {ai.active && ai.loading && (
             <>
-              <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-violet-600" /> Finding the best people for you…
+              <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-brand-600" /> Finding the best people for you…
             </>
           )}
           {ai.active && !ai.loading && ai.results && (
             <>
-              <Sparkles aria-hidden="true" className="h-4 w-4 text-violet-600" /> Matched by AI from what you're looking for. Please
-              check profiles yourself.
+              <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-600" /> How matching works: AI compares what you want to learn
+              with what each mentor teaches. "Strong match" is a suggestion, not a score. Please read profiles yourself.
             </>
           )}
         </p>
@@ -149,7 +150,7 @@ export default function Mentors() {
             {!q && <p className="text-ink/70">Based on what you want to learn: {user!.wantToLearn.join(", ")}</p>}
             <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {best.map((m) => (
-                <MentorCard key={m.mentor.id} match={m} showScore thanksCount={thanksFor(m.mentor.id)} />
+                <MentorCard key={m.mentor.id} match={m} showScore thanksCount={thanksFor(m.mentor.id)} fromPrice={lowestPrice(m.mentor.id)} />
               ))}
             </div>
           </section>
@@ -170,7 +171,7 @@ export default function Mentors() {
             ) : (
               <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {rest.map((m) => (
-                  <MentorCard key={m.mentor.id} match={m} showScore={hasNeed} thanksCount={thanksFor(m.mentor.id)} />
+                  <MentorCard key={m.mentor.id} match={m} showScore={hasNeed} thanksCount={thanksFor(m.mentor.id)} fromPrice={lowestPrice(m.mentor.id)} />
                 ))}
               </div>
             )}

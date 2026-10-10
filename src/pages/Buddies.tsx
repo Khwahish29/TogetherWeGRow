@@ -46,7 +46,7 @@ export default function Buddies() {
 
   return (
     <>
-      <PageHeader eyebrow="Learn with a human" title="Friendly digital buddies">
+      <PageHeader eyebrow="Learn with a person" title="Friendly digital buddies">
         Patient helpers who are happy to explain technology at your pace. Every buddy shows clearly whether their help is
         free, volunteer-based, or paid.
       </PageHeader>
@@ -66,7 +66,7 @@ export default function Buddies() {
             />
             <div className="mt-2 flex flex-wrap gap-2">
               {TOPICS.map((t) => (
-                <button key={t} type="button" className="chip bg-white hover:bg-brand-100" onClick={() => setTopic(t)}>
+                <button key={t} type="button" className="chip border border-brand-200 bg-white hover:border-brand-600 hover:bg-brand-50" onClick={() => setTopic(t)}>
                   {t}
                 </button>
               ))}
@@ -88,12 +88,12 @@ export default function Buddies() {
         <p aria-live="polite" className="mt-3 flex min-h-[1.75rem] items-center gap-2 text-sm text-ink/70">
           {q && ai.loading && (
             <>
-              <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-violet-600" /> Finding someone who can help…
+              <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-brand-600" /> Finding someone who can help…
             </>
           )}
           {q && !ai.loading && ai.results && (
             <>
-              <Sparkles aria-hidden="true" className="h-4 w-4 text-violet-600" /> Matched by AI to what you described.
+              <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-600" /> Matched by AI to what you described.
             </>
           )}
         </p>
@@ -125,7 +125,7 @@ export default function Buddies() {
                   <FormatBadge format={b.buddy!.mode} />
                 </div>
                 {reasonsFor(b.id).length > 0 && (
-                  <ul className="mt-3 space-y-1 rounded-xl bg-violet-50 p-3 text-sm text-violet-900">
+                  <ul className="mt-3 space-y-1 rounded-xl bg-brand-50 p-3 text-sm text-brand-800">
                     {reasonsFor(b.id).map((r) => (
                       <li key={r}>✓ {r}</li>
                     ))}

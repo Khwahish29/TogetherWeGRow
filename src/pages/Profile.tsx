@@ -15,7 +15,7 @@ export default function Profile() {
       <PageHeader eyebrow="My profile" title={user.name}>
         Keep your skills and preferences up to date. Changes are saved when you press Save.
       </PageHeader>
-      <div className="container-page grid max-w-5xl gap-8 py-10 lg:grid-cols-[1fr_260px]">
+      <div className="container-page grid gap-8 py-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-12">
         <ProfileForm
           key={user.id}
           initial={user}

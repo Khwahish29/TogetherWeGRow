@@ -1,11 +1,14 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Camera, Sparkles, Wrench } from "lucide-react";
+import { NavLink } from "react-router-dom";
 import { Navigate, useLocation } from "react-router-dom";
 import type { AiSource } from "../../shared/types";
 import { useAuth } from "../lib/auth";
 import { currentUserId } from "../lib/store";
 import type { BuddyPricing, Format } from "../lib/types";
 
-const AVATAR_COLORS = ["bg-brand-600", "bg-warm-500", "bg-sky-700", "bg-rose-700", "bg-violet-700", "bg-teal-700"];
+// Muted, palette-friendly tones (all pass AA with white initials).
+const AVATAR_COLORS = ["bg-brand-700", "bg-warm-700", "bg-brand-500", "bg-[#5B5470]", "bg-[#7A5C2E]", "bg-[#3E5A6B]"];
 
 export function Avatar({ name, size = "md" }: { name: string; size?: "sm" | "md" | "lg" }) {
   const initials = name
@@ -23,25 +26,127 @@ export function Avatar({ name, size = "md" }: { name: string; size?: "sm" | "md"
   );
 }
 
-export function PageHeader({ eyebrow, title, children }: { eyebrow?: string; title: string; children?: ReactNode }) {
+export function PageHeader({ eyebrow, title, children, aside }: { eyebrow?: string; title: string; children?: ReactNode; aside?: ReactNode }) {
   return (
-    <div className="relative overflow-hidden border-b border-brand-100 bg-gradient-to-br from-brand-50 via-warm-50 to-warm-100">
-      <div aria-hidden="true" className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-brand-200/40 blur-2xl" />
-      <div aria-hidden="true" className="absolute -bottom-24 right-1/3 h-56 w-56 rounded-full bg-warm-400/20 blur-2xl" />
-      <div className="container-page relative py-10 sm:py-14">
-        {eyebrow && <p className="font-bold uppercase tracking-widest text-warm-700 text-sm">{eyebrow}</p>}
-        <h1 className="mt-2 text-3xl sm:text-4xl font-bold">{title}</h1>
-        {children && <div className="mt-3 max-w-3xl text-lg text-ink/80">{children}</div>}
+    <header className="border-b border-warm-200/70 bg-gradient-to-b from-warm-100/70 to-warm-50">
+      <div className="container-page flex flex-col gap-6 pb-10 pt-10 sm:pb-12 sm:pt-14 lg:flex-row lg:items-end lg:justify-between">
+        <div className="max-w-3xl animate-fade-up">
+          {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+          <h1 className="mt-3 text-[2.1rem] leading-[1.12] sm:text-5xl">{title}</h1>
+          {children && <div className="mt-4 max-w-2xl text-lg leading-relaxed text-muted">{children}</div>}
+        </div>
+        {aside && <div className="shrink-0">{aside}</div>}
       </div>
+    </header>
+  );
+}
+
+/** Underlined section tabs that sit directly under a page header and link related pages. */
+export function SectionTabs({ label, tabs }: { label: string; tabs: { to: string; label: string }[] }) {
+  return (
+    <nav aria-label={label} className="border-b border-warm-200 bg-warm-50">
+      <div className="container-page flex gap-1 overflow-x-auto">
+        {tabs.map((t) => (
+          <NavLink
+            key={t.to}
+            to={t.to}
+            className={({ isActive }) =>
+              `relative flex min-h-[56px] items-center whitespace-nowrap px-4 font-medium transition-colors ${
+                isActive ? "text-brand-900 after:absolute after:inset-x-3 after:bottom-0 after:h-[3px] after:rounded-t-full after:bg-brand-700" : "text-muted hover:text-brand-800"
+              }`
+            }
+          >
+            {t.label}
+          </NavLink>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+export function PeopleTabs() {
+  return (
+    <SectionTabs
+      label="People"
+      tabs={[
+        { to: "/mentors", label: "Mentors" },
+        { to: "/marketplace", label: "Paid sessions" },
+        { to: "/learn/buddies", label: "Digital buddies" },
+      ]}
+    />
+  );
+}
+
+/**
+ * Fades content up as it scrolls into view. Fail-safe: anything already on screen, scrolled past,
+ * or reached by a jump link is shown immediately; reduced-motion users get static content.
+ */
+export function Reveal({ children, className = "", delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const inOrAbove = () => el.getBoundingClientRect().top < window.innerHeight * 1.05;
+    if (reduce || typeof IntersectionObserver === "undefined" || inOrAbove()) {
+      setShown(true);
+      return;
+    }
+    const show = () => {
+      setShown(true);
+      cleanup();
+    };
+    const io = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && show(), {
+      rootMargin: "0px 0px 10% 0px",
+    });
+    const onScroll = () => inOrAbove() && show();
+    const cleanup = () => {
+      io.disconnect();
+      window.removeEventListener("scroll", onScroll);
+    };
+    io.observe(el);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return cleanup;
+  }, []);
+  return (
+    <div
+      ref={ref}
+      className={`${className} transition duration-700 ease-out motion-reduce:transition-none ${shown ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
+      style={shown ? { transitionDelay: `${delay}ms` } : undefined}
+    >
+      {children}
     </div>
+  );
+}
+
+/** A clearly labelled space for a real photo. We never fake photography. */
+export function PhotoSlot({ caption, className = "" }: { caption: string; className?: string }) {
+  return (
+    <figure
+      className={`relative flex flex-col justify-end overflow-hidden rounded-[1.75rem] bg-brand-100 p-6 ${className}`}
+      style={{
+        backgroundImage:
+          "radial-gradient(circle at 20% 15%, rgba(216,171,103,0.25), transparent 45%), radial-gradient(circle at 85% 80%, rgba(35,70,56,0.18), transparent 50%), repeating-linear-gradient(135deg, rgba(35,70,56,0.05) 0 2px, transparent 2px 14px)",
+      }}
+    >
+      <span className="absolute left-5 top-5 inline-flex items-center gap-1.5 rounded-full bg-white/85 px-3 py-1 text-sm font-medium text-brand-800">
+        <Camera aria-hidden="true" className="h-4 w-4" /> Photo to come
+      </span>
+      <figcaption className="max-w-xs text-[0.95rem] leading-snug text-brand-900">{caption}</figcaption>
+    </figure>
   );
 }
 
 export function SourceLabel({ source }: { source: AiSource }) {
   return source === "ai" ? (
-    <span className="badge bg-violet-100 text-violet-800">AI-generated draft · please review</span>
+    <span className="badge bg-brand-100 text-brand-800">
+      <Sparkles aria-hidden="true" className="h-4 w-4" /> AI-generated draft · please review
+    </span>
   ) : (
-    <span className="badge bg-sky-100 text-sky-800">Suggested by built-in rules · please review</span>
+    <span className="badge bg-warm-100 text-warm-800">
+      <Wrench aria-hidden="true" className="h-4 w-4" /> Suggested by built-in rules · please review
+    </span>
   );
 }
 
@@ -52,12 +157,12 @@ export function FormatBadge({ format }: { format: Format }) {
 
 export function PricingBadge({ pricing, rate }: { pricing: BuddyPricing; rate?: number }) {
   if (pricing === "free") return <span className="badge bg-emerald-100 text-emerald-800">Free</span>;
-  if (pricing === "volunteer") return <span className="badge bg-sky-100 text-sky-800">Volunteer</span>;
+  if (pricing === "volunteer") return <span className="badge bg-brand-100 text-brand-800">Volunteer</span>;
   return <span className="badge bg-warm-100 text-warm-700">Paid · ${rate}/hour</span>;
 }
 
 export function DemoBadge() {
-  return <span className="badge bg-gray-200 text-gray-700">Demo</span>;
+  return <span className="badge bg-warm-100 text-warm-800">Demo listing</span>;
 }
 
 /** Editable list of short text items (skills, preferences...). */
@@ -135,9 +240,9 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
 export function EmptyState({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="rounded-2xl border-2 border-dashed border-brand-200 bg-white/60 p-8 text-center">
-      <p className="font-bold text-brand-900">{title}</p>
-      {children && <div className="mt-2 text-ink/70">{children}</div>}
+    <div className="rounded-3xl border border-dashed border-warm-200 bg-white/60 px-6 py-12 text-center">
+      <p className="font-serif text-2xl text-brand-900">{title}</p>
+      {children && <div className="mx-auto mt-2 max-w-md text-muted">{children}</div>}
     </div>
   );
 }

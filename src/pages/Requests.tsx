@@ -20,10 +20,10 @@ import { payLabel } from "../lib/comfort";
 import { useStore } from "../lib/useStore";
 
 const STATUS_STYLE: Record<RequestStatus, string> = {
-  pending: "bg-amber-100 text-amber-800",
+  pending: "bg-warm-100 text-warm-800",
   accepted: "bg-emerald-100 text-emerald-800",
-  declined: "bg-gray-200 text-gray-700",
-  withdrawn: "bg-gray-200 text-gray-700",
+  declined: "bg-warm-100 text-warm-800",
+  withdrawn: "bg-warm-100 text-warm-800",
 };
 
 const STATUS_LABEL: Record<RequestStatus, string> = {
@@ -207,10 +207,10 @@ export function RequestItem({
 }
 
 const APP_STATUS: Record<Application["status"], { label: string; style: string; text: string }> = {
-  submitted: { label: "Sent", style: "bg-amber-100 text-amber-800", text: "Waiting for the organisation to look at it." },
-  reviewing: { label: "Being reviewed", style: "bg-sky-100 text-sky-800", text: "The organisation is reviewing your application." },
+  submitted: { label: "Sent", style: "bg-warm-100 text-warm-800", text: "Waiting for the organisation to look at it." },
+  reviewing: { label: "Being reviewed", style: "bg-brand-100 text-brand-800", text: "The organisation is reviewing your application." },
   invited: { label: "Invited to talk", style: "bg-emerald-100 text-emerald-800", text: "They'd like to talk with you about this role." },
-  closed: { label: "Closed", style: "bg-gray-200 text-gray-700", text: "This application is closed." },
+  closed: { label: "Closed", style: "bg-warm-100 text-warm-800", text: "This application is closed." },
 };
 
 function WorkItem({ app, opp, org }: { app: Application; opp?: Opportunity; org?: User }) {
@@ -224,7 +224,7 @@ function WorkItem({ app, opp, org }: { app: Application; opp?: Opportunity; org?
       <div className="flex flex-wrap items-center gap-2">
         <span className={`badge ${st.style}`}>{st.label}</span>
         <span className="badge bg-warm-100 text-warm-700">{invite ? "Invitation" : "Your application"}</span>
-        {opp?.isDemo && <span className="badge bg-gray-200 text-gray-700">Illustrative listing</span>}
+        {opp?.isDemo && <span className="badge bg-warm-100 text-warm-800">Illustrative listing</span>}
       </div>
       <h3 className="mt-2 text-xl font-bold">
         {opp ? (
@@ -325,7 +325,7 @@ export default function Requests() {
       <PageHeader eyebrow="Connections" title="Requests & sessions">
         Reply to requests and follow the ones you've sent. Saying no is always fine, and so is changing your mind.
       </PageHeader>
-      <div className="container-page max-w-4xl py-10">
+      <div className="container-page py-10 [&>*]:max-w-4xl">
         <div role="tablist" aria-label="Request direction" className="mb-6 inline-flex rounded-full bg-brand-100 p-1">
           {(["incoming", "outgoing", "work"] as const).map((t) => (
             <button

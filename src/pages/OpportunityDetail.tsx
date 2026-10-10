@@ -66,7 +66,7 @@ export default function OpportunityDetail() {
           <div className="flex flex-wrap gap-2">
             <span className="badge bg-warm-100 text-warm-700">{OPP_TYPE_LABEL[opp.type]}</span>
             {opp.isDemo && <IllustrativeBadge />}
-            {opp.status === "closed" && <span className="badge bg-gray-200 text-gray-700">Closed</span>}
+            {opp.status === "closed" && <span className="badge bg-warm-100 text-warm-800">Closed</span>}
           </div>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">{opp.title}</h1>
           <p className="mt-2 flex items-center gap-2 text-lg text-ink/80">

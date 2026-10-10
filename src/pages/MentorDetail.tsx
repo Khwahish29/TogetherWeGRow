@@ -57,7 +57,7 @@ export default function MentorDetail() {
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <FormatBadge format={person.format} />
-                {person.isDemo && <span className="badge bg-gray-200 text-gray-700">Demo profile</span>}
+                {person.isDemo && <span className="badge bg-warm-100 text-warm-800">Demo profile</span>}
               </div>
             </div>
           </div>
@@ -101,7 +101,7 @@ export default function MentorDetail() {
                       <p className="font-serif text-lg leading-relaxed text-brand-900">“{t.message}”</p>
                       <p className="mt-2 text-sm text-ink/70">
                         {users.find((u) => u.id === t.fromId)?.name ?? "A member"}
-                        {t.isDemo && <span className="badge ml-2 bg-gray-200 text-gray-700">Fictional example</span>}
+                        {t.isDemo && <span className="badge ml-2 bg-warm-100 text-warm-800">Fictional example</span>}
                       </p>
                     </li>
                   ))}

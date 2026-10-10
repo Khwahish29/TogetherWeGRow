@@ -7,12 +7,12 @@ import { VoiceRecorder } from "../components/VoiceRecorder";
 import { api } from "../lib/api";
 
 const TOPICS: { id: string; label: string; icon: LucideIcon; tone: string }[] = [
-  { id: "video-meeting", label: "Join a video meeting", icon: Video, tone: "bg-sky-100 text-sky-700" },
+  { id: "video-meeting", label: "Join a video meeting", icon: Video, tone: "bg-brand-100 text-brand-800" },
   { id: "email", label: "Send an email", icon: Mail, tone: "bg-brand-100 text-brand-700" },
   { id: "resume", label: "Build my résumé together", icon: FileText, tone: "bg-warm-100 text-warm-700" },
-  { id: "job-application", label: "Apply for a job online", icon: MousePointerClick, tone: "bg-violet-100 text-violet-700" },
-  { id: "scams", label: "Spot suspicious messages", icon: ShieldAlert, tone: "bg-rose-100 text-rose-700" },
-  { id: "ai-tools", label: "Use basic AI tools", icon: Sparkles, tone: "bg-amber-100 text-amber-700" },
+  { id: "job-application", label: "Apply for a job online", icon: MousePointerClick, tone: "bg-brand-100 text-brand-600" },
+  { id: "scams", label: "Spot suspicious messages", icon: ShieldAlert, tone: "bg-warm-100 text-warm-700" },
+  { id: "ai-tools", label: "Use basic AI tools", icon: Sparkles, tone: "bg-warm-100 text-warm-800" },
 ];
 
 type Feeling = NonNullable<CompanionRequest["feeling"]>;
@@ -140,7 +140,7 @@ export default function LearnAI() {
           ← Learn your way
         </Link>
         <div className="mt-4 flex items-center gap-3">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-100 text-brand-600">
             <Bot aria-hidden="true" className="h-7 w-7" />
           </span>
           <h1 className="text-4xl font-bold">What would you like to learn?</h1>

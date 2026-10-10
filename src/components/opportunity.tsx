@@ -1,31 +1,27 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { SectionTabs } from "./ui";
 import { AlertCircle, Building2, CheckCircle2, CircleHelp, Clock, HeartHandshake, MapPin, ShieldAlert } from "lucide-react";
 import { OPP_TYPE_LABEL, fitCheck, payLabel, transparency, type FitCheck } from "../lib/comfort";
 import type { Opportunity, WorkComfort } from "../lib/types";
 
 /** Tabs linking the three "work" pages so they feel like one place. */
 export function WorkTabs() {
-  const tab = ({ isActive }: { isActive: boolean }) =>
-    `whitespace-nowrap rounded-full px-4 py-2 font-bold ${isActive ? "bg-brand-700 text-white" : "bg-white text-brand-800 hover:bg-brand-100"}`;
   return (
-    <nav aria-label="Work" className="container-page mt-5 flex gap-2 overflow-x-auto pb-1">
-      <NavLink to="/opportunities" className={tab}>
-        Paid opportunities
-      </NavLink>
-      <NavLink to="/careers" className={tab}>
-        Career ideas
-      </NavLink>
-      <NavLink to="/next-chapter" className={tab}>
-        My Next Chapter
-      </NavLink>
-    </nav>
+    <SectionTabs
+      label="Work"
+      tabs={[
+        { to: "/opportunities", label: "Paid opportunities" },
+        { to: "/careers", label: "Career ideas" },
+        { to: "/next-chapter", label: "My Next Chapter" },
+      ]}
+    />
   );
 }
 
 export function IllustrativeBadge() {
   return (
-    <span className="badge bg-gray-200 text-gray-700" title="Fictional organisation and listing for this prototype">
+    <span className="badge bg-warm-100 text-warm-800" title="Fictional organisation and listing for this prototype">
       Illustrative listing · not verified
     </span>
   );
@@ -35,8 +31,8 @@ export function FitBadge({ fit }: { fit: FitCheck }) {
   if (fit.verdict === "none") return null;
   const style = {
     fits: "bg-emerald-100 text-emerald-800",
-    check: "bg-amber-100 text-amber-800",
-    unclear: "bg-sky-100 text-sky-800",
+    check: "bg-warm-100 text-warm-800",
+    unclear: "bg-brand-100 text-brand-800",
   }[fit.verdict];
   const label = { fits: "Fits your preferences", check: "Worth checking", unclear: "Some duties not stated" }[fit.verdict];
   return <span className={`badge ${style}`}>{label}</span>;
@@ -59,12 +55,12 @@ export function FitPanel({ fit, hasPrefs }: { fit: FitCheck; hasPrefs: boolean }
           </li>
         ))}
         {fit.check.map((t) => (
-          <li key={t} className="flex gap-2 text-amber-900">
+          <li key={t} className="flex gap-2 text-warm-900">
             <AlertCircle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" /> {t}
           </li>
         ))}
         {fit.unclear.map((t) => (
-          <li key={t} className="flex gap-2 text-sky-900">
+          <li key={t} className="flex gap-2 text-brand-800">
             <CircleHelp aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" /> {t}
           </li>
         ))}
@@ -82,7 +78,7 @@ export function KnowBeforeYouAccept({ opp, compact = false }: { opp: Parameters<
   const stated = items.filter((i) => i.ok).length;
   if (compact) {
     return (
-      <p className={`text-sm font-bold ${stated === items.length ? "text-emerald-800" : "text-amber-800"}`}>
+      <p className={`text-sm font-bold ${stated === items.length ? "text-emerald-800" : "text-warm-800"}`}>
         {stated === items.length ? <CheckCircle2 aria-hidden="true" className="mr-1 inline h-4 w-4" /> : <AlertCircle aria-hidden="true" className="mr-1 inline h-4 w-4" />}
         {stated} of {items.length} key details stated
       </p>
@@ -95,11 +91,11 @@ export function KnowBeforeYouAccept({ opp, compact = false }: { opp: Parameters<
       </h3>
       <ul className="mt-3 space-y-2">
         {items.map((i) => (
-          <li key={i.label} className={`flex gap-2 ${i.ok ? "text-ink" : "text-amber-900"}`}>
+          <li key={i.label} className={`flex gap-2 ${i.ok ? "text-ink" : "text-warm-900"}`}>
             {i.ok ? (
               <CheckCircle2 aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
             ) : (
-              <AlertCircle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
+              <AlertCircle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-warm-800" />
             )}
             <span>
               {i.label}
@@ -123,7 +119,6 @@ export function OpportunityCard({ opp, comfort, applied }: { opp: Opportunity; c
       <div className="flex flex-wrap gap-2">
         <span className="badge bg-warm-100 text-warm-700">{OPP_TYPE_LABEL[opp.type]}</span>
         <FitBadge fit={fit} />
-        {opp.isDemo && <IllustrativeBadge />}
       </div>
       <h3 className="mt-3 text-xl font-bold">
         <Link to={`/opportunities/${opp.id}`} className="hover:underline">
@@ -133,6 +128,7 @@ export function OpportunityCard({ opp, comfort, applied }: { opp: Opportunity; c
       <p className="mt-1 flex items-center gap-1.5 text-ink/75">
         <Building2 aria-hidden="true" className="h-4 w-4" /> {opp.orgName}
       </p>
+      <p className="mt-1 text-sm text-muted">{opp.isDemo ? "Illustrative listing · not verified" : "Organisation not verified"}</p>
       <p className="mt-3 flex-1 text-ink/80">{opp.summary}</p>
       <dl className="mt-4 grid grid-cols-2 gap-3 rounded-2xl bg-brand-50 p-3 text-sm">
         <div>

@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ListingCard } from "../components/cards";
 import { useBooking } from "../components/useBooking";
-import { EmptyState, PageHeader } from "../components/ui";
+import { EmptyState, PageHeader, PeopleTabs } from "../components/ui";
 import { useAuth } from "../lib/auth";
 import { createListing, getListings, getUsers } from "../lib/store";
 import type { Format } from "../lib/types";
@@ -141,6 +141,7 @@ export default function Marketplace() {
       <PageHeader eyebrow="Mentorship marketplace" title="Paid sessions with experienced professionals">
         Every mentor sets their own fair price. Requesting a session is free; nothing is charged until you both agree.
       </PageHeader>
+      <PeopleTabs />
       <div className="container-page py-10">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div role="group" aria-label="Filter by category" className="flex flex-wrap gap-2">

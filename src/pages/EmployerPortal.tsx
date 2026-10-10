@@ -11,10 +11,10 @@ import { matchStrength, useAiMatches } from "../lib/useAiMatches";
 import { useStore } from "../lib/useStore";
 
 const STATUS_STYLE: Record<ApplicationStatus, string> = {
-  submitted: "bg-amber-100 text-amber-800",
-  reviewing: "bg-sky-100 text-sky-800",
+  submitted: "bg-warm-100 text-warm-800",
+  reviewing: "bg-brand-100 text-brand-800",
   invited: "bg-emerald-100 text-emerald-800",
-  closed: "bg-gray-200 text-gray-700",
+  closed: "bg-warm-100 text-warm-800",
 };
 const STATUS_LABEL: Record<ApplicationStatus, string> = {
   submitted: "New",
@@ -39,7 +39,7 @@ function ApplicationRow({ app, worker }: { app: Application; worker?: User }) {
               "A member"
             )}{" "}
             <span className={`badge ml-1 ${STATUS_STYLE[app.status]}`}>{STATUS_LABEL[app.status]}</span>
-            {app.initiatedBy === "employer" && <span className="badge ml-1 bg-violet-100 text-violet-800">You invited</span>}
+            {app.initiatedBy === "employer" && <span className="badge ml-1 bg-brand-100 text-brand-800">You invited</span>}
           </p>
           {worker && (
             <p className="text-sm text-ink/70">
@@ -120,8 +120,8 @@ export default function EmployerPortal() {
       <PageHeader eyebrow="Employer portal" title={user.org?.name ?? "Your organisation"}>
         Post paid mentoring, training and advisory work, and find people with decades of experience.
         <span className="mt-2 block text-base">
-          <span className="badge bg-gray-200 text-gray-700">Not verified</span>{" "}
-          {user.isDemo && <span className="badge bg-gray-200 text-gray-700">Fictional demo organisation</span>}
+          <span className="badge bg-warm-100 text-warm-800">Not verified</span>{" "}
+          {user.isDemo && <span className="badge bg-warm-100 text-warm-800">Fictional demo organisation</span>}
         </span>
       </PageHeader>
 
@@ -154,7 +154,7 @@ export default function EmployerPortal() {
                         </h3>
                         <p className="text-ink/70">
                           {payLabel(o.pay)} · {o.hoursPerWeek} · <span className="capitalize">{o.setting}</span>
-                          {o.status === "closed" && <span className="badge ml-2 bg-gray-200 text-gray-700">Closed</span>}
+                          {o.status === "closed" && <span className="badge ml-2 bg-warm-100 text-warm-800">Closed</span>}
                         </p>
                       </div>
                       <div className="flex gap-2">
@@ -207,12 +207,12 @@ export default function EmployerPortal() {
           <p aria-live="polite" className="mt-2 flex min-h-[1.5rem] items-center gap-2 text-sm text-ink/70">
             {ai.active && ai.loading && (
               <>
-                <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-violet-600" /> Searching…
+                <Sparkles aria-hidden="true" className="h-4 w-4 animate-pulse text-brand-600" /> Searching…
               </>
             )}
             {ai.active && !ai.loading && ai.results && (
               <>
-                <Sparkles aria-hidden="true" className="h-4 w-4 text-violet-600" /> AI-assisted suggestions based on what people chose to share.
+                <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-600" /> AI-assisted suggestions based on what people chose to share.
               </>
             )}
           </p>

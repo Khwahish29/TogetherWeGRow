@@ -287,7 +287,7 @@ export default function ResumeBuilder() {
           {/* Guide */}
           <section aria-labelledby="question" className="card self-start p-6 sm:p-8 print:hidden">
             <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-100 text-violet-700">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-600">
                 <Sparkles aria-hidden="true" className="h-5 w-5" />
               </span>
               <div>
@@ -362,7 +362,7 @@ export default function ResumeBuilder() {
                               {followUp && (
                                 <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm">
                                   <p className="flex items-start gap-2 font-bold text-brand-900">
-                                    <Sparkles aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-violet-600" /> {followUp}
+                                    <Sparkles aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-brand-600" /> {followUp}
                                   </p>
                                   <label htmlFor="detail" className="sr-only">
                                     Your answer
@@ -483,7 +483,7 @@ export default function ResumeBuilder() {
                       {user.skills
                         .filter((s) => !data.skills.includes(s))
                         .map((s) => (
-                          <button key={s} type="button" className="chip bg-white hover:bg-brand-100" onClick={() => set("skills", [...data.skills, s])}>
+                          <button key={s} type="button" className="chip border border-brand-200 bg-white hover:border-brand-600 hover:bg-brand-50" onClick={() => set("skills", [...data.skills, s])}>
                             + {s}
                           </button>
                         ))}
@@ -605,6 +605,9 @@ export default function ResumeBuilder() {
                 </p>
               )}
             </div>
+            <a href="#resume-paper" className="link mt-6 inline-block lg:hidden">
+              See your résumé so far ↓
+            </a>
           </section>
 
           {/* Live preview */}

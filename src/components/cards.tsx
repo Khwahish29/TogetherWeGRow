@@ -3,7 +3,7 @@ import { Heart } from "lucide-react";
 import type { MentorMatch } from "../lib/matching";
 import { matchStrength } from "../lib/useAiMatches";
 import type { Listing, User } from "../lib/types";
-import { Avatar, DemoBadge, FormatBadge, formatPrice } from "./ui";
+import { Avatar, FormatBadge, formatPrice } from "./ui";
 
 export function ListingCard({
   listing,
@@ -19,9 +19,8 @@ export function ListingCard({
   return (
     <article className="card flex h-full flex-col">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="badge bg-warm-100 text-warm-700">{listing.category}</span>
+        <span className="badge border border-warm-200 bg-white text-warm-800">{listing.category}</span>
         <FormatBadge format={listing.format} />
-        {listing.isDemo && <DemoBadge />}
       </div>
       <h3 className="mt-3 text-xl font-bold">{listing.title}</h3>
       <p className="mt-2 flex-1 text-ink/80">{listing.description}</p>
@@ -36,7 +35,7 @@ export function ListingCard({
           </span>
         </Link>
       )}
-      <div className="mt-4 flex items-end justify-between gap-3 border-t border-brand-100 pt-4">
+      <div className="mt-4 flex flex-wrap items-end justify-between gap-3 border-t border-warm-200 pt-4">
         <div>
           <p className="text-2xl font-bold text-brand-900">{formatPrice(listing.price)}</p>
           <p className="text-sm text-ink/70">per {listing.durationMins}-minute session</p>
@@ -45,7 +44,7 @@ export function ListingCard({
           <span className="badge bg-brand-100 text-brand-800">Your offer</span>
         ) : (
           onRequest && (
-            <button className="btn-primary" onClick={onRequest}>
+            <button className="btn-primary whitespace-nowrap" onClick={onRequest}>
               Request session
             </button>
           )
@@ -59,7 +58,17 @@ export function ListingCard({
   );
 }
 
-export function MentorCard({ match, showScore, thanksCount = 0 }: { match: MentorMatch; showScore: boolean; thanksCount?: number }) {
+export function MentorCard({
+  match,
+  showScore,
+  thanksCount = 0,
+  fromPrice,
+}: {
+  match: MentorMatch;
+  showScore: boolean;
+  thanksCount?: number;
+  fromPrice?: number | null;
+}) {
   const { mentor } = match;
   const isMatch = showScore && (match.matchedSkills.length > 0 || match.score >= 50);
   return (
@@ -85,7 +94,7 @@ export function MentorCard({ match, showScore, thanksCount = 0 }: { match: Mento
         </div>
       </div>
       <p className="mt-4 line-clamp-3 text-ink/80">{mentor.bio}</p>
-      <ul className="mt-3 flex flex-wrap gap-2" aria-label="Skills">
+      <ul className="mt-3 flex flex-wrap gap-2" aria-label="Skills taught">
         {mentor.skills.slice(0, 4).map((s) => (
           <li key={s} className={`chip ${match.matchedSkills.includes(s) ? "bg-warm-100 text-warm-700" : ""}`}>
             {s}
@@ -105,8 +114,15 @@ export function MentorCard({ match, showScore, thanksCount = 0 }: { match: Mento
             <Heart aria-hidden="true" className="h-4 w-4" /> {thanksCount} {thanksCount === 1 ? "note" : "notes"} of thanks
           </p>
         )}
-        <div className="flex items-center justify-between gap-3 border-t border-brand-100 pt-4">
-          <FormatBadge format={mentor.format} />
+        <div className="flex items-center justify-between gap-3 border-t border-warm-200 pt-4">
+          <span className="flex flex-col gap-1">
+            {fromPrice != null && (
+              <span className="font-semibold text-brand-900">
+                From {formatPrice(fromPrice)} <span className="font-normal text-muted">a session</span>
+              </span>
+            )}
+            <FormatBadge format={mentor.format} />
+          </span>
           <Link to={`/mentors/${mentor.id}`} className="btn-secondary shrink-0 whitespace-nowrap px-5">
             View profile
           </Link>

@@ -55,9 +55,9 @@ export default function About() {
         <h2 id="beliefs" className="text-3xl font-bold">
           How we try to treat people
         </h2>
-        <ol className="mt-8 grid gap-6 md:grid-cols-2">
+        <ol className="mt-10 grid gap-x-12 gap-y-10 md:grid-cols-2">
           {BELIEFS.map((b, i) => (
-            <li key={b.title} className="flex gap-5 rounded-3xl border border-brand-100 bg-white p-6">
+            <li key={b.title} className="flex gap-5 border-t border-warm-200 pt-6">
               <span className="font-serif text-4xl font-bold text-warm-400" aria-hidden="true">
                 {String(i + 1).padStart(2, "0")}
               </span>
@@ -93,6 +93,32 @@ export default function About() {
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      <section className="container-page pb-4 pt-14" aria-labelledby="limits">
+        <div className="rounded-3xl border border-warm-200 bg-white p-7 sm:p-9">
+          <h2 id="limits" className="text-3xl">
+            What this prototype can and can't do yet
+          </h2>
+          <div className="mt-6 grid gap-8 md:grid-cols-2">
+            <div>
+              <p className="font-semibold text-brand-900">Works today</p>
+              <ul className="mt-2 list-disc space-y-1.5 pl-5 text-muted">
+                <li>Voice or text profiles, career ideas, plans, résumés and learning help, drafted by AI (Groq) with built-in fallbacks</li>
+                <li>Matching, requests, applications, reflections and thank-you notes</li>
+                <li>Everything is saved in this browser only</li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-semibold text-brand-900">Not yet</p>
+              <ul className="mt-2 list-disc space-y-1.5 pl-5 text-muted">
+                <li>Real accounts, a shared database, or messages between devices</li>
+                <li>Payments, verified organisations, or a staffed safety team</li>
+                <li>Real members: every person, organisation and story here is fictional demo data</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -155,7 +181,7 @@ export default function About() {
             ) : (
               <>
                 <p className="text-ink/75">If something didn't feel right, tell us. You won't be judged for raising it.</p>
-                <p className="rounded-xl bg-gray-100 p-3 text-sm text-gray-700">
+                <p className="rounded-xl bg-warm-100 p-3 text-sm text-warm-900">
                   <strong>Demo only:</strong> this prototype doesn't send reports anywhere yet. A real launch needs a staffed
                   review and response process.
                 </p>
@@ -165,8 +191,8 @@ export default function About() {
                   </label>
                   <textarea id="concern" rows={4} className="input" required />
                 </div>
-                <button className="btn-primary" type="submit">
-                  Send report
+                <button className="btn-secondary" type="submit">
+                  Send report (demo: nothing is sent)
                 </button>
               </>
             )}

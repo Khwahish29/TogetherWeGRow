@@ -74,10 +74,24 @@ export default function CreateProfile() {
       : base;
     return (
       <>
-        <PageHeader eyebrow="Step 2 of 2" title="Check your profile">
-          {draft ? "Here's what we understood. Change anything that isn't quite right." : "Fill in as much or as little as you like."}
+        <PageHeader eyebrow="Step 2 of 2 · Review" title={draft ? "Here's what we heard." : "Fill in your profile"}>
+          {draft ? "Change anything that isn't quite right. Nothing is published until you say so." : "Fill in as much or as little as you like."}
         </PageHeader>
-        <div className="container-page max-w-3xl py-10">
+        <div className="container-page py-10 [&>*]:max-w-3xl">
+          {d && (
+            <section aria-label="Profile preview" className="mb-8 overflow-hidden rounded-3xl bg-brand-800 p-7 text-white sm:p-9">
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-warm-400">Your profile, as others would see it</p>
+              <p className="mt-3 font-serif text-2xl leading-snug sm:text-[1.7rem]">{d.summary}</p>
+              <ul className="mt-5 flex flex-wrap gap-2">
+                {d.skills.map((s) => (
+                  <li key={s} className="rounded-full bg-white/10 px-3 py-1 text-[0.95rem] text-white">
+                    {s}
+                  </li>
+                ))}
+              </ul>
+              {d.yearsExperience && <p className="mt-4 text-brand-100">{d.yearsExperience} years of experience</p>}
+            </section>
+          )}
           <ProfileForm
             initial={initial}
             requireReview
@@ -94,8 +108,8 @@ export default function CreateProfile() {
                       <strong>Roles that might suit you:</strong> {d.suggestedRoles.join(", ")}. You'll see details on the next page.
                     </div>
                   )}
-                  <button type="button" className="btn-ghost self-start" onClick={() => setDraft(null)}>
-                    ← Go back and describe again
+                  <button type="button" className="btn-ghost self-start px-0" onClick={() => setDraft(null)}>
+                    ← Go back and describe it again
                   </button>
                 </div>
               )
@@ -108,73 +122,73 @@ export default function CreateProfile() {
 
   return (
     <>
-      <PageHeader eyebrow="Step 1 of 2" title={`Tell us about your work, ${user.name.split(" ")[0]}`}>
-        No résumé needed. Speak or type the way you'd explain it to a friend: what you did, for how long, what you're good
-        at, and what kind of work suits you now.
+      <PageHeader eyebrow="Step 1 of 2 · Your story" title={`Tell us about your work, ${user.name.split(" ")[0]}.`}>
+        No résumé needed. Talk the way you'd explain it to a friend: what you did, for how long, what you're good at, and
+        what kind of work suits you now.
       </PageHeader>
-      <div className="container-page grid max-w-5xl gap-8 py-10 lg:grid-cols-[1fr_280px]">
-        <div className="card space-y-4">
+      <div className="container-page grid gap-8 py-10 lg:grid-cols-[1fr_300px] lg:gap-12">
+        <div className="space-y-6">
           {user.comfort?.includes("A person to help me get set up") && (
-            <p className="rounded-2xl bg-sky-50 p-4">
+            <p className="notice">
               You mentioned you'd like someone to help.{" "}
-              <Link to="/learn/buddies" className="font-bold text-brand-700 underline">
+              <Link to="/learn/buddies" className="link">
                 A digital buddy can sit with you
               </Link>{" "}
               while you do this, or you can carry on here at your own pace.
             </p>
           )}
-          {user.comfort?.includes("Speaking instead of typing") && (
-            <p className="rounded-2xl bg-warm-100 p-4">
-              You'd prefer to speak, so press <strong>Start recording</strong> below and talk as long as you like. You can
-              pause, and fix any words afterwards.
-            </p>
-          )}
-          <label htmlFor="story" className="label text-lg">
-            Your working life, in your own words
-          </label>
-          <textarea
-            id="story"
-            rows={8}
-            className="input text-lg"
-            placeholder={EXAMPLE}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
-          <VoiceRecorder onText={(t) => setText((prev) => (prev ? `${prev} ${t}` : t))} />
-          {error && (
-            <p role="alert" className="notice">
-              {error}
-            </p>
-          )}
-          <div aria-live="polite" className="flex flex-col gap-3 border-t border-brand-100 pt-4 sm:flex-row">
-            <button className="btn-primary text-lg" onClick={generate} disabled={busy || text.trim().length < 15}>
-              {busy ? "Organising your experience…" : "Create my skills profile"}
-            </button>
-            <button className="btn-ghost" onClick={() => setManual(true)}>
-              I'd rather fill in a form
-            </button>
+          <div className="card p-6 sm:p-10">
+            <VoiceRecorder large onText={(t) => setText((prev) => (prev ? `${prev} ${t}` : t))} />
+            <div className="my-8 flex items-center gap-4 text-sm font-medium uppercase tracking-[0.14em] text-muted" aria-hidden="true">
+              <span className="h-px flex-1 bg-warm-200" /> or type it <span className="h-px flex-1 bg-warm-200" />
+            </div>
+            <label htmlFor="story" className="label text-lg">
+              Your working life, in your own words
+            </label>
+            <textarea
+              id="story"
+              rows={7}
+              className="input text-lg leading-relaxed"
+              placeholder={EXAMPLE}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            />
+            <p className="hint mt-2">You can edit anything that was heard wrongly.</p>
+            {error && (
+              <p role="alert" className="notice mt-4">
+                {error}
+              </p>
+            )}
+            <div aria-live="polite" className="mt-8 flex flex-col gap-3 border-t border-warm-200 pt-6 sm:flex-row sm:items-center">
+              <button className="btn-primary px-8 text-lg" onClick={generate} disabled={busy || text.trim().length < 15}>
+                {busy ? "Organising your experience…" : "Create my skills profile"}
+              </button>
+              <button className="btn-ghost" onClick={() => setManual(true)}>
+                I'd rather fill in a form
+              </button>
+            </div>
           </div>
         </div>
-        <aside className="space-y-4 text-sm">
-          <div className="rounded-2xl bg-brand-50 p-5">
-            <p className="font-bold text-brand-900">Not sure what to say?</p>
-            <ul className="mt-2 list-disc space-y-1 pl-5">
-              <li>What jobs have you done?</li>
-              <li>How many years?</li>
-              <li>What are you proud of?</li>
-              <li>Have you trained anyone?</li>
-              <li>Is there work you'd rather avoid now?</li>
+        <aside className="space-y-6">
+          <div className="rounded-3xl bg-brand-100/70 p-6">
+            <p className="font-semibold text-brand-900">Not sure what to say?</p>
+            <ul className="mt-3 space-y-2 text-muted">
+              {["What jobs have you done?", "How many years?", "What are you proud of?", "Have you trained anyone?", "Is there work you'd rather avoid now?"].map((q) => (
+                <li key={q} className="flex gap-2">
+                  <span aria-hidden="true" className="text-warm-700">·</span> {q}
+                </li>
+              ))}
             </ul>
-            <button className="btn-ghost mt-2 px-0 underline" onClick={() => setText(EXAMPLE)}>
+            <button className="link mt-4" onClick={() => setText(EXAMPLE)}>
               Use an example
             </button>
           </div>
-          <div className="rounded-2xl border border-brand-100 bg-white p-5">
-            <p className="font-bold text-brand-900">Your privacy</p>
-            <p className="mt-1">
+          <div className="rounded-3xl border border-warm-200 bg-white p-6 text-[0.95rem]">
+            <p className="font-semibold text-brand-900">Your privacy</p>
+            <p className="mt-2 text-muted">
               Your browser's speech service turns your voice into text. TogetherWeGrow never receives or saves recordings.
             </p>
-            <p className="mt-2">
+            <p className="mt-2 text-muted">
               The text is sent to our AI service provider to draft your profile. Only what you approve is saved. Leave out
               private details like bank or health information.
             </p>

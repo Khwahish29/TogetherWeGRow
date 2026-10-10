@@ -43,6 +43,18 @@ Other touches: a Help panel on every page, a bottom tab bar on phones, a "how ar
 adjusts the AI companion's tone, an "easy on the body" career filter, a sign-up question about what would make things
 easier, and the option to withdraw, reconsider, or reschedule any request.
 
+## Design system
+
+- **Palette** (in `tailwind.config.js`): deep forest `#234638` (primary), warm ivory `#FAF8F3` (page), soft sage
+  `#E4EDE5`, golden accent `#D8AB67`, terracotta `#C97758` (decorative) / `#A4553A` (text and buttons, AA contrast),
+  charcoal `#25312C` text and gray-green `#5F6C64` secondary text.
+- **Type**: Fraunces (editorial serif) for headlines, Inter for everything else; 18px base with a three-step text-size control.
+- **Components** live in `src/index.css` (`.btn-*`, `.card`, `.input`, `.badge`, `.chip`, `.notice`, `.eyebrow`, `.link`)
+  and `src/components/ui.tsx` (`PageHeader`, `SectionTabs`, `Reveal`, `PhotoSlot`, `EmptyState`, badges, avatars).
+- **Motion**: gentle fade-ins only, all disabled under `prefers-reduced-motion`.
+- **Imagery**: `public/images/workshop-tools.jpg` is CC0 (credit in `public/images/CREDITS.md`). The homepage has two
+  clearly marked "Photo to come" slots for real, consented photos of members.
+
 ## How it's put together
 
 - `src/`: React + TypeScript + Tailwind + React Router.

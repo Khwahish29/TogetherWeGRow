@@ -166,7 +166,7 @@ export default function NextChapter() {
       </PageHeader>
       <WorkTabs />
 
-      <div className="container-page max-w-4xl py-8">
+      <div className="container-page py-10 [&>*]:max-w-4xl">
         {!plan ? (
           <div className="card p-8">
             <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-700">
@@ -195,7 +195,7 @@ export default function NextChapter() {
               <div className="mt-3 flex flex-wrap gap-2">
                 <span className="text-sm text-ink/70">From your career ideas:</span>
                 {roles.map((r) => (
-                  <button key={r} type="button" className="chip bg-white hover:bg-brand-100" onClick={() => setTarget(r)}>
+                  <button key={r} type="button" className="chip border border-brand-200 bg-white hover:border-brand-600 hover:bg-brand-50" onClick={() => setTarget(r)}>
                     {r}
                   </button>
                 ))}
