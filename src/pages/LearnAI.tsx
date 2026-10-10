@@ -1,17 +1,26 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import type { AiSource } from "../../shared/types";
+import { Bot, FileText, Mail, MousePointerClick, ShieldAlert, Sparkles, Video, type LucideIcon } from "lucide-react";
+import type { AiSource, CompanionRequest } from "../../shared/types";
 import { SourceLabel } from "../components/ui";
 import { VoiceRecorder } from "../components/VoiceRecorder";
 import { api } from "../lib/api";
 
-const TOPICS = [
-  { id: "video-meeting", label: "Join a video meeting", icon: "🎥" },
-  { id: "email", label: "Send an email", icon: "✉️" },
-  { id: "resume", label: "Create a résumé", icon: "📄" },
-  { id: "job-application", label: "Apply for a job online", icon: "🧾" },
-  { id: "scams", label: "Spot suspicious messages", icon: "🛡️" },
-  { id: "ai-tools", label: "Use basic AI tools", icon: "✨" },
+const TOPICS: { id: string; label: string; icon: LucideIcon; tone: string }[] = [
+  { id: "video-meeting", label: "Join a video meeting", icon: Video, tone: "bg-sky-100 text-sky-700" },
+  { id: "email", label: "Send an email", icon: Mail, tone: "bg-brand-100 text-brand-700" },
+  { id: "resume", label: "Create a résumé", icon: FileText, tone: "bg-warm-100 text-warm-700" },
+  { id: "job-application", label: "Apply for a job online", icon: MousePointerClick, tone: "bg-violet-100 text-violet-700" },
+  { id: "scams", label: "Spot suspicious messages", icon: ShieldAlert, tone: "bg-rose-100 text-rose-700" },
+  { id: "ai-tools", label: "Use basic AI tools", icon: Sparkles, tone: "bg-amber-100 text-amber-700" },
+];
+
+type Feeling = NonNullable<CompanionRequest["feeling"]>;
+const FEELINGS: { value: Feeling; label: string }[] = [
+  { value: "curious", label: "Curious to try" },
+  { value: "nervous", label: "A bit nervous" },
+  { value: "frustrated", label: "Frustrated, it hasn't worked before" },
+  { value: "refresher", label: "I just need a quick reminder" },
 ];
 
 interface ChatItem {
@@ -29,6 +38,7 @@ function speak(text: string) {
 
 export default function LearnAI() {
   const [topic, setTopic] = useState<(typeof TOPICS)[number] | null>(null);
+  const [feeling, setFeeling] = useState<Feeling | null>(null);
   const [intro, setIntro] = useState("");
   const [steps, setSteps] = useState<string[]>([]);
   const [index, setIndex] = useState(0);
@@ -52,8 +62,15 @@ export default function LearnAI() {
 
   useEffect(() => () => window.speechSynthesis?.cancel(), []);
 
-  async function choose(t: (typeof TOPICS)[number]) {
+  function pickTopic(t: (typeof TOPICS)[number]) {
     setTopic(t);
+    setFeeling(null);
+    setSteps([]);
+    setChat([]);
+  }
+
+  async function choose(t: (typeof TOPICS)[number], f: Feeling) {
+    setFeeling(f);
     setLoading(true);
     setError(null);
     setSteps([]);
@@ -61,7 +78,7 @@ export default function LearnAI() {
     setIndex(0);
     setSimpler(null);
     try {
-      const res = await api.companion({ action: "guide", topic: t.id });
+      const res = await api.companion({ action: "guide", topic: t.id, feeling: f });
       setSource(res.source);
       setIntro(res.data.intro ?? "");
       setSteps(res.data.steps ?? []);
@@ -82,7 +99,7 @@ export default function LearnAI() {
     if (!topic || !current) return;
     setLoading(true);
     try {
-      const res = await api.companion({ action: "simpler", topic: topic.id, step: current });
+      const res = await api.companion({ action: "simpler", topic: topic.id, step: current, feeling: feeling ?? undefined });
       setSimpler(res.data.reply ?? null);
       if (readAloud && res.data.reply) speak(res.data.reply);
     } catch (err) {
@@ -100,7 +117,7 @@ export default function LearnAI() {
     setQuestion("");
     setAsking(true);
     try {
-      const res = await api.companion({ action: "ask", topic: topic.id, question: q });
+      const res = await api.companion({ action: "ask", topic: topic.id, question: q, feeling: feeling ?? undefined });
       const reply = res.data.reply ?? "Sorry, I didn't catch that. Could you ask again?";
       setChat((c) => [...c, { who: "guide", text: reply }]);
       if (readAloud) speak(reply);
@@ -117,17 +134,22 @@ export default function LearnAI() {
         <Link to="/learn" className="font-bold text-brand-700 hover:underline">
           ← Learn your way
         </Link>
-        <h1 className="mt-4 text-4xl font-bold">What would you like to learn?</h1>
-        <p className="mt-2 text-lg text-ink/80">Pick a topic. We'll go one step at a time, and you can repeat anything.</p>
+        <div className="mt-4 flex items-center gap-3">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
+            <Bot aria-hidden="true" className="h-7 w-7" />
+          </span>
+          <h1 className="text-4xl font-bold">What would you like to learn?</h1>
+        </div>
+        <p className="mt-2 text-lg text-ink/80">Pick a topic. We'll go one step at a time, and you can repeat anything as often as you like.</p>
         <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {TOPICS.map((t) => (
             <li key={t.id}>
               <button
-                onClick={() => choose(t)}
+                onClick={() => pickTopic(t)}
                 className="card flex w-full items-center gap-4 text-left text-xl font-bold text-brand-900 transition hover:-translate-y-0.5 hover:border-brand-600 hover:shadow-md"
               >
-                <span aria-hidden="true" className="text-3xl">
-                  {t.icon}
+                <span aria-hidden="true" className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${t.tone}`}>
+                  <t.icon className="h-7 w-7" />
                 </span>
                 {t.label}
               </button>
@@ -145,6 +167,33 @@ export default function LearnAI() {
     );
   }
 
+  if (!feeling) {
+    return (
+      <div className="container-page max-w-3xl py-12">
+        <button onClick={() => setTopic(null)} className="font-bold text-brand-700 hover:underline">
+          ← Choose another topic
+        </button>
+        <div className="card mt-6 p-8">
+          <span aria-hidden="true" className={`flex h-14 w-14 items-center justify-center rounded-2xl ${topic.tone}`}>
+            <topic.icon className="h-7 w-7" />
+          </span>
+          <h1 className="mt-4 text-3xl font-bold">{topic.label}</h1>
+          <fieldset className="mt-6">
+            <legend className="text-xl font-bold text-brand-900">Before we start, how are you feeling about this?</legend>
+            <p className="mt-1 text-ink/70">There's no wrong answer. It just helps us explain things in a way that suits you.</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {FEELINGS.map((f) => (
+                <button key={f.value} className="btn-secondary justify-start text-left" onClick={() => choose(topic, f.value)}>
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container-page max-w-4xl py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -157,7 +206,7 @@ export default function LearnAI() {
         </label>
       </div>
       <h1 className="mt-4 text-3xl font-bold sm:text-4xl">
-        <span aria-hidden="true">{topic.icon}</span> {topic.label}
+        {topic.label}
       </h1>
       {intro && <p className="mt-2 text-lg text-ink/80">{intro}</p>}
       {steps.length > 0 && (
@@ -189,7 +238,10 @@ export default function LearnAI() {
             {done ? (
               <>
                 <p className="font-serif text-2xl text-brand-900">That's every step.</p>
-                <p className="mt-2 text-lg">Practise whenever you like. It gets easier each time, and mistakes are part of learning.</p>
+                <p className="mt-2 text-lg">
+                  Come back and practise whenever you like. If something didn't work, that's alright. Everyone gets stuck
+                  sometimes, and you can try again or ask a person for help.
+                </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <button className="btn-secondary" onClick={() => go(0)}>
                     Go through it again

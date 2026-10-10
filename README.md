@@ -28,7 +28,13 @@ The login page has one-click buttons for both. Use "reset all demo data" at the 
 | Mentor discovery with match scores | `/mentors`, `/mentors/:id` |
 | Learn Your Way: AI companion (step-by-step, read aloud, explain simpler, ask by voice) or human buddies | `/learn`, `/learn/ai`, `/learn/buddies` |
 | Paid mentoring listings, create offers, booking requests, accept/decline | `/marketplace`, `/requests` |
-| Personal dashboard | `/dashboard` |
+| Personal dashboard ("What would you like to do today?") | `/dashboard` |
+| After-session notes (private) and thank-you notes (shown on profiles) | `/requests` |
+| Our story, safety & support, report a concern | `/about` |
+
+Other touches: a Help panel on every page, a bottom tab bar on phones, a "how are you feeling?" check-in that
+adjusts the AI companion's tone, an "easy on the body" career filter, a sign-up question about what would make things
+easier, and the option to withdraw, reconsider, or reschedule any request.
 
 ## How it's put together
 
@@ -48,4 +54,4 @@ Import the repo, set `ANTHROPIC_API_KEY` in project settings, and deploy. `verce
 
 ## Not in this prototype
 
-Real authentication and database (Supabase), payments, community feed, reflections, and job postings.
+Real authentication and database (Supabase), payments, community feed, and employer job postings.

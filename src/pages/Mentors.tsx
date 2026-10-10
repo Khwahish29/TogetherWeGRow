@@ -4,7 +4,7 @@ import { MentorCard } from "../components/cards";
 import { EmptyState, PageHeader } from "../components/ui";
 import { useAuth } from "../lib/auth";
 import { scoreMentor, skillsOverlap } from "../lib/matching";
-import { getListings, getUsers } from "../lib/store";
+import { getListings, getThanks, getUsers } from "../lib/store";
 import type { Format } from "../lib/types";
 import { useStore } from "../lib/useStore";
 
@@ -12,6 +12,8 @@ export default function Mentors() {
   const { user } = useAuth();
   const users = useStore(getUsers, []);
   const listings = useStore(getListings, []);
+  const thanks = useStore(getThanks, []);
+  const thanksFor = (id: string) => thanks.filter((t) => t.toId === id).length;
   const [query, setQuery] = useState("");
   const [format, setFormat] = useState<"any" | Format>("any");
   const [maxPrice, setMaxPrice] = useState<number | "">("");
@@ -114,7 +116,7 @@ export default function Mentors() {
             <p className="text-ink/70">Based on what you want to learn: {user!.wantToLearn.join(", ")}</p>
             <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {bestMatches.map((m) => (
-                <MentorCard key={m.mentor.id} match={m} showScore />
+                <MentorCard key={m.mentor.id} match={m} showScore thanksCount={thanksFor(m.mentor.id)} />
               ))}
             </div>
           </section>
@@ -132,7 +134,7 @@ export default function Mentors() {
           ) : (
             <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {rest.map((m) => (
-                <MentorCard key={m.mentor.id} match={m} showScore={canMatch} />
+                <MentorCard key={m.mentor.id} match={m} showScore={canMatch} thanksCount={thanksFor(m.mentor.id)} />
               ))}
             </div>
           )}

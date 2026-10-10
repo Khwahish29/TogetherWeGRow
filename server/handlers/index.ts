@@ -87,9 +87,17 @@ export async function companion(body: unknown): Promise<ApiResult<CompanionRespo
   const req = body as CompanionRequest;
   if (!req || !["guide", "simpler", "ask"].includes(req.action)) throw new BadRequest("invalid action");
   const topic = requireText(req.topic, "topic", 100);
-  const clean: CompanionRequest = { action: req.action, topic };
+  const feelings = ["curious", "nervous", "frustrated", "refresher"] as const;
+  const feeling = feelings.find((f) => f === req.feeling);
+  const clean: CompanionRequest = { action: req.action, topic, feeling };
   const topicIntro = GUIDES[topic]?.intro ?? topic;
-  const style = `You are a patient technology learning companion. The learner may be new to this technology. Be encouraging but never patronising; mistakes are normal.`;
+  const mood = {
+    curious: "They feel curious.",
+    nervous: "They feel a bit nervous, so reassure them that nothing can break and they can go back anytime.",
+    frustrated: "They feel frustrated from past attempts, so acknowledge that kindly and go extra slowly.",
+    refresher: "They only need a quick refresher, so keep it brisk.",
+  };
+  const style = `You are a patient technology learning companion. The learner may be new to this technology. Be encouraging but never patronising; mistakes are normal. ${feeling ? mood[feeling] : ""}`;
 
   let ai: CompanionResponse | null = null;
   if (req.action === "guide") {

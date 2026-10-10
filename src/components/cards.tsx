@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Heart } from "lucide-react";
 import type { MentorMatch } from "../lib/matching";
 import type { Listing, User } from "../lib/types";
 import { Avatar, DemoBadge, FormatBadge, formatPrice } from "./ui";
@@ -54,49 +55,58 @@ export function ListingCard({
   );
 }
 
-export function MentorCard({ match, showScore }: { match: MentorMatch; showScore: boolean }) {
+export function MentorCard({ match, showScore, thanksCount = 0 }: { match: MentorMatch; showScore: boolean; thanksCount?: number }) {
   const { mentor } = match;
+  const isMatch = showScore && match.matchedSkills.length > 0;
   return (
     <article className="card flex h-full flex-col">
-      <div className="flex items-start gap-4">
+      {isMatch && (
+        <span className="badge mb-3 self-start bg-brand-700 text-white" title="How well this mentor fits what you want to learn">
+          {match.score}% match
+        </span>
+      )}
+      <div className="flex items-center gap-4">
         <Avatar name={mentor.name} />
-        <div className="min-w-0 flex-1">
-          <h3 className="text-xl font-bold">
+        <div className="min-w-0">
+          <h3 className="text-xl font-bold leading-tight">
             <Link to={`/mentors/${mentor.id}`} className="hover:underline">
               {mentor.name}
             </Link>
           </h3>
-          <p className="text-ink/70">
-            {mentor.industries[0] ?? "Mentor"}
-            {mentor.yearsExperience ? ` · ${mentor.yearsExperience} years` : ""} · {mentor.location}
+          <p className="text-sm text-ink/70">{mentor.industries[0] ?? "Mentor"}</p>
+          <p className="text-sm text-ink/70">
+            {mentor.yearsExperience ? `${mentor.yearsExperience} years · ` : ""}
+            {mentor.location}
           </p>
         </div>
-        {showScore && match.score > 0 && (
-          <span className="badge shrink-0 bg-brand-700 text-white" title="How well this mentor fits what you want to learn">
-            {match.score}% match
-          </span>
-        )}
       </div>
-      <p className="mt-3 line-clamp-3 text-ink/80">{mentor.bio}</p>
+      <p className="mt-4 line-clamp-3 text-ink/80">{mentor.bio}</p>
       <ul className="mt-3 flex flex-wrap gap-2" aria-label="Skills">
-        {mentor.skills.slice(0, 5).map((s) => (
+        {mentor.skills.slice(0, 4).map((s) => (
           <li key={s} className={`chip ${match.matchedSkills.includes(s) ? "bg-warm-100 text-warm-700" : ""}`}>
             {s}
           </li>
         ))}
       </ul>
-      {showScore && match.reasons.length > 0 && (
+      {isMatch && match.reasons.length > 0 && (
         <ul className="mt-3 space-y-1 text-sm text-brand-800">
           {match.reasons.map((r) => (
             <li key={r}>✓ {r}</li>
           ))}
         </ul>
       )}
-      <div className="mt-auto flex items-center justify-between pt-4">
-        <FormatBadge format={mentor.format} />
-        <Link to={`/mentors/${mentor.id}`} className="btn-secondary">
-          View profile
-        </Link>
+      <div className="mt-auto pt-5">
+        {thanksCount > 0 && (
+          <p className="mb-3 inline-flex items-center gap-1 text-sm font-bold text-warm-700">
+            <Heart aria-hidden="true" className="h-4 w-4" /> {thanksCount} {thanksCount === 1 ? "note" : "notes"} of thanks
+          </p>
+        )}
+        <div className="flex items-center justify-between gap-3 border-t border-brand-100 pt-4">
+          <FormatBadge format={mentor.format} />
+          <Link to={`/mentors/${mentor.id}`} className="btn-secondary shrink-0 whitespace-nowrap px-5">
+            View profile
+          </Link>
+        </div>
       </div>
     </article>
   );

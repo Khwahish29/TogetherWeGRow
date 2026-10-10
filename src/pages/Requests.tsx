@@ -1,21 +1,32 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { CalendarClock, Check, Heart, NotebookPen, RotateCcw, Undo2, X } from "lucide-react";
+import { ReflectionDialog } from "../components/ReflectionDialog";
 import { Avatar, EmptyState, PageHeader, formatPrice } from "../components/ui";
 import { useAuth } from "../lib/auth";
-import { getListings, getRequests, getUsers, setRequestStatus } from "../lib/store";
-import type { ConnectionRequest, Listing, RequestStatus, User } from "../lib/types";
+import {
+  getListings,
+  getReflections,
+  getRequests,
+  getUsers,
+  rescheduleRequest,
+  setRequestStatus,
+} from "../lib/store";
+import type { ConnectionRequest, Listing, Reflection, RequestStatus, User } from "../lib/types";
 import { useStore } from "../lib/useStore";
 
 const STATUS_STYLE: Record<RequestStatus, string> = {
   pending: "bg-amber-100 text-amber-800",
   accepted: "bg-emerald-100 text-emerald-800",
   declined: "bg-gray-200 text-gray-700",
+  withdrawn: "bg-gray-200 text-gray-700",
 };
 
 const STATUS_LABEL: Record<RequestStatus, string> = {
-  pending: "Waiting for reply",
-  accepted: "Accepted",
-  declined: "Declined",
+  pending: "Waiting for a reply",
+  accepted: "Confirmed",
+  declined: "Not this time",
+  withdrawn: "Withdrawn",
 };
 
 export function formatWhen(iso: string) {
@@ -26,29 +37,72 @@ export function formatWhen(iso: string) {
     : d.toLocaleString(undefined, { weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit" });
 }
 
+export function isPast(iso: string) {
+  const d = new Date(iso);
+  return !Number.isNaN(d.getTime()) && d.getTime() < Date.now();
+}
+
+function Reschedule({ req, onDone }: { req: ConnectionRequest; onDone: () => void }) {
+  const [when, setWhen] = useState("");
+  const min = new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 16);
+  return (
+    <form
+      className="mt-4 flex flex-col gap-2 rounded-2xl bg-brand-50 p-4 sm:flex-row sm:items-end"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        await rescheduleRequest(req.id, when);
+        onDone();
+      }}
+    >
+      <div className="flex-1">
+        <label htmlFor={`re-${req.id}`} className="label">
+          Suggest a new time
+        </label>
+        <input id={`re-${req.id}`} type="datetime-local" className="input" required min={min} value={when} onChange={(e) => setWhen(e.target.value)} />
+        <p className="hint mt-1">Plans change. The other person will be asked to confirm the new time.</p>
+      </div>
+      <div className="flex gap-2">
+        <button type="button" className="btn-ghost" onClick={onDone}>
+          Cancel
+        </button>
+        <button className="btn-primary">Send</button>
+      </div>
+    </form>
+  );
+}
+
 export function RequestItem({
   req,
   incoming,
   users,
   listings,
+  me,
+  reflection,
 }: {
   req: ConnectionRequest;
   incoming: boolean;
   users: User[];
   listings: Listing[];
+  me: User;
+  reflection?: Reflection;
 }) {
+  const [rescheduling, setRescheduling] = useState(false);
+  const [reflecting, setReflecting] = useState(false);
   const other = users.find((u) => u.id === (incoming ? req.fromId : req.toId));
   const listing = req.listingId ? listings.find((l) => l.id === req.listingId) : undefined;
-  const title = req.kind === "session" ? (listing?.title ?? "Mentoring session") : `Digital help: ${req.topic ?? "technology"}`;
+  const title = req.kind === "session" ? (listing?.title ?? "Mentoring session") : `Help with ${req.topic ?? "technology"}`;
+  const past = req.status === "accepted" && isPast(req.proposedAt);
 
   return (
     <li className="card">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         {other && <Avatar name={other.name} />}
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className={`badge ${STATUS_STYLE[req.status]}`}>{STATUS_LABEL[req.status]}</span>
-            <span className="badge bg-brand-100 text-brand-800">{req.kind === "session" ? "Paid mentoring" : "Buddy help"}</span>
+            <span className={`badge ${past ? "bg-brand-100 text-brand-800" : STATUS_STYLE[req.status]}`}>
+              {past ? "Completed" : STATUS_LABEL[req.status]}
+            </span>
+            <span className="badge bg-warm-100 text-warm-700">{req.kind === "session" ? "Paid mentoring" : "Buddy help"}</span>
           </div>
           <h3 className="mt-2 text-xl font-bold">{title}</h3>
           <p className="text-ink/80">
@@ -59,27 +113,91 @@ export function RequestItem({
               </Link>
             ) : (
               "a member"
-            )}{" "}
-            · {formatWhen(req.proposedAt)}
+            )}
+          </p>
+          <p className="mt-1 flex items-center gap-2 text-ink/80">
+            <CalendarClock aria-hidden="true" className="h-5 w-5 text-brand-600" /> {formatWhen(req.proposedAt)}
           </p>
           {listing && (
-            <p className="mt-1 text-sm">
-              {formatPrice(listing.price)} for {listing.durationMins} minutes · <em>payment arranged after acceptance (not part of this demo)</em>
+            <p className="mt-1 text-sm text-ink/70">
+              {formatPrice(listing.price)} for {listing.durationMins} minutes. Payment is arranged once confirmed (not part of
+              this demo).
             </p>
           )}
           {req.message && <p className="mt-3 rounded-xl bg-brand-50 p-3 italic">“{req.message}”</p>}
-        </div>
-        {incoming && req.status === "pending" && (
-          <div className="flex gap-2 sm:flex-col">
-            <button className="btn-primary" onClick={() => setRequestStatus(req.id, "accepted")}>
-              Accept
-            </button>
-            <button className="btn-secondary" onClick={() => setRequestStatus(req.id, "declined")}>
-              Decline
-            </button>
+
+          {/* Actions */}
+          <div className="mt-4 flex flex-wrap gap-2">
+            {incoming && req.status === "pending" && (
+              <>
+                <button className="btn-primary" onClick={() => setRequestStatus(req.id, "accepted")}>
+                  <Check aria-hidden="true" className="h-5 w-5" /> Accept
+                </button>
+                <button className="btn-secondary" onClick={() => setRequestStatus(req.id, "declined")}>
+                  <X aria-hidden="true" className="h-5 w-5" /> Not this time
+                </button>
+              </>
+            )}
+            {incoming && req.status === "declined" && (
+              <button className="btn-secondary" onClick={() => setRequestStatus(req.id, "pending")}>
+                <RotateCcw aria-hidden="true" className="h-5 w-5" /> I've changed my mind
+              </button>
+            )}
+            {!incoming && req.status === "pending" && (
+              <button className="btn-ghost" onClick={() => setRequestStatus(req.id, "withdrawn")}>
+                <Undo2 aria-hidden="true" className="h-5 w-5" /> Withdraw request
+              </button>
+            )}
+            {!incoming && req.status === "withdrawn" && (
+              <button className="btn-ghost" onClick={() => setRequestStatus(req.id, "pending")}>
+                <RotateCcw aria-hidden="true" className="h-5 w-5" /> Send it again
+              </button>
+            )}
+            {(req.status === "accepted" || req.status === "pending") && !rescheduling && (
+              <button className="btn-ghost" onClick={() => setRescheduling(true)}>
+                <CalendarClock aria-hidden="true" className="h-5 w-5" /> {past ? "Book another time" : "Suggest a new time"}
+              </button>
+            )}
+            {past && (
+              <button className={reflection ? "btn-secondary" : "btn-warm"} onClick={() => setReflecting(true)}>
+                {reflection ? (
+                  <>
+                    <NotebookPen aria-hidden="true" className="h-5 w-5" /> My notes
+                  </>
+                ) : (
+                  <>
+                    <Heart aria-hidden="true" className="h-5 w-5" /> How did it go?
+                  </>
+                )}
+              </button>
+            )}
           </div>
-        )}
+          {req.status === "declined" && !incoming && (
+            <p className="mt-3 text-sm text-ink/70">
+              Not every time works out, and that's okay. There are{" "}
+              <Link to="/mentors" className="font-bold underline">
+                other mentors
+              </Link>{" "}
+              who'd be glad to hear from you.
+            </p>
+          )}
+          {rescheduling && <Reschedule req={req} onDone={() => setRescheduling(false)} />}
+          {reflection && (reflection.learned || reflection.next) && (
+            <p className="mt-3 rounded-xl border border-dashed border-brand-200 p-3 text-sm text-ink/75">
+              <strong>Your note:</strong> {reflection.learned || reflection.next}
+            </p>
+          )}
+        </div>
       </div>
+      <ReflectionDialog
+        open={reflecting}
+        onClose={() => setReflecting(false)}
+        me={me}
+        other={other}
+        requestId={req.id}
+        sessionTitle={title}
+        existing={reflection}
+      />
     </li>
   );
 }
@@ -89,6 +207,7 @@ export default function Requests() {
   const users = useStore(getUsers, []);
   const listings = useStore(getListings, []);
   const requests = useStore(getRequests, []);
+  const reflections = useStore(() => (user ? getReflections(user.id) : Promise.resolve([])), []);
   const [tab, setTab] = useState<"incoming" | "outgoing">("incoming");
   if (!user) return null;
 
@@ -99,17 +218,17 @@ export default function Requests() {
   return (
     <>
       <PageHeader eyebrow="Connections" title="Requests & sessions">
-        Accept or decline requests, and follow the ones you've sent. Saying no is always fine.
+        Reply to requests and follow the ones you've sent. Saying no is always fine, and so is changing your mind.
       </PageHeader>
       <div className="container-page max-w-4xl py-10">
-        <div role="tablist" aria-label="Request direction" className="mb-6 inline-flex rounded-xl bg-brand-100 p-1">
+        <div role="tablist" aria-label="Request direction" className="mb-6 inline-flex rounded-full bg-brand-100 p-1">
           {(["incoming", "outgoing"] as const).map((t) => (
             <button
               key={t}
               role="tab"
               aria-selected={tab === t}
               onClick={() => setTab(t)}
-              className={`min-h-[44px] rounded-lg px-5 font-bold ${tab === t ? "bg-white text-brand-900 shadow" : "text-brand-800"}`}
+              className={`min-h-[44px] rounded-full px-5 font-bold ${tab === t ? "bg-white text-brand-900 shadow" : "text-brand-800"}`}
             >
               {t === "incoming" ? `Received (${incoming.length})` : `Sent (${outgoing.length})`}
             </button>
@@ -130,7 +249,15 @@ export default function Requests() {
         ) : (
           <ul className="space-y-4">
             {list.map((r) => (
-              <RequestItem key={r.id} req={r} incoming={tab === "incoming"} users={users} listings={listings} />
+              <RequestItem
+                key={r.id}
+                req={r}
+                incoming={tab === "incoming"}
+                users={users}
+                listings={listings}
+                me={user}
+                reflection={reflections.find((rf) => rf.requestId === r.id)}
+              />
             ))}
           </ul>
         )}

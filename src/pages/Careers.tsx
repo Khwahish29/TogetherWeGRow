@@ -20,6 +20,9 @@ export default function Careers() {
   const [result, setResult] = useState<{ source: AiSource; data: CareerRec[] } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gentleOnly, setGentleOnly] = useState(
+    () => Boolean(user?.workPreferences.some((p) => /physical|lift|strain/i.test(p))),
+  );
   const cacheId = user ? `${user.id}:${user.skills.join("|")}:${user.workPreferences.join("|")}` : "";
 
   async function load(force = false) {
@@ -90,9 +93,20 @@ export default function Careers() {
                   </span>
                 ))}
               </div>
+              <div className="flex flex-wrap items-center gap-2">
+              <label className="flex min-h-[48px] cursor-pointer items-center gap-3 rounded-full border-2 border-brand-200 bg-white px-4 font-bold">
+                <input
+                  type="checkbox"
+                  className="h-5 w-5 accent-brand-700"
+                  checked={gentleOnly}
+                  onChange={(e) => setGentleOnly(e.target.checked)}
+                />
+                Only show roles that are easy on the body
+              </label>
               <button className="btn-ghost" onClick={() => load(true)} disabled={loading}>
                 ↻ Suggest again
               </button>
+              </div>
             </div>
 
             <div role="note" className="notice mb-8">
@@ -119,8 +133,14 @@ export default function Careers() {
                   <div className="mb-4">
                     <SourceLabel source={result.source} />
                   </div>
+                  {result.data.every((r) => gentleOnly && r.physicalDemand !== "low") && (
+                    <p className="notice mb-4">
+                      None of these suggestions are low in physical demand. Try "Suggest again", or turn off the filter to
+                      see them.
+                    </p>
+                  )}
                   <ol className="grid gap-6 md:grid-cols-2">
-                    {result.data.map((rec) => (
+                    {result.data.filter((r) => !gentleOnly || r.physicalDemand === "low").map((rec) => (
                       <li key={rec.title} className="card flex flex-col">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="badge bg-warm-100 text-warm-700">{TYPE_LABEL[rec.type] ?? rec.type}</span>

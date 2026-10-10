@@ -38,6 +38,8 @@ export interface CompanionRequest {
   topic: string;
   step?: string;
   question?: string;
+  /** How the learner says they feel about this topic today. */
+  feeling?: "curious" | "nervous" | "frustrated" | "refresher";
 }
 
 export interface CompanionResponse {

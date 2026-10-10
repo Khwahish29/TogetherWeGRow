@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Bot, HeartHandshake } from "lucide-react";
 
 export default function Learn() {
   return (
@@ -12,8 +13,8 @@ export default function Learn() {
 
         <div className="mx-auto mt-10 grid max-w-4xl gap-6 text-left md:grid-cols-2">
           <Link to="/learn/ai" className="group card border-2 border-transparent p-8 transition hover:-translate-y-1 hover:border-brand-600 hover:shadow-lg">
-            <span aria-hidden="true" className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-100 text-3xl">
-              💬
+            <span aria-hidden="true" className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
+              <Bot className="h-9 w-9" />
             </span>
             <h2 className="mt-5 text-2xl font-bold group-hover:underline">Learn with AI</h2>
             <p className="mt-2 text-lg text-ink/80">
@@ -22,8 +23,8 @@ export default function Learn() {
             <span className="btn-primary mt-6">Start with AI</span>
           </Link>
           <Link to="/learn/buddies" className="group card border-2 border-transparent p-8 transition hover:-translate-y-1 hover:border-brand-600 hover:shadow-lg">
-            <span aria-hidden="true" className="flex h-16 w-16 items-center justify-center rounded-2xl bg-warm-100 text-3xl">
-              🤝
+            <span aria-hidden="true" className="flex h-16 w-16 items-center justify-center rounded-2xl bg-warm-100 text-warm-700">
+              <HeartHandshake className="h-9 w-9" />
             </span>
             <h2 className="mt-5 text-2xl font-bold group-hover:underline">Learn with a Human</h2>
             <p className="mt-2 text-lg text-ink/80">
@@ -35,7 +36,7 @@ export default function Learn() {
 
         <p className="mt-10 font-serif text-2xl text-brand-900">No pressure. No judgment. Just support.</p>
         <p className="mx-auto mt-2 max-w-xl text-ink/75">
-          You can use both options, or choose not to learn a particular tool at all. That's a perfectly good choice too.
+          You can use both, switch halfway, or decide a particular tool isn't for you. That's a perfectly good choice too.
         </p>
       </div>
     </div>

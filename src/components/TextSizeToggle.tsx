@@ -16,17 +16,29 @@ function readSize(): Size {
   }
 }
 
+/** Apply the saved text size on first load. */
+export function applySavedTextSize() {
+  document.documentElement.dataset.text = readSize();
+}
+
+export function setTextSize(size: Size) {
+  try {
+    localStorage.setItem("twg.textSize", size);
+  } catch {
+    // ignore
+  }
+  document.documentElement.dataset.text = size;
+  window.dispatchEvent(new Event("twg:textsize"));
+}
+
 export function TextSizeToggle({ dark = false }: { dark?: boolean }) {
   const [size, setSize] = useState<Size>(readSize);
 
   useEffect(() => {
-    document.documentElement.dataset.text = size;
-    try {
-      localStorage.setItem("twg.textSize", size);
-    } catch {
-      // ignore
-    }
-  }, [size]);
+    const sync = () => setSize(readSize());
+    window.addEventListener("twg:textsize", sync);
+    return () => window.removeEventListener("twg:textsize", sync);
+  }, []);
 
   return (
     <div role="group" aria-label="Text size" className="mt-2 flex gap-2">
@@ -35,7 +47,7 @@ export function TextSizeToggle({ dark = false }: { dark?: boolean }) {
           key={s.value}
           aria-pressed={size === s.value}
           aria-label={s.name}
-          onClick={() => setSize(s.value)}
+          onClick={() => setTextSize(s.value)}
           className={`min-h-[44px] min-w-[52px] rounded-lg border-2 px-3 font-bold ${
             size === s.value
               ? "border-warm-400 bg-warm-400 text-brand-900"

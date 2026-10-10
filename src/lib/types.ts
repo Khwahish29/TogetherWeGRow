@@ -27,6 +27,8 @@ export interface User {
   format: Format;
   profileApproved: boolean;
   buddy?: BuddyOffer;
+  /** Things that make using the site easier for this person (larger text, voice, a patient helper...). */
+  comfort?: string[];
   isDemo?: boolean;
   createdAt: string;
 }
@@ -44,7 +46,7 @@ export interface Listing {
   createdAt: string;
 }
 
-export type RequestStatus = "pending" | "accepted" | "declined";
+export type RequestStatus = "pending" | "accepted" | "declined" | "withdrawn";
 
 export interface ConnectionRequest {
   id: string;
@@ -56,5 +58,27 @@ export interface ConnectionRequest {
   message: string;
   proposedAt: string;
   status: RequestStatus;
+  createdAt: string;
+}
+
+/** Private notes a person keeps after a session. Only the author can see them. */
+export interface Reflection {
+  id: string;
+  requestId: string;
+  authorId: string;
+  learned: string;
+  surprised: string;
+  feltRespected: "yes" | "mostly" | "not-really" | "";
+  next: string;
+  createdAt: string;
+}
+
+/** A public note of thanks shown on the recipient's profile. */
+export interface ThankYou {
+  id: string;
+  fromId: string;
+  toId: string;
+  requestId?: string;
+  message: string;
   createdAt: string;
 }

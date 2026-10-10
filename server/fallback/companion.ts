@@ -129,7 +129,13 @@ export function fallbackCompanion(req: CompanionRequest): CompanionResponse {
   const guide = GUIDES[req.topic] ?? GUIDES["video-meeting"];
 
   if (req.action === "guide") {
-    return { intro: guide.intro, steps: guide.steps };
+    const opener = {
+      curious: "Lovely, let's explore it together.",
+      nervous: "That's a very normal way to feel. Nothing here can break, and you can go back at any time.",
+      frustrated: "That sounds tiring. Let's take it slowly, one small step at a time, with no rush at all.",
+      refresher: "Here's a quick run-through. Skip ahead whenever you like.",
+    }[req.feeling ?? "curious"];
+    return { intro: `${opener} ${guide.intro}`, steps: guide.steps };
   }
 
   if (req.action === "simpler") {

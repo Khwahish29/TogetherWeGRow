@@ -1,4 +1,4 @@
-import type { ConnectionRequest, Listing, User } from "../lib/types";
+import type { ConnectionRequest, Listing, ThankYou, User } from "../lib/types";
 
 const now = "2026-10-01T09:00:00.000Z";
 const base = { password: "demo1234", isDemo: true, createdAt: now, profileApproved: true };
@@ -165,4 +165,51 @@ export const SEED_LISTINGS: Listing[] = [
   },
 ];
 
-export const SEED_REQUESTS: ConnectionRequest[] = [];
+export const SEED_REQUESTS: ConnectionRequest[] = [
+  {
+    id: "r-past",
+    kind: "session",
+    fromId: "u-maya",
+    toId: "u-robert",
+    listingId: "l-wood-basics",
+    message: "I'd love to build my first small shelf.",
+    proposedAt: "2026-10-04T10:00",
+    status: "accepted",
+    createdAt: "2026-09-28T09:00:00.000Z",
+  },
+  {
+    id: "r-pending",
+    kind: "session",
+    fromId: "u-sam",
+    toId: "u-robert",
+    listingId: "l-wood-basics",
+    message: "I've never held a chisel. Is that okay?",
+    proposedAt: "2026-11-14T14:00",
+    status: "pending",
+    createdAt: "2026-10-08T09:00:00.000Z",
+  },
+];
+
+export const SEED_THANKS: ThankYou[] = [
+  {
+    id: "ty-1",
+    fromId: "u-maya",
+    toId: "u-robert",
+    message: "Robert taught me to read the grain before I cut. Something I couldn't learn from a textbook. Thank you for your patience!",
+    createdAt: "2026-09-20T17:00:00.000Z",
+  },
+  {
+    id: "ty-2",
+    fromId: "u-robert",
+    toId: "u-maya",
+    message: "Maya showed me how to join a video call with my grandson. She never once made me feel slow.",
+    createdAt: "2026-09-22T10:00:00.000Z",
+  },
+  {
+    id: "ty-3",
+    fromId: "u-sam",
+    toId: "u-grace",
+    message: "Grace's advice saved my little bakery from a tax mess. Calm, clear, and kind.",
+    createdAt: "2026-09-25T12:00:00.000Z",
+  },
+];

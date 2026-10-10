@@ -1,14 +1,16 @@
 // Local demo data layer. Every function is async so it can be swapped for Supabase later
 // without changing the pages that call it.
-import { SEED_LISTINGS, SEED_REQUESTS, SEED_USERS } from "../data/seed";
-import type { ConnectionRequest, Listing, RequestStatus, User } from "./types";
+import { SEED_LISTINGS, SEED_REQUESTS, SEED_THANKS, SEED_USERS } from "../data/seed";
+import type { ConnectionRequest, Listing, Reflection, RequestStatus, ThankYou, User } from "./types";
 
 const KEYS = {
   users: "twg.users",
   listings: "twg.listings",
   requests: "twg.requests",
+  reflections: "twg.reflections",
+  thanks: "twg.thanks",
   session: "twg.session",
-  seeded: "twg.seeded.v1",
+  seeded: "twg.seeded.v2",
 };
 
 function read<T>(key: string, fallback: T): T {
@@ -34,6 +36,8 @@ function ensureSeeded() {
   write(KEYS.users, SEED_USERS);
   write(KEYS.listings, SEED_LISTINGS);
   write(KEYS.requests, SEED_REQUESTS);
+  write(KEYS.reflections, []);
+  write(KEYS.thanks, SEED_THANKS);
   write(KEYS.seeded, true);
 }
 
@@ -70,7 +74,9 @@ export async function currentUser(): Promise<User | null> {
   return id ? ((await getUser(id)) ?? null) : null;
 }
 
-export async function signUp(input: Pick<User, "name" | "email" | "password" | "roles" | "location">): Promise<User> {
+export async function signUp(
+  input: Pick<User, "name" | "email" | "password" | "roles" | "location"> & { comfort?: string[] },
+): Promise<User> {
   const users = await getUsers();
   const email = input.email.trim().toLowerCase();
   if (users.some((u) => u.email.toLowerCase() === email)) {
@@ -90,6 +96,7 @@ export async function signUp(input: Pick<User, "name" | "email" | "password" | "
     workPreferences: [],
     wantToLearn: [],
     format: "both",
+    comfort: input.comfort ?? [],
     profileApproved: false,
     createdAt: new Date().toISOString(),
   };
@@ -146,6 +153,41 @@ export async function setRequestStatus(id: string, status: RequestStatus) {
     KEYS.requests,
     (await getRequests()).map((r) => (r.id === id ? { ...r, status } : r)),
   );
+}
+
+/** Suggest a new time. The request goes back to "pending" so the other person can say yes again. */
+export async function rescheduleRequest(id: string, proposedAt: string) {
+  write(
+    KEYS.requests,
+    (await getRequests()).map((r) => (r.id === id ? { ...r, proposedAt, status: "pending" as const } : r)),
+  );
+}
+
+// ---- Reflections (private) and thank-you notes (public) ----
+
+export async function getReflections(authorId: string): Promise<Reflection[]> {
+  ensureSeeded();
+  return read<Reflection[]>(KEYS.reflections, []).filter((r) => r.authorId === authorId);
+}
+
+export async function saveReflection(reflection: Omit<Reflection, "id" | "createdAt">): Promise<Reflection> {
+  const all = read<Reflection[]>(KEYS.reflections, []).filter(
+    (r) => !(r.requestId === reflection.requestId && r.authorId === reflection.authorId),
+  );
+  const created: Reflection = { ...reflection, id: newId("rf"), createdAt: new Date().toISOString() };
+  write(KEYS.reflections, [created, ...all]);
+  return created;
+}
+
+export async function getThanks(): Promise<ThankYou[]> {
+  ensureSeeded();
+  return read<ThankYou[]>(KEYS.thanks, []);
+}
+
+export async function sendThanks(note: Omit<ThankYou, "id" | "createdAt">): Promise<ThankYou> {
+  const created: ThankYou = { ...note, id: newId("ty"), createdAt: new Date().toISOString() };
+  write(KEYS.thanks, [created, ...(await getThanks())]);
+  return created;
 }
 
 export async function resetDemo() {

@@ -1,7 +1,15 @@
 import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { setTextSize } from "../components/TextSizeToggle";
 import { logIn, signUp } from "../lib/store";
 import type { Role } from "../lib/types";
+
+const COMFORT_OPTIONS = [
+  "Larger text",
+  "Speaking instead of typing",
+  "Taking things one step at a time",
+  "A person to help me get set up",
+];
 
 const ROLE_OPTIONS: { value: Role; title: string; body: string }[] = [
   { value: "mentor", title: "Share my experience", body: "Offer paid mentoring, training, or advice based on your work." },
@@ -26,6 +34,7 @@ export function Signup() {
   const [params] = useSearchParams();
   const preset = params.get("role") as Role | null;
   const [roles, setRoles] = useState<Role[]>(preset ? [preset] : []);
+  const [comfort, setComfort] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -44,7 +53,9 @@ export function Signup() {
         password: String(form.get("password")),
         location: String(form.get("location") ?? ""),
         roles,
+        comfort,
       });
+      if (comfort.includes("Larger text")) setTextSize("large");
       navigate("/profile/create");
     } catch (err) {
       setError((err as Error).message);
@@ -94,6 +105,34 @@ export function Signup() {
               );
             })}
           </div>
+        </fieldset>
+        <fieldset>
+          <legend className="label">
+            Is there anything that would make this easier for you?{" "}
+            <span className="font-normal text-ink/60">(optional)</span>
+          </legend>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {COMFORT_OPTIONS.map((c) => {
+              const on = comfort.includes(c);
+              return (
+                <label
+                  key={c}
+                  className={`flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full border-2 px-4 text-sm font-bold ${
+                    on ? "border-brand-700 bg-brand-50 text-brand-900" : "border-brand-100 text-ink/80"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 accent-brand-700"
+                    checked={on}
+                    onChange={() => setComfort((x) => (on ? x.filter((y) => y !== c) : [...x, c]))}
+                  />
+                  {c}
+                </label>
+              );
+            })}
+          </div>
+          <p className="hint mt-2">We'll set things up to suit you. You can change this anytime.</p>
         </fieldset>
         <div>
           <label htmlFor="name" className="label">

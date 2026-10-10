@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { AiSource, ProfileDraft } from "../../shared/types";
 import { ProfileForm, type ProfileFields } from "../components/ProfileForm";
 import { PageHeader, SourceLabel } from "../components/ui";
@@ -106,6 +106,21 @@ export default function CreateProfile() {
       </PageHeader>
       <div className="container-page grid max-w-5xl gap-8 py-10 lg:grid-cols-[1fr_280px]">
         <div className="card space-y-4">
+          {user.comfort?.includes("A person to help me get set up") && (
+            <p className="rounded-2xl bg-sky-50 p-4">
+              You mentioned you'd like someone to help.{" "}
+              <Link to="/learn/buddies" className="font-bold text-brand-700 underline">
+                A digital buddy can sit with you
+              </Link>{" "}
+              while you do this, or you can carry on here at your own pace.
+            </p>
+          )}
+          {user.comfort?.includes("Speaking instead of typing") && (
+            <p className="rounded-2xl bg-warm-100 p-4">
+              You'd prefer to speak, so press <strong>Start recording</strong> below and talk as long as you like. You can
+              pause, and fix any words afterwards.
+            </p>
+          )}
           <label htmlFor="story" className="label text-lg">
             Your working life, in your own words
           </label>

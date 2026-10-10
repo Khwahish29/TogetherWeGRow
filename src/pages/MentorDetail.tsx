@@ -4,7 +4,7 @@ import { useBooking } from "../components/useBooking";
 import { Avatar, EmptyState, FormatBadge, PricingBadge } from "../components/ui";
 import { useAuth } from "../lib/auth";
 import { scoreMentor } from "../lib/matching";
-import { getListings, getUsers } from "../lib/store";
+import { getListings, getThanks, getUsers } from "../lib/store";
 import { useStore } from "../lib/useStore";
 
 export default function MentorDetail() {
@@ -12,6 +12,7 @@ export default function MentorDetail() {
   const { user } = useAuth();
   const users = useStore(getUsers, []);
   const listings = useStore(getListings, []);
+  const thanks = useStore(getThanks, []);
   const booking = useBooking(users);
   const person = users.find((u) => u.id === id);
 
@@ -80,6 +81,24 @@ export default function MentorDetail() {
               </div>
             )}
           </section>
+
+          {thanks.some((t) => t.toId === person.id) && (
+            <section className="mt-10" aria-labelledby="thanks">
+              <h2 id="thanks" className="text-2xl font-bold">
+                Notes of thanks
+              </h2>
+              <ul className="mt-4 grid gap-4 md:grid-cols-2">
+                {thanks
+                  .filter((t) => t.toId === person.id)
+                  .map((t) => (
+                    <li key={t.id} className="rounded-3xl bg-warm-100/70 p-5">
+                      <p className="font-serif text-lg leading-relaxed text-brand-900">“{t.message}”</p>
+                      <p className="mt-2 text-sm text-ink/70">{users.find((u) => u.id === t.fromId)?.name ?? "A member"}</p>
+                    </li>
+                  ))}
+              </ul>
+            </section>
+          )}
         </div>
 
         <aside className="space-y-5">

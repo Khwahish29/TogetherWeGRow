@@ -25,8 +25,10 @@ export function Avatar({ name, size = "md" }: { name: string; size?: "sm" | "md"
 
 export function PageHeader({ eyebrow, title, children }: { eyebrow?: string; title: string; children?: ReactNode }) {
   return (
-    <div className="border-b border-brand-100 bg-gradient-to-b from-brand-50 to-warm-50">
-      <div className="container-page py-10 sm:py-14">
+    <div className="relative overflow-hidden border-b border-brand-100 bg-gradient-to-br from-brand-50 via-warm-50 to-warm-100">
+      <div aria-hidden="true" className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-brand-200/40 blur-2xl" />
+      <div aria-hidden="true" className="absolute -bottom-24 right-1/3 h-56 w-56 rounded-full bg-warm-400/20 blur-2xl" />
+      <div className="container-page relative py-10 sm:py-14">
         {eyebrow && <p className="font-bold uppercase tracking-widest text-warm-700 text-sm">{eyebrow}</p>}
         <h1 className="mt-2 text-3xl sm:text-4xl font-bold">{title}</h1>
         {children && <div className="mt-3 max-w-3xl text-lg text-ink/80">{children}</div>}
@@ -44,8 +46,8 @@ export function SourceLabel({ source }: { source: AiSource }) {
 }
 
 export function FormatBadge({ format }: { format: Format }) {
-  const label = { online: "Online", "in-person": "In person", both: "Online or in person" }[format];
-  return <span className="badge bg-brand-100 text-brand-800">{label}</span>;
+  const label = { online: "Online", "in-person": "In person", both: "Online & in person" }[format];
+  return <span className="badge whitespace-nowrap bg-brand-100 text-brand-800">{label}</span>;
 }
 
 export function PricingBadge({ pricing, rate }: { pricing: BuddyPricing; rate?: number }) {
