@@ -43,13 +43,16 @@ Before inviting people:
 | Part | Where |
 |---|---|
 | Homepage (the project, for visitors and judges) | `src/pages/Landing.tsx` → `/` |
-| The simple experience: one question per screen | `src/simple/*` → `/start`, `/roots/*`, `/growth/*`, `/family`, `/inbox`, `/account` |
-| The fuller website (profiles, mentors, marketplace, roles, résumé, plans) | `src/pages/*` → `/explore`, `/mentors`, `/opportunities`, … |
+| The site itself: one question per screen, no menus | `src/simple/*` → `/start`, `/tour`, `/roots/*`, `/growth/*`, `/family`, `/inbox`, `/account` |
+| For organizations: post a paid role, see who is interested, reply | `src/simple/Org.tsx` → `/organizations` |
 | Browser data layer (every call to the server) | `src/lib/store.ts` |
 | API: accounts, data, permissions, rate limits | `server/api.ts`, `server/auth.ts` |
 | Database schema and connection | `server/db.ts` |
 | Guidance endpoints (model call with rule-based fallback) | `server/handlers`, `server/fallback`, `server/lib/ai.ts` |
 | The one Vercel function | `api/handler.ts` |
+
+Addresses from earlier versions of the site (`/mentors`, `/opportunities`, `/employer`, `/older/*` and so on) redirect
+to their current equivalents; see the list in `src/App.tsx`.
 
 ### Accounts
 

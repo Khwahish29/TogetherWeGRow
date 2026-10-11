@@ -109,7 +109,7 @@ export function OlderRoles() {
             </div>
             <p className="mt-8 text-lg text-muted">
               Know an organization that needs experienced people?{" "}
-              <Link to="/signup?role=employer" className="link">
+              <Link to="/organizations" className="link">
                 They can post a role here
               </Link>
               .

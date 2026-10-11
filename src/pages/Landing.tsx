@@ -667,7 +667,7 @@ export default function Landing() {
                 ["/safety", "Safety"],
                 ["/privacy", "Privacy"],
                 ["/terms", "Terms"],
-                ["/signup?role=employer", "For organizations"],
+                ["/organizations", "For organizations"],
               ].map(([to, label]) => (
                 <li key={to}>
                   <Link to={to} className="link">

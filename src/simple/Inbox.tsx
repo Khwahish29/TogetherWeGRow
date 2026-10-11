@@ -226,7 +226,7 @@ export function Inbox() {
                     {mine ? (
                       { submitted: "Sent. They haven't answered yet.", reviewing: "They're looking at it.", invited: "They'd like to talk with you.", closed: "This one is closed." }[a.status]
                     ) : (
-                      <Link to="/employer" className="link">
+                      <Link to="/organizations" className="link">
                         Answer in your organization portal
                       </Link>
                     )}

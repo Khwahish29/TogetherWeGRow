@@ -29,7 +29,7 @@ const firstOf = (name?: string) => {
 
 /** Where to send someone after signing in: back to the door they last used. */
 function homeFor(user: User) {
-  if (user.roles.length === 1 && user.roles[0] === "employer") return "/employer";
+  if (user.roles.length === 1 && user.roles[0] === "employer") return "/organizations";
   try {
     const last = localStorage.getItem("twg.lastChoice");
     if (last === "older") return "/roots";
@@ -53,7 +53,7 @@ export function SignInFirst({ what }: { what: string }) {
 }
 
 /** A password box with a "Show what I type" option, which prevents most typing mistakes. */
-function PasswordField({ id, label, value, onChange, autoComplete, hint }: { id: string; label: string; value: string; onChange: (v: string) => void; autoComplete: string; hint?: string }) {
+export function PasswordField({ id, label, value, onChange, autoComplete, hint }: { id: string; label: string; value: string; onChange: (v: string) => void; autoComplete: string; hint?: string }) {
   const [show, setShow] = useState(false);
   return (
     <div>
