@@ -276,7 +276,7 @@ export function OlderEarn() {
     );
 
   return (
-    <Screen title="Your session is on offer." help="Younger people looking to learn can find it now. That's a real thing you've just done.">
+    <Screen title="Your session is on offer." help="People looking to learn can find it now. That's a real thing you've just done.">
       <ol className="space-y-3">
         {[
           { done: true, title: "You offered a session", body: "You can remove it or add another whenever you like." },
@@ -302,7 +302,7 @@ export function OlderEarn() {
       </p>
       <div className="mt-8 space-y-4">
         <BigChoice to="/inbox" icon={Mail} label="See my messages" />
-        <BigChoice to="/older" icon={Users} tone="warm" label="Back to my choices" />
+        <BigChoice to="/roots" icon={Users} tone="warm" label="Back to my choices" />
       </div>
       <Feedback flow="earn" />
     </Screen>

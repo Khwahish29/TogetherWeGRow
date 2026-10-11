@@ -1,21 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowRight, CalendarCheck, Check, Download, Heart, KeyRound, LogOut, Mail, Send, Trash2, UserRound, X } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { ArrowRight, CalendarCheck, Check, Heart, Send, UserRound, X } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import {
-  EXPORT_URL,
   addNote,
-  changePassword,
-  claimAccount,
-  deleteAccount,
   getApplications,
   getNotes,
   getOpportunities,
   getRequests,
   getUsers,
-  logOut,
   markNoteRead,
-  saveUser,
   sendThanks,
   setRequestStatus,
   type SimpleNote,
@@ -23,6 +17,7 @@ import {
 import type { ConnectionRequest, User } from "../lib/types";
 import { Avatar } from "../components/ui";
 import { useStore } from "../lib/useStore";
+import { SignInFirst } from "./Account";
 import { BigChoice, ErrorLine, Screen, SpeakOrType, TreeAndSprout, greeting, useRun } from "./parts";
 
 const KIND: Record<SimpleNote["kind"], string> = {
@@ -52,17 +47,6 @@ const firstOf = (name?: string) => {
   const f = (name ?? "").trim().split(" ")[0];
   return f ? f.charAt(0).toUpperCase() + f.slice(1) : "Someone";
 };
-
-function SignInFirst({ what }: { what: string }) {
-  return (
-    <Screen title={what} help="You'll see this once you've joined or signed in.">
-      <div className="space-y-4">
-        <BigChoice to="/start" icon={UserRound} label="I'm new here" sub="Start with one simple question" />
-        <BigChoice to="/login" icon={KeyRound} tone="warm" label="Sign in" sub="With your email and password" />
-      </div>
-    </Screen>
-  );
-}
 
 type Entry = { at: string; note?: SimpleNote; request?: ConnectionRequest };
 
@@ -446,233 +430,5 @@ function RequestEvent({ request, me, otherName, run }: { request: ConnectionRequ
       )}
       {request.status === "accepted" && <p className="mt-3 text-lg">Use the box below to agree where to meet and how to pay.</p>}
     </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Your account                                                         */
-/* ------------------------------------------------------------------ */
-
-export function Account() {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [current, setCurrent] = useState("");
-  const [confirmLeave, setConfirmLeave] = useState<"" | "signout" | "delete">("");
-  const [showPw, setShowPw] = useState(false);
-  const pwType = showPw ? "text" : "password";
-  const showToggle = (
-    <label className="mt-3 flex min-h-[44px] cursor-pointer items-center gap-3 text-lg">
-      <input type="checkbox" className="h-5 w-5 accent-[#234638]" checked={showPw} onChange={(e) => setShowPw(e.target.checked)} />
-      Show what I type
-    </label>
-  );
-  const [done, setDone] = useState("");
-  const nameRun = useRun();
-  const loginRun = useRun();
-  const leaveRun = useRun();
-
-  useEffect(() => {
-    if (user) setName(user.name);
-  }, [user]);
-
-  if (!loading && !user) return <SignInFirst what="Your account" />;
-  if (!user) return <Screen title="Your account">{null}</Screen>;
-
-  return (
-    <Screen title={`Hello, ${firstOf(user.name)}`} help="Everything about you here, in one place. You're in charge of all of it.">
-      <section className="rounded-[2rem] bg-brand-900 p-6 text-brand-100 sm:p-8" aria-label="What you do here">
-        <div className="flex items-center gap-4">
-          <Avatar name={user.name} size="lg" />
-          <div className="min-w-0">
-            <p className="font-serif text-3xl text-white">{user.name}</p>
-            <p className="text-lg">With us since {new Date(user.createdAt).toLocaleDateString(undefined, { month: "long", year: "numeric" })}</p>
-          </div>
-        </div>
-        <ul className="mt-5 space-y-2 text-lg">
-          {user.roles.includes("mentor") && (
-            <li className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white/10 px-4 py-3">
-              <span className="text-white">You share your experience{user.skills.length ? `: ${user.skills.slice(0, 3).join(", ").toLowerCase()}` : ""}</span>
-              <Link to="/older/share" className="font-semibold text-warm-400 underline underline-offset-4">
-                Change
-              </Link>
-            </li>
-          )}
-          {user.roles.includes("mentor") && (
-            <li className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white/10 px-4 py-3">
-              <span className="text-white">Paid sessions you offer</span>
-              <Link to="/older/earn" className="font-semibold text-warm-400 underline underline-offset-4">
-                See or change
-              </Link>
-            </li>
-          )}
-          {user.roles.includes("buddy") && (
-            <li className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white/10 px-4 py-3">
-              <span className="text-white">You're a helper{user.buddy?.topics.length ? `: ${user.buddy.topics.slice(0, 3).join(", ").toLowerCase()}` : ""}</span>
-              <Link to="/younger/share" className="font-semibold text-warm-400 underline underline-offset-4">
-                Change or pause
-              </Link>
-            </li>
-          )}
-          {!user.roles.includes("mentor") && !user.roles.includes("buddy") && <li className="text-white">You haven't shared anything publicly. That's completely fine.</li>}
-        </ul>
-      </section>
-
-      <div className="mt-6 space-y-4">
-        <BigChoice to="/inbox" icon={Mail} label="Your messages" />
-      </div>
-
-      <section className="mt-10 rounded-3xl bg-white p-6 ring-1 ring-warm-200" aria-labelledby="acc-name">
-        <h2 id="acc-name" className="font-sans text-xl font-semibold">
-          The name people see
-        </h2>
-        <label htmlFor="acc-name-input" className="sr-only">
-          Your name
-        </label>
-        <input id="acc-name-input" className="input mt-3 min-h-[60px] text-xl" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
-        <ErrorLine error={nameRun.error} />
-        <button
-          type="button"
-          className="btn-secondary mt-3 min-h-[52px]"
-          disabled={nameRun.busy || !name.trim() || name.trim() === user.name}
-          onClick={() =>
-            nameRun.run(async () => {
-              await saveUser({ ...user, name: name.trim() });
-              setDone("Your name is saved.");
-            })
-          }
-        >
-          Save my name
-        </button>
-      </section>
-
-      {!user.hasLogin ? (
-        <section className="mt-6 rounded-3xl bg-brand-100/70 p-6" aria-labelledby="acc-keep">
-          <h2 id="acc-keep" className="font-sans text-xl font-semibold text-brand-900">
-            Keep your account safe
-          </h2>
-          <p className="mt-2 text-lg">
-            Right now your account lives only in this browser. Add an email and password so you can sign in on another phone or computer, and so
-            nothing is lost if this browser is cleared. It takes a minute, and it's the one thing here worth doing soon.
-          </p>
-          <label htmlFor="acc-email" className="label mt-4 text-lg">
-            Email address
-          </label>
-          <input id="acc-email" type="email" className="input min-h-[56px] text-xl" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <label htmlFor="acc-pw" className="label mt-4 text-lg">
-            Choose a password <span className="font-normal text-muted">(at least 8 characters)</span>
-          </label>
-          <input id="acc-pw" type={pwType} className="input min-h-[56px] text-xl" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          {showToggle}
-          <ErrorLine error={loginRun.error} />
-          <button
-            type="button"
-            className="btn-primary mt-4 min-h-[56px]"
-            disabled={loginRun.busy || !email.includes("@") || password.length < 8}
-            onClick={() =>
-              loginRun.run(async () => {
-                await claimAccount(email.trim(), password);
-                setPassword("");
-                setDone("Your email and password are saved. You can now sign in anywhere.");
-              })
-            }
-          >
-            Save my email and password
-          </button>
-        </section>
-      ) : (
-        <section className="mt-6 rounded-3xl bg-white p-6 ring-1 ring-warm-200" aria-labelledby="acc-pw-title">
-          <h2 id="acc-pw-title" className="font-sans text-xl font-semibold">
-            Change your password
-          </h2>
-          <p className="mt-1 text-lg text-muted">You sign in as {user.email}.</p>
-          <label htmlFor="acc-current" className="label mt-4 text-lg">
-            Current password
-          </label>
-          <input id="acc-current" type={pwType} className="input min-h-[56px] text-xl" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} />
-          <label htmlFor="acc-new" className="label mt-4 text-lg">
-            New password <span className="font-normal text-muted">(at least 8 characters)</span>
-          </label>
-          <input id="acc-new" type={pwType} className="input min-h-[56px] text-xl" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          {showToggle}
-          <ErrorLine error={loginRun.error} />
-          <button
-            type="button"
-            className="btn-secondary mt-4 min-h-[52px]"
-            disabled={loginRun.busy || password.length < 8 || !current}
-            onClick={() =>
-              loginRun.run(async () => {
-                await changePassword(current, password);
-                setCurrent("");
-                setPassword("");
-                setDone("Your new password is saved.");
-              })
-            }
-          >
-            Save new password
-          </button>
-        </section>
-      )}
-
-      {done && (
-        <p role="status" className="mt-4 rounded-2xl bg-brand-100 p-4 text-lg font-semibold text-brand-900">
-          {done}
-        </p>
-      )}
-
-      <section className="mt-10" aria-labelledby="acc-data">
-        <h2 id="acc-data" className="font-sans text-xl font-semibold">
-          Your information
-        </h2>
-        <div className="mt-4 flex flex-col gap-3">
-          <a href={EXPORT_URL} download className="btn-secondary min-h-[56px] justify-start text-lg">
-            <Download aria-hidden="true" className="h-5 w-5" /> Download everything we have about you
-          </a>
-          <button type="button" className="btn-secondary min-h-[56px] justify-start text-lg" onClick={() => setConfirmLeave("signout")}>
-            <LogOut aria-hidden="true" className="h-5 w-5" /> Sign out
-          </button>
-          <button type="button" className="btn-ghost min-h-[56px] justify-start text-lg text-warm-700" onClick={() => setConfirmLeave("delete")}>
-            <Trash2 aria-hidden="true" className="h-5 w-5" /> Delete my account
-          </button>
-        </div>
-
-        {confirmLeave && (
-          <div role="alertdialog" aria-labelledby="leave-title" className="mt-5 rounded-3xl bg-warm-100 p-6">
-            <p id="leave-title" className="text-xl font-semibold text-brand-900">
-              {confirmLeave === "delete" ? "Delete your account for good?" : "Sign out?"}
-            </p>
-            <p className="mt-2 text-lg">
-              {confirmLeave === "delete"
-                ? "Your profile, messages, sessions and everything you've shared will be removed. This can't be undone."
-                : user.hasLogin
-                  ? "You can sign in again any time with your email and password."
-                  : "Without an email and password, you won't be able to get back into this account. You may want to add them above first."}
-            </p>
-            <ErrorLine error={leaveRun.error} />
-            <div className="mt-4 flex flex-wrap gap-3">
-              <button
-                type="button"
-                className="btn-primary min-h-[52px]"
-                disabled={leaveRun.busy}
-                onClick={() =>
-                  leaveRun.run(async () => {
-                    if (confirmLeave === "delete") await deleteAccount();
-                    else await logOut();
-                    navigate("/start");
-                  })
-                }
-              >
-                {confirmLeave === "delete" ? "Yes, delete everything" : "Yes, sign out"}
-              </button>
-              <button type="button" className="btn-ghost min-h-[52px]" onClick={() => setConfirmLeave("")}>
-                Keep my account
-              </button>
-            </div>
-          </div>
-        )}
-      </section>
-    </Screen>
   );
 }

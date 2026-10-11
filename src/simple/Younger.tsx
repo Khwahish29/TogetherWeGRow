@@ -34,7 +34,7 @@ import { useWizard } from "./useWizard";
 import { Feedback } from "./Extra";
 
 /* ------------------------------------------------------------------ */
-/* Learn from Older Adults                                             */
+/* Learn from Deep Roots                                               */
 /* ------------------------------------------------------------------ */
 
 /** Kinds of know-how to browse by. Each matches people whose skills or story mention any of its words. */
@@ -108,7 +108,7 @@ export function YoungerLearn() {
     return (
       <Screen title="Who could you learn from?" help="Someone nearby has already solved the thing you're stuck on. All it takes is a good question.">
         <figure className="relative mb-6 overflow-hidden rounded-3xl">
-          <img src="/images/welding-mentor.jpg" alt="An experienced welder watches closely as a younger worker welds beside him." className="h-44 w-full object-cover object-[30%_20%] sm:h-56" />
+          <img src="/images/welding-mentor.jpg" alt="An experienced welder watches closely as a newer worker welds beside him." className="h-44 w-full object-cover object-[30%_20%] sm:h-56" />
           <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-brand-900/90 to-transparent p-5 pt-12 font-serif text-2xl text-white">
             Ten minutes with someone who's done it ten thousand times.
           </figcaption>
@@ -310,7 +310,7 @@ export function YoungerLearn() {
         )}
         <p className="mt-6 rounded-2xl bg-brand-100/70 p-5 text-lg">
           A small thing that matters: write the way you'd speak to someone you respect. If you use an expression they might not know,{" "}
-          <Link to="/younger/understand" className="link">
+          <Link to="/growth/understand" className="link">
             Vibe Check
           </Link>{" "}
           can suggest plainer words.
@@ -395,7 +395,7 @@ export function YoungerLearn() {
         <div className="mt-8 space-y-4">
           <BigChoice to="/inbox" icon={Mail} label="See my messages" />
           <BigChoice onClick={() => go(0)} icon={Search} tone="warm" label="Find someone else to learn from" />
-          <BigChoice to="/younger" icon={Users} tone="sage" label="Back to my choices" />
+          <BigChoice to="/growth" icon={Users} tone="sage" label="Back to my choices" />
         </div>
         <Feedback flow="book" />
       </Screen>
@@ -413,7 +413,7 @@ export function YoungerLearn() {
       <div className="mt-8 space-y-4">
         <BigChoice to="/inbox" icon={Mail} label="See my messages" />
         <BigChoice onClick={() => go(0)} icon={Search} tone="warm" label="Find someone else to learn from" />
-        <BigChoice to="/younger" icon={Users} tone="sage" label="Back to my choices" />
+        <BigChoice to="/growth" icon={Users} tone="sage" label="Back to my choices" />
       </div>
       <Feedback flow="ask" />
     </Screen>
@@ -424,7 +424,7 @@ export function YoungerLearn() {
 /* Share My Skills                                                     */
 /* ------------------------------------------------------------------ */
 
-/** What a helper can offer. The names line up with what older adults ask for in Get Help. */
+/** What a helper can offer. The names line up with what people ask for in Get Help. */
 const SKILLS: { name: string; icon: LucideIcon }[] = [
   { name: "Video calls", icon: Video },
   { name: "Smartphones", icon: Smartphone },
@@ -586,7 +586,7 @@ export function YoungerShare() {
   // 3 of 3: the promise, a preview, and a name.
   if (step === 2)
     return (
-      <Screen step="Step 3 of 3" title="A helper's promise" help="Patience is the whole gift. For many older adults, asking was the hard part. This is how we honor it.">
+      <Screen step="Step 3 of 3" title="A helper's promise" help="Patience is the whole gift. For many people, asking was the hard part. This is how we honor it.">
         <ul className="space-y-3">
           {PROMISE.map((pr) => (
             <li key={pr.title} className="flex gap-4 rounded-2xl bg-white p-5 ring-1 ring-warm-200">
@@ -614,7 +614,7 @@ export function YoungerShare() {
           </>
         )}
 
-        <p className="mt-8 text-lg text-muted">This is how older adults will see you:</p>
+        <p className="mt-8 text-lg text-muted">This is how people asking for help will see you:</p>
         <div className="mt-2 flex items-start gap-4 rounded-3xl border-2 border-warm-200 bg-white p-5">
           <span aria-hidden="true" className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-brand-700 font-serif text-3xl text-white">
             {(firstName(user?.name || data.name) || "?")[0]}
@@ -640,10 +640,10 @@ export function YoungerShare() {
 
   if (step === 5)
     return (
-      <Screen title="You're taking a break." help="Older adults won't see you in the list for now. Thank you for the help you've given. Come back whenever you're ready.">
+      <Screen title="You're taking a break." help="People won't see you in the list for now. Thank you for the help you've given. Come back whenever you're ready.">
         <div className="space-y-4">
           <BigChoice onClick={() => go(0)} icon={HeartHandshake} label="Start helping again" />
-          <BigChoice to="/younger" icon={Users} tone="warm" label="Back to my choices" />
+          <BigChoice to="/growth" icon={Users} tone="warm" label="Back to my choices" />
         </div>
       </Screen>
     );
@@ -659,8 +659,8 @@ export function YoungerShare() {
       />
       <div className="mt-8 space-y-4">
         <BigChoice to="/inbox" icon={Mail} label="See my messages" />
-        <BigChoice to="/younger/learn" icon={Search} tone="warm" label="Learn from someone too" sub="It goes both ways" />
-        <BigChoice to="/younger" icon={Users} tone="sage" label="Back to my choices" />
+        <BigChoice to="/growth/learn" icon={Search} tone="warm" label="Learn from someone too" sub="It goes both ways" />
+        <BigChoice to="/growth" icon={Users} tone="sage" label="Back to my choices" />
       </div>
       <Feedback flow="offer" />
     </Screen>

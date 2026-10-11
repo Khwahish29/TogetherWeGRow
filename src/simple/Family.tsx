@@ -23,12 +23,12 @@ function write(d: typeof START, short: boolean) {
   const gift = d.gift.trim() ? `, and how good you are at ${d.gift.trim()}` : "";
   const link = window.location.origin;
   if (short)
-    return `Hi ${who}, I've been thinking about ${experience}${gift}. There's a simple website called TogetherWeGrow where younger people ask people like you for advice. No pressure at all. Shall we look at it together sometime?\n\n${link}`;
+    return `Hi ${who}, I've been thinking about ${experience}${gift}. There's a simple website called TogetherWeGrow where people starting out ask people like you for advice. No pressure at all. Shall we look at it together sometime?\n\n${link}`;
   return `Hi ${who},
 
 I've been thinking about ${experience}${gift}. You know things people only learn by doing, and I don't think you realize how much that's worth.
 
-I found a simple website called TogetherWeGrow. Younger people ask practical questions there, and people with experience like yours answer them. Some offer paid advice too, and there's work that's easier on the body.
+I found a simple website called TogetherWeGrow. People who are starting out ask practical questions there, and people with experience like yours answer them. Some offer paid advice too, and there's work that's easier on the body.
 
 There's no pressure, and it's completely your choice. If you'd like, we could look at it together.
 
@@ -196,7 +196,7 @@ export function FamilyFlow() {
 
       <div className="mt-6 space-y-4">
         <BigChoice to="/start" icon={Users} label="Look at the first screen together" sub="It asks one simple question" />
-        <BigChoice to="/older/help?step=1" icon={Heart} tone="warm" label="Ask a helper to walk them through it" sub="A patient younger helper, at their pace" />
+        <BigChoice to="/roots/help?step=1" icon={Heart} tone="warm" label="Ask a helper to walk them through it" sub="A patient helper, at their pace" />
       </div>
       <Feedback flow="family" />
     </Screen>

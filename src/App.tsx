@@ -1,7 +1,7 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { RequireAuth } from "./components/ui";
-import { Login, ResetPassword, Signup } from "./pages/Auth";
+import { Signup } from "./pages/Auth";
 import CreateProfile from "./pages/CreateProfile";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
@@ -34,9 +34,16 @@ import { FamilyFlow } from "./simple/Family";
 import { MeaningScreen } from "./simple/Vibe";
 import { OlderEarn } from "./simple/Earn";
 import { OlderRoles } from "./simple/Roles";
-import { Account, Inbox } from "./simple/Inbox";
+import { Inbox } from "./simple/Inbox";
+import { Account, Join, NewPassword, SignIn } from "./simple/Account";
 import { ScamCheck } from "./simple/Scam";
 import { Privacy, Safety, Terms } from "./simple/Legal";
+
+/** Sends an old address to its new one, keeping the rest of the path and any ?step=. */
+function Renamed({ from, to }: { from: string; to: string }) {
+  const { pathname, search } = useLocation();
+  return <Navigate to={to + pathname.slice(from.length) + search} replace />;
+}
 
 export default function App() {
   const guard = (el: JSX.Element) => <RequireAuth>{el}</RequireAuth>;
@@ -46,21 +53,27 @@ export default function App() {
       <Route index element={<Landing />} />
       <Route element={<SimpleLayout />}>
         <Route path="start" element={<Welcome />} />
-        <Route path="older" element={<OlderHome />} />
-        <Route path="older/share" element={<OlderShare />} />
-        <Route path="older/learn" element={<OlderLearn />} />
-        <Route path="older/help" element={<OlderHelp />} />
-        <Route path="younger" element={<YoungerHome />} />
-        <Route path="younger/learn" element={<YoungerLearn />} />
-        <Route path="younger/share" element={<YoungerShare />} />
-        <Route path="younger/understand" element={<MeaningScreen younger />} />
-        <Route path="older/earn" element={<OlderEarn />} />
-        <Route path="older/roles" element={<OlderRoles />} />
-        <Route path="older/scam" element={<ScamCheck />} />
+        <Route path="roots" element={<OlderHome />} />
+        <Route path="roots/share" element={<OlderShare />} />
+        <Route path="roots/learn" element={<OlderLearn />} />
+        <Route path="roots/help" element={<OlderHelp />} />
+        <Route path="growth" element={<YoungerHome />} />
+        <Route path="growth/learn" element={<YoungerLearn />} />
+        <Route path="growth/share" element={<YoungerShare />} />
+        <Route path="growth/understand" element={<MeaningScreen younger />} />
+        <Route path="roots/earn" element={<OlderEarn />} />
+        <Route path="roots/roles" element={<OlderRoles />} />
+        <Route path="roots/scam" element={<ScamCheck />} />
         <Route path="family" element={<FamilyFlow />} />
+        {/* The earlier addresses, kept so saved links and bookmarks still work. */}
+        <Route path="older/*" element={<Renamed from="/older" to="/roots" />} />
+        <Route path="younger/*" element={<Renamed from="/younger" to="/growth" />} />
         <Route path="impact" element={<Impact />} />
         <Route path="inbox" element={<Inbox />} />
         <Route path="account" element={<Account />} />
+        <Route path="login" element={<SignIn />} />
+        <Route path="join" element={<Join />} />
+        <Route path="reset" element={<NewPassword />} />
         <Route path="privacy" element={<Privacy />} />
         <Route path="terms" element={<Terms />} />
         <Route path="safety" element={<Safety />} />
@@ -71,8 +84,6 @@ export default function App() {
         {/* The old homepage lived here; send any saved links to the real one. */}
         <Route path="explore" element={<Navigate to="/" replace />} />
         <Route path="signup" element={<Signup />} />
-        <Route path="login" element={<Login />} />
-        <Route path="reset" element={<ResetPassword />} />
         <Route path="profile/create" element={guard(<CreateProfile />)} />
         <Route path="profile" element={guard(<Profile />)} />
         <Route path="dashboard" element={guard(<Dashboard />)} />

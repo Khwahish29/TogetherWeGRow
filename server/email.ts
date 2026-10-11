@@ -26,13 +26,17 @@ export async function sendEmail(to: string, subject: string, text: string) {
 /** Lets someone know there's something waiting for them, if they gave us an email. Never includes private details. */
 export async function notifyUser(userId: string, siteUrl: string, what: string) {
   if (!emailEnabled()) return;
-  const rows = await (await db()).query<{ email: string | null; name: string }>("select email, data->>'name' as name from users where id = $1", [userId]);
+  const rows = await (await db()).query<{ email: string | null; name: string; alerts: string | null }>(
+    "select email, data->>'name' as name, data->>'emailAlerts' as alerts from users where id = $1",
+    [userId],
+  );
   const person = rows[0];
-  if (!person?.email) return;
+  // People can switch these emails off in their account.
+  if (!person?.email || person.alerts === "false") return;
   const first = (person.name || "there").split(" ")[0];
   await sendEmail(
     person.email,
     `${what} on TogetherWeGrow`,
-    `Hi ${first},\n\n${what}. You can read it here:\n${siteUrl}/inbox\n\nWith warm wishes,\nTogetherWeGrow\n\nYou're receiving this because you have an account on TogetherWeGrow.`,
+    `Hi ${first},\n\n${what}. You can read it here:\n${siteUrl}/inbox\n\nWith warm wishes,\nTogetherWeGrow\n\nYou're receiving this because you have an account on TogetherWeGrow. You can switch these emails off under Your account, Privacy.`,
   );
 }

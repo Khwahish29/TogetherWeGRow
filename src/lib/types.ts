@@ -18,6 +18,8 @@ export interface User {
   password?: string;
   /** On your own record: whether you can sign in with an email and password (not just on this device). */
   hasLogin?: boolean;
+  /** Whether to email you when someone writes to you. On unless you switch it off. */
+  emailAlerts?: boolean;
   roles: Role[];
   location: string;
   bio: string;

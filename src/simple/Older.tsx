@@ -161,7 +161,7 @@ export function OlderShare() {
         </div>
         <p className="mt-10 border-t border-warm-200 pt-6 text-lg">
           <button type="button" onClick={() => go(20)} className="link inline-flex items-center gap-2 text-left">
-            <HelpCircle aria-hidden="true" className="h-5 w-5 shrink-0" /> Or simply answer a question a younger person is asking
+            <HelpCircle aria-hidden="true" className="h-5 w-5 shrink-0" /> Or simply answer a question someone starting out is asking
           </button>
         </p>
       </Screen>
@@ -242,7 +242,7 @@ export function OlderShare() {
               </section>
 
               <p className="mt-6 text-xl">Someone, somewhere, is trying to learn exactly this.</p>
-              <h2 className="mt-8 font-sans text-2xl font-semibold">Shall we let younger people know they can ask you?</h2>
+              <h2 className="mt-8 font-sans text-2xl font-semibold">Shall we let people who want to learn know they can ask you?</h2>
               <p className="mt-2 text-lg text-muted">It's your choice, and you can change your mind any time.</p>
               <div className="mt-5 space-y-4">
                 <BigChoice onClick={() => (user ? share(user.name) : go(3))} icon={Heart} label={shareRun.busy ? "One moment…" : "Yes, I'd like to share"} sub="Your phone and email stay private" />
@@ -275,26 +275,26 @@ export function OlderShare() {
       <Screen title={`Thank you, ${(user?.name ?? data.name).trim().split(" ")[0]}.`} help="That's it. You're done. Someone will be glad you did this.">
         <TreeAndSprout className="mx-auto h-auto w-full max-w-sm" />
         <p className="mt-4 rounded-3xl bg-brand-100/70 p-6 text-xl text-brand-900">
-          When a younger person asks you something, it will be waiting in{" "}
+          When someone asks you something, it will be waiting in{" "}
           <Link to="/inbox" className="link">
             your messages
           </Link>
           . There's nothing more you need to do.
         </p>
         <div className="mt-6">
-          <BigChoice to="/older" icon={Users} label="Back to my choices" />
+          <BigChoice to="/roots" icon={Users} label="Back to my choices" />
         </div>
 
         <div className="mt-10 border-t border-warm-200 pt-6">
           <p className="text-lg text-muted">Another day, only if you'd like:</p>
           <ul className="mt-3 space-y-3 text-lg">
             <li>
-              <Link to="/older/earn" className="link inline-flex items-center gap-2">
+              <Link to="/roots/earn" className="link inline-flex items-center gap-2">
                 <Coins aria-hidden="true" className="h-5 w-5 shrink-0" /> Earn from what you know (you keep 90%)
               </Link>
             </li>
             <li>
-              <Link to="/older/roles" className="link inline-flex items-center gap-2">
+              <Link to="/roots/roles" className="link inline-flex items-center gap-2">
                 <Briefcase aria-hidden="true" className="h-5 w-5 shrink-0" /> See work that's easier on the body
               </Link>
             </li>
@@ -310,7 +310,7 @@ export function OlderShare() {
   return (
     <Screen title="That's completely fine." help="Nothing has been shared. What you know is still yours, and you're welcome back whenever you like.">
       <div className="space-y-4">
-        <BigChoice to="/older" icon={Users} label="Back to my choices" />
+        <BigChoice to="/roots" icon={Users} label="Back to my choices" />
       </div>
     </Screen>
   );
@@ -324,7 +324,7 @@ const TOPICS: { id: string; label: string; why: string; icon: LucideIcon; to?: s
   { id: "video-meeting", label: "Video call my family", why: "See their faces, wherever they are", icon: Video },
   { id: "photos", label: "Send a photo from my phone", why: "Share a moment with someone you love", icon: ImageIcon },
   { id: "email", label: "Send an email", why: "Write to anyone, at any time", icon: Mail },
-  { id: "scams", label: "Check a suspicious message", why: "Paste it in and we'll look for warning signs", icon: ShieldAlert, to: "/older/scam" },
+  { id: "scams", label: "Check a suspicious message", why: "Paste it in and we'll look for warning signs", icon: ShieldAlert, to: "/roots/scam" },
   { id: "ai-tools", label: "Ask a chat assistant a question", why: "Get a quick answer in plain words", icon: MessageCircle },
 ];
 
@@ -378,7 +378,7 @@ export function OlderLearn() {
     return (
       <Screen title="What would you like to learn?" help="Pick one. We'll go one small step at a time, and you can't break anything.">
         <figure className="relative mb-6 overflow-hidden rounded-3xl">
-          <img src="/images/learning-together.jpg" alt="An older woman types at a computer while a helper stands beside her." className="h-44 w-full object-cover object-[60%_35%] sm:h-56" />
+          <img src="/images/learning-together.jpg" alt="A woman types at a computer while a helper stands beside her." className="h-44 w-full object-cover object-[60%_35%] sm:h-56" />
           <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-brand-900/90 to-transparent p-5 pt-12 font-serif text-2xl text-white">
             Everyone starts somewhere. Today is a fine day for it.
           </figcaption>
@@ -398,7 +398,7 @@ export function OlderLearn() {
           ))}
         </div>
         <p className="mt-8 text-lg">
-          <Link to="/older/help?step=1" className="link inline-flex items-center gap-2">
+          <Link to="/roots/help?step=1" className="link inline-flex items-center gap-2">
             <Users aria-hidden="true" className="h-5 w-5 shrink-0" /> I'd rather learn with a person beside me
           </Link>
         </p>
@@ -412,7 +412,7 @@ export function OlderLearn() {
       <Screen title="We couldn't get the steps just now." help="That's our fault, not yours. Please try again in a moment." readAloud={false}>
         <div className="space-y-4">
           <BigChoice onClick={() => choose(topic.id)} icon={Sparkles} label="Try again" />
-          <BigChoice to="/older/help?step=1" icon={Users} tone="warm" label="Ask a person instead" />
+          <BigChoice to="/roots/help?step=1" icon={Users} tone="warm" label="Ask a person instead" />
         </div>
       </Screen>
     );
@@ -444,7 +444,7 @@ export function OlderLearn() {
         <div className="mt-6 space-y-4">
           <BigChoice onClick={() => go(1)} icon={Sparkles} label="Go through it again" sub="It gets easier each time" />
           <BigChoice onClick={() => go(0)} icon={FileText} tone="warm" label="Learn something else" />
-          <BigChoice to="/older/help?step=1" icon={Users} tone="sage" label="I'd like a person to help" />
+          <BigChoice to="/roots/help?step=1" icon={Users} tone="sage" label="I'd like a person to help" />
         </div>
         <Feedback flow="learn" askComfort />
       </Screen>
@@ -512,7 +512,7 @@ export function OlderLearn() {
         onSecondary={index > 0 ? () => go(step - 1) : undefined}
       />
       <p className="mt-6 text-center text-lg">
-        <Link to="/older/help?step=1" className="link inline-flex items-center gap-2">
+        <Link to="/roots/help?step=1" className="link inline-flex items-center gap-2">
           <Users aria-hidden="true" className="h-5 w-5 shrink-0" /> Stuck? Ask a person to help
         </Link>
       </p>
@@ -548,7 +548,7 @@ export function OlderHelp() {
   const helpers = useMemo(
     () =>
       users
-        .filter((u) => u.roles.includes("buddy") && u.buddy && u.id !== user?.id)
+        .filter((u) => u.roles.includes("buddy") && u.buddy && u.profileApproved && u.id !== user?.id)
         .sort((a, b) => Number(helps(b)) - Number(helps(a)) || b.createdAt.localeCompare(a.createdAt))
         .slice(0, 3),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -561,9 +561,9 @@ export function OlderHelp() {
     return (
       <Screen title="How can we help?" help="Asking is how everyone learns anything. You're in good company.">
         <div className="space-y-4">
-          <BigChoice onClick={() => go(1)} image="/images/learning-together.jpg" imageFocus="70% 35%" label="Ask a friendly person" sub="A patient younger helper, at your pace" />
+          <BigChoice onClick={() => go(1)} image="/images/learning-together.jpg" imageFocus="70% 35%" label="Ask a friendly person" sub="A patient helper, at your pace" />
           <BigChoice onClick={() => go(12)} icon={MessageSquareText} tone="warm" label="Help with a message I received" sub="Is it a scam? What does it mean?" />
-          <BigChoice to="/older/learn" icon={FileText} tone="sage" label="Show me step by step" sub="Simple steps you can follow on your own" />
+          <BigChoice to="/roots/learn" icon={FileText} tone="sage" label="Show me step by step" sub="Simple steps you can follow on your own" />
         </div>
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-3xl bg-white p-5 ring-1 ring-warm-200">
           <p className="flex items-center gap-3 text-xl font-semibold text-brand-900">
@@ -581,7 +581,7 @@ export function OlderHelp() {
     return (
       <Screen title="What would you like to know about it?" help="Have the message ready. You can paste it or type it in.">
         <div className="space-y-4">
-          <BigChoice to="/older/scam" icon={ShieldAlert} label="Is it a scam?" sub="We'll look for the warning signs with you" />
+          <BigChoice to="/roots/scam" icon={ShieldAlert} label="Is it a scam?" sub="We'll look for the warning signs with you" />
           <BigChoice onClick={() => go(11)} icon={MessageSquareText} tone="warm" label="What does it mean?" sub="Plain words for a confusing message" />
         </div>
       </Screen>
@@ -634,14 +634,14 @@ export function OlderHelp() {
       <Screen
         step="Step 2 of 3"
         title="Who would you like to ask?"
-        help={helpers.length ? "These younger helpers signed up because they enjoy explaining things. None of them will rush you." : undefined}
+        help={helpers.length ? "These helpers signed up because they enjoy explaining things. None of them will rush you." : undefined}
       >
         {helpers.length === 0 ? (
           <div className="rounded-3xl bg-white p-6 text-xl ring-1 ring-warm-200">
-            <p>Our first younger helpers are just joining, so nobody is here to ask yet. That will change soon.</p>
+            <p>Our first helpers are just joining, so nobody is here to ask yet. That will change soon.</p>
             <div className="mt-5 space-y-3">
-              <BigChoice to="/older/learn" icon={FileText} tone="warm" label="Show me step by step instead" sub="Simple steps you can follow today" />
-              <BigChoice to="/older" icon={Users} tone="sage" label="Back to my choices" />
+              <BigChoice to="/roots/learn" icon={FileText} tone="warm" label="Show me step by step instead" sub="Simple steps you can follow today" />
+              <BigChoice to="/roots" icon={Users} tone="sage" label="Back to my choices" />
             </div>
           </div>
         ) : (
@@ -774,9 +774,9 @@ export function OlderHelp() {
       <div className="mt-8 space-y-4">
         <BigChoice to="/inbox" icon={Mail} label="See my messages" />
         {topic.guide ? (
-          <BigChoice to="/older/learn" icon={FileText} tone="warm" label="Try a guide while I wait" />
+          <BigChoice to="/roots/learn" icon={FileText} tone="warm" label="Try a guide while I wait" />
         ) : (
-          <BigChoice to="/older" icon={Users} tone="warm" label="Back to my choices" />
+          <BigChoice to="/roots" icon={Users} tone="warm" label="Back to my choices" />
         )}
       </div>
       <Feedback flow="help" askComfort />
@@ -785,7 +785,7 @@ export function OlderHelp() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Answer a question a younger person is asking                        */
+/* Answer a question someone starting out is asking                     */
 /* ------------------------------------------------------------------ */
 
 type ShareData = typeof SHARE_START;
@@ -852,7 +852,7 @@ function AnswerAQuestion({
       <div className="space-y-4">
         <BigChoice onClick={() => go(20)} icon={HelpCircle} label="Answer another question" />
         <BigChoice onClick={() => go(0)} icon={Heart} tone="warm" label="Share more about my work" sub="So people can ask you directly" />
-        <BigChoice to="/older" icon={Users} tone="sage" label="Back to my choices" />
+        <BigChoice to="/roots" icon={Users} tone="sage" label="Back to my choices" />
       </div>
       <Feedback flow="answer" askComfort />
     </Screen>

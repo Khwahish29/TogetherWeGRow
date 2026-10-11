@@ -43,7 +43,7 @@ function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) 
   );
 }
 
-/** Older adults arrive wanting a message explained; younger adults get both directions offered equally. */
+/** The Deep roots path arrives wanting a message explained; the New growth path gets both directions offered equally. */
 export function MeaningScreen({ younger = false }: { younger?: boolean }) {
   const [mode, setMode] = useState<Mode>("explain");
   const [text, setText] = useState("");
@@ -128,8 +128,8 @@ export function MeaningScreen({ younger = false }: { younger?: boolean }) {
             icon={Search}
             label="Try another"
           />
-          {!younger && <BigChoice to="/older/scam" icon={ShieldAlert} tone="warm" label="Is it a scam?" sub="If the message worries you, check it here" />}
-          <BigChoice to={younger ? "/younger" : "/older"} icon={Users} tone="sage" label="Back to my choices" />
+          {!younger && <BigChoice to="/roots/scam" icon={ShieldAlert} tone="warm" label="Is it a scam?" sub="If the message worries you, check it here" />}
+          <BigChoice to={younger ? "/growth" : "/roots"} icon={Users} tone="sage" label="Back to my choices" />
         </div>
       </Screen>
     );
@@ -213,7 +213,7 @@ export function MeaningScreen({ younger = false }: { younger?: boolean }) {
 
       {!younger && (
         <p className="mt-6 text-lg">
-          <Link to="/older/scam" className="link inline-flex items-center gap-2">
+          <Link to="/roots/scam" className="link inline-flex items-center gap-2">
             <ShieldAlert aria-hidden="true" className="h-5 w-5 shrink-0" /> Worried it might be a scam? Check that instead
           </Link>
         </p>

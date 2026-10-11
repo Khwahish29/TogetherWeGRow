@@ -84,7 +84,7 @@ export function BigChoice({
       <span className="flex min-w-0 flex-1 items-center gap-4">
         <span className="min-w-0 flex-1">
           <span className="block text-2xl font-semibold leading-snug text-brand-900">{label}</span>
-          {sub && <span className="mt-1 block text-lg text-muted">{sub}</span>}
+          {sub && <span className="mt-1 block break-words text-lg text-muted">{sub}</span>}
         </span>
         {selected === undefined ? (
           <ArrowRight aria-hidden="true" className="h-7 w-7 shrink-0 text-brand-600 transition group-hover:translate-x-1" />

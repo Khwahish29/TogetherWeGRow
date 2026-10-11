@@ -107,8 +107,8 @@ export function ScamCheck() {
             icon={Search}
             label="Check another message"
           />
-          <BigChoice to="/older/help?step=1" icon={Users} tone="warm" label="Ask a person to look at it with me" />
-          <BigChoice to="/older" icon={ShieldCheck} tone="sage" label="Back to my choices" />
+          <BigChoice to="/roots/help?step=1" icon={Users} tone="warm" label="Ask a person to look at it with me" />
+          <BigChoice to="/roots" icon={ShieldCheck} tone="sage" label="Back to my choices" />
         </div>
       </Screen>
     );

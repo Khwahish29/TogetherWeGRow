@@ -2,9 +2,10 @@
 
 After a lifetime of hard work, their bodies deserve rest, but their experience deserves to live on.
 
-TogetherWeGrow connects older adults with younger people who need what they know. Older adults share their
-experience, offer paid sessions, find work that is easier on the body, and learn technology at their own pace.
-Younger adults learn from them and offer patient help in return.
+TogetherWeGrow connects people with a lifetime of experience ("Deep roots") to people starting out ("New growth")
+who need what they know. Deep roots share their experience, offer paid sessions, find work that is easier on the
+body, and learn technology at their own pace. New growth learn from them and offer patient help in return.
+Nobody is asked their age, and the site never labels people as older or younger.
 
 Built by Team #16 for Hacks for Humanity.
 
@@ -42,7 +43,7 @@ Before inviting people:
 | Part | Where |
 |---|---|
 | Homepage (the project, for visitors and judges) | `src/pages/Landing.tsx` → `/` |
-| The simple experience: one question per screen | `src/simple/*` → `/start`, `/older/*`, `/younger/*`, `/family`, `/inbox`, `/account` |
+| The simple experience: one question per screen | `src/simple/*` → `/start`, `/roots/*`, `/growth/*`, `/family`, `/inbox`, `/account` |
 | The fuller website (profiles, mentors, marketplace, roles, résumé, plans) | `src/pages/*` → `/explore`, `/mentors`, `/opportunities`, … |
 | Browser data layer (every call to the server) | `src/lib/store.ts` |
 | API: accounts, data, permissions, rate limits | `server/api.ts`, `server/auth.ts` |

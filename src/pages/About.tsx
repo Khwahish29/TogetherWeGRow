@@ -84,7 +84,7 @@ export default function About() {
               The difference we hope to make
             </h2>
             <p className="mt-3 text-lg text-ink/80">
-              Older workers earning from their knowledge with dignity. Younger people gaining skills and mentors they
+              Experienced workers earning from their knowledge with dignity. People starting out gaining skills and mentors they
               wouldn't otherwise meet. And fewer people, of any age, feeling embarrassed to ask how something works.
             </p>
           </div>

@@ -92,10 +92,10 @@ export function Impact() {
   const v = (n: number | undefined) => (stats ? String(n ?? 0) : "…");
 
   const rows: [string, string, string][] = [
-    ["Older adults sharing their experience", "10 to 15", v(stats?.elders)],
-    ["Younger helpers offering their skills", "10", v(stats?.helpers)],
+    ["People sharing their experience", "10 to 15", v(stats?.elders)],
+    ["Helpers offering their skills", "10", v(stats?.helpers)],
     ["Questions, help and session requests", "10 learning sessions", v(stats?.connections)],
-    ["Older adults offering a paid session", "5 sharing a skill", v(stats?.listings)],
+    ["People offering a paid session", "5 sharing a skill", v(stats?.listings)],
     ["First visit finished within 5 minutes", "Most people", stats ? of(stats.firstUnder5, stats.firstTimes, "Not measured yet") : "…"],
     ["Feel more comfortable asking for help", "7 out of 10", stats ? of(stats.comfortable, stats.comfortAsked, "No answers yet") : "…"],
     ["Rated their experience 4 or 5 out of 5", "80%", stats ? pct(stats.ratedGood, stats.rated) : "…"],

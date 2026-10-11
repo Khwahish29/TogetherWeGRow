@@ -33,7 +33,7 @@ const WISHES: { id: string; label: string; icon: LucideIcon; fits: (o: Opportuni
 /** Kinds of paid work that use experience rather than strength. Ideas, shown when nothing is posted yet. */
 const KINDS_OF_WORK: { icon: LucideIcon; title: string; body: string }[] = [
   { icon: GraduationCap, title: "Teaching and training", body: "Showing apprentices or students how it's really done." },
-  { icon: MessagesSquare, title: "Advising", body: "Being the person a younger team calls when they're stuck." },
+  { icon: MessagesSquare, title: "Advising", body: "Being the person a newer team calls when they're stuck." },
   { icon: ClipboardCheck, title: "Checking and inspecting", body: "A trained eye that knows when work is done properly." },
   { icon: Users, title: "Mentoring", body: "Regular time with one person who's starting out." },
 ];
@@ -104,8 +104,8 @@ export function OlderRoles() {
               ))}
             </ul>
             <div className="mt-8 space-y-4">
-              <BigChoice to="/older/earn" icon={Coins} label="Offer a paid session yourself" sub="You set the price and keep 90%" />
-              <BigChoice to="/older" icon={Users} tone="warm" label="Back to my choices" />
+              <BigChoice to="/roots/earn" icon={Coins} label="Offer a paid session yourself" sub="You set the price and keep 90%" />
+              <BigChoice to="/roots" icon={Users} tone="warm" label="Back to my choices" />
             </div>
             <p className="mt-8 text-lg text-muted">
               Know an organization that needs experienced people?{" "}
@@ -331,7 +331,7 @@ export function OlderRoles() {
       <div className="mt-8 space-y-4">
         <BigChoice to="/inbox" icon={Mail} label="See my messages" />
         <BigChoice onClick={() => go(0)} icon={Briefcase} tone="warm" label="Look at other roles" />
-        <BigChoice to="/older" icon={Users} tone="sage" label="Back to my choices" />
+        <BigChoice to="/roots" icon={Users} tone="sage" label="Back to my choices" />
       </div>
       <Feedback flow="roles" />
     </Screen>

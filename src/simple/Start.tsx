@@ -43,8 +43,8 @@ export function Welcome() {
   const { user } = useAuth();
   const last = lastChoice();
   const choices = [
-    { who: "older" as const, to: "/older", emoji: "🌳", label: "I'm an Older Adult", sub: "Share what you know, learn, or get help", tone: "forest" as const },
-    { who: "younger" as const, to: "/younger", emoji: "🌱", label: "I'm a Younger Adult", sub: "Learn from experience, or share your skills", tone: "warm" as const },
+    { who: "older" as const, to: "/roots", emoji: "🌳", label: "Deep roots", sub: "I've spent years learning my work", tone: "forest" as const },
+    { who: "younger" as const, to: "/growth", emoji: "🌱", label: "New growth", sub: "I'm early on and eager to learn", tone: "warm" as const },
   ];
   // Someone who has been here before sees their own door first.
   if (last === "younger") choices.reverse();
@@ -54,8 +54,8 @@ export function Welcome() {
       <TreeAndSprout className="mx-auto h-auto w-full max-w-md" />
       <p className="mt-4 text-center font-serif text-3xl text-warm-700">{greeting(user?.name)}</p>
       <p className="mt-1 text-center text-xl text-muted">You're welcome here, just as you are.</p>
-      <h1 tabIndex={-1} className="mt-4 text-center text-5xl outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-6xl">
-        Who are you?
+      <h1 tabIndex={-1} className="mt-4 text-center text-4xl leading-tight outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-5xl">
+        Where are you in your journey?
       </h1>
       <ReadAloud className="mt-5 flex justify-center" />
       <div className="mt-6 space-y-4">
@@ -92,9 +92,9 @@ export function OlderHome() {
         {waiting > 0 && (
           <BigChoice to="/inbox" icon={Mail} tone="warm" label={waiting === 1 ? "Someone wrote to you" : `${waiting} messages are waiting for you`} sub="Somebody wants to hear from you" />
         )}
-        <BigChoice to="/older/share" image="/images/carpenter-1952.jpg" imageFocus="70% 25%" label="Share My Experience" sub="Your work, your skills, the lessons life taught you" />
-        <BigChoice to="/older/learn" image="/images/learning-together.jpg" imageFocus="70% 35%" label="Learn Something New" sub="Small, easy steps, as slowly as you like" />
-        <BigChoice to="/older/help" image="/images/smiling-laptop.jpg" imageFocus="68% 30%" label="Get Help" sub="From a friendly person, or step by step" />
+        <BigChoice to="/roots/share" image="/images/carpenter-1952.jpg" imageFocus="70% 25%" label="Share My Experience" sub="Your work, your skills, the lessons life taught you" />
+        <BigChoice to="/roots/learn" image="/images/learning-together.jpg" imageFocus="70% 35%" label="Learn Something New" sub="Small, easy steps, as slowly as you like" />
+        <BigChoice to="/roots/help" image="/images/smiling-laptop.jpg" imageFocus="68% 30%" label="Get Help" sub="From a friendly person, or step by step" />
       </div>
 
       <div className="mt-8">
@@ -102,7 +102,7 @@ export function OlderHome() {
       </div>
 
       <p className="mt-8 text-lg">
-        <Link to="/older/roles" className="link inline-flex items-center gap-2">
+        <Link to="/roots/roles" className="link inline-flex items-center gap-2">
           <Briefcase aria-hidden="true" className="h-5 w-5" /> Looking for paid work that's easier on the body?
         </Link>
       </p>
@@ -120,8 +120,8 @@ export function YoungerHome() {
         {waiting > 0 && (
           <BigChoice to="/inbox" icon={Mail} tone="warm" label={waiting === 1 ? "Someone wrote to you" : `${waiting} messages are waiting for you`} sub="See who needs you" />
         )}
-        <BigChoice to="/younger/learn" image="/images/welding-mentor.jpg" imageFocus="25% 18%" label="Learn from Older Adults" sub="Practical skills and honest, real-world advice" />
-        <BigChoice to="/younger/share" image="/images/learning-together.jpg" imageFocus="70% 35%" label="Share My Skills" sub="Help someone feel at home with technology" />
+        <BigChoice to="/growth/learn" image="/images/welding-mentor.jpg" imageFocus="25% 18%" label="Learn from Deep Roots" sub="Practical skills and honest, real-world advice" />
+        <BigChoice to="/growth/share" image="/images/learning-together.jpg" imageFocus="70% 35%" label="Share My Skills" sub="Help someone feel at home with technology" />
       </div>
 
       <div className="mt-8">
@@ -129,7 +129,7 @@ export function YoungerHome() {
       </div>
 
       <p className="mt-8 text-lg">
-        <Link to="/younger/understand" className="link inline-flex items-center gap-2">
+        <Link to="/growth/understand" className="link inline-flex items-center gap-2">
           <MessageSquareText aria-hidden="true" className="h-5 w-5" /> Understand each other: explain an expression or soften a message
         </Link>
       </p>

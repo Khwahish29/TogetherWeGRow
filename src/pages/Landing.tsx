@@ -89,21 +89,21 @@ const DIFFERENT = [
     icon: MessageSquareText,
     title: "“Clutch,” meet “measure twice, cut once”",
     body: "Every generation has its own way of speaking. Vibe Check explains an expression or softens a message, so nobody has to feel embarrassed for asking.",
-    to: "/younger/understand",
+    to: "/growth/understand",
     cta: "Try Vibe Check",
   },
   {
     icon: HelpCircle,
     title: "No forms. Just a question.",
-    body: "Older adults describe their work in their own words, or answer something a younger person is really asking. Their skills are drawn from what they said. Nothing is invented.",
-    to: "/older/share",
+    body: "People describe their work in their own words, or answer something a person starting out is really asking. Their skills are drawn from what they said. Nothing is invented.",
+    to: "/roots/share",
     cta: "See the first question",
   },
   {
     icon: Coins,
     title: "They set the price. They keep 90%.",
     body: "Experience is professional knowledge. Mentors choose what a session costs, and roles that are easier on the body state pay, hours and physical demands in plain words.",
-    to: "/older/roles",
+    to: "/roots/roles",
     cta: "See gentler work",
   },
 ];
@@ -112,7 +112,7 @@ const VALUES = [
   { name: "Empathy", how: "We begin by listening. Nobody is asked their age, and nearly every question can be skipped." },
   { name: "Compassion", how: "Asking for help is treated as ordinary. Steps repeat as often as needed, and “Explain it more simply” is always there." },
   { name: "Respect", how: "A lifetime of skill is treated as expertise, never as charity. Mentors name their price and keep 90% of it." },
-  { name: "Kindness", how: "Younger helpers are reminded: go at their pace, let them do the tapping, never ask for passwords." },
+  { name: "Kindness", how: "Helpers are reminded: go at their pace, let them do the tapping, never ask for passwords." },
   { name: "Integrity", how: "Suggestions are never promises. Organizations are labeled as unverified. Nothing is shared or charged without a clear yes." },
 ];
 
@@ -192,10 +192,10 @@ function WhoNeedsYou() {
         </p>
         <p className="mt-5 text-lg">Could you answer that? Then someone needs you.</p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Link to="/older/share?step=20" className="btn min-h-[52px] bg-warm-400 px-6 font-semibold text-brand-900 hover:bg-warm-200">
+          <Link to="/roots/share?step=20" className="btn min-h-[52px] bg-warm-400 px-6 font-semibold text-brand-900 hover:bg-warm-200">
             I could answer that <ArrowRight aria-hidden="true" className="h-5 w-5" />
           </Link>
-          <Link to="/younger/learn" className="btn min-h-[52px] border-2 border-brand-100/50 px-6 text-white hover:bg-white/10">
+          <Link to="/growth/learn" className="btn min-h-[52px] border-2 border-brand-100/50 px-6 text-white hover:bg-white/10">
             I have a question like this
           </Link>
         </div>
@@ -261,7 +261,7 @@ export default function Landing() {
           <div className="absolute inset-y-0 right-0 -z-10 w-full overflow-hidden lg:w-[60%]">
             <img
               src="/images/carpenter-1952.jpg"
-              alt="An older carpenter at his workbench in 1952, both hands on a wooden plane, looking up at the camera."
+              alt="A carpenter at his workbench in 1952, both hands on a wooden plane, looking up at the camera."
               className="kenburns h-full w-full object-cover object-[70%_30%] opacity-[0.16] lg:opacity-90"
             />
           </div>
@@ -287,7 +287,7 @@ export default function Landing() {
               </span>
             </h1>
             <p className="rise mt-7 max-w-xl text-xl leading-relaxed" style={{ animationDelay: "650ms" }}>
-              After decades of hard physical work, too many people are told they're finished. A younger generation is searching for exactly
+              After decades of hard physical work, too many people are told they're finished. People just starting out are searching for exactly
               what they know. We introduce them.
             </p>
             <TypedQuestion />
@@ -326,7 +326,7 @@ export default function Landing() {
               <figure className="floaty mt-10 hidden max-w-md rotate-[-2deg] rounded-2xl bg-white p-3 pb-4 shadow-xl ring-1 ring-warm-200 lg:block">
                 <img
                   src="/images/welding-mentor.jpg"
-                  alt="An experienced welder watches closely as a younger worker welds beside him."
+                  alt="An experienced welder watches closely as a newer worker welds beside him."
                   className="aspect-[4/3] w-full rounded-xl object-cover object-[30%_22%]"
                 />
                 <figcaption className="mt-3 px-1 text-sm text-muted">What gets passed on, when someone is there to receive it. Photo: Rwebogora, CC BY-SA 4.0.</figcaption>
@@ -405,7 +405,7 @@ export default function Landing() {
                   <p aria-hidden="true" className="text-5xl">
                     🌳
                   </p>
-                  <h3 className="mt-4 text-2xl">Older adults give</h3>
+                  <h3 className="mt-4 text-2xl">Deep roots give</h3>
                   <p className="mt-2 text-xl leading-relaxed text-muted">Decades of know-how. Honest career advice. Paid one-to-one sessions, at a price they set.</p>
                 </div>
                 <div aria-hidden="true" className="flex items-center justify-center">
@@ -420,7 +420,7 @@ export default function Landing() {
                   <p aria-hidden="true" className="text-5xl">
                     🌱
                   </p>
-                  <h3 className="mt-4 text-2xl">Younger adults give</h3>
+                  <h3 className="mt-4 text-2xl">New growth gives</h3>
                   <p className="mt-2 text-xl leading-relaxed text-muted">Patience with phones, video calls and online forms. Fresh questions. Someone who wants to listen.</p>
                 </div>
               </div>
@@ -444,11 +444,11 @@ export default function Landing() {
               </Reveal>
               <Reveal delay={150}>
                 <div className="floaty mx-auto max-w-md rounded-[2.2rem] bg-warm-50 p-6 shadow-2xl ring-1 ring-warm-200 sm:p-8">
-                  <p className="text-center font-serif text-3xl text-brand-900 sm:text-4xl">Who are you?</p>
+                  <p className="text-center font-serif text-3xl text-brand-900 sm:text-4xl">Where are you in your journey?</p>
                   <div className="mt-6 space-y-3" aria-hidden="true">
                     {[
-                      ["🌳", "I'm an Older Adult", "Share what you know · Learn · Get help"],
-                      ["🌱", "I'm a Younger Adult", "Learn from experience · Share your skills"],
+                      ["🌳", "Deep roots", "I've spent years learning my work"],
+                      ["🌱", "New growth", "I'm early on and eager to learn"],
                     ].map(([e, l, s]) => (
                       <div key={l} className="flex items-center gap-4 rounded-2xl border-2 border-warm-200 bg-white p-4">
                         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-2xl">{e}</span>
@@ -511,7 +511,7 @@ export default function Landing() {
                 <figure className="col-span-3">
                   <img
                     src="/images/learning-together.jpg"
-                    alt="An older woman types at a computer in a library while a helper stands beside her."
+                    alt="A woman types at a computer in a library while a helper stands beside her."
                     className="aspect-[4/5] w-full rounded-3xl object-cover object-[60%_40%] shadow-lg"
                     loading="lazy"
                   />
@@ -519,7 +519,7 @@ export default function Landing() {
                 <figure className="col-span-2 mt-12">
                   <img
                     src="/images/smiling-laptop.jpg"
-                    alt="An older woman lifts her glasses and smiles at something on her laptop."
+                    alt="A woman lifts her glasses and smiles at something on her laptop."
                     className="aspect-[3/4] w-full rounded-3xl object-cover object-[70%_30%] shadow-lg"
                     loading="lazy"
                   />
@@ -540,10 +540,10 @@ export default function Landing() {
                 gets small, patient steps, read aloud if she likes, and a real person whenever she'd rather not do it alone.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link to="/older/learn" className="btn-primary min-h-[56px] px-6 text-lg">
+                <Link to="/roots/learn" className="btn-primary min-h-[56px] px-6 text-lg">
                   See a step-by-step guide
                 </Link>
-                <Link to="/younger/share" className="btn-secondary min-h-[56px] px-6 text-lg">
+                <Link to="/growth/share" className="btn-secondary min-h-[56px] px-6 text-lg">
                   Become a helper
                 </Link>
               </div>
@@ -633,7 +633,7 @@ export default function Landing() {
             <Reveal delay={150}>
               <blockquote className="rounded-[2rem] bg-brand-900 p-8 text-brand-100 sm:p-10">
                 <p className="font-serif text-2xl leading-snug text-white sm:text-3xl">
-                  “We want a community where older adults feel heard, younger people learn to listen, and no one's lifetime of hard work is
+                  “We want a community where a lifetime of experience is heard, people starting out learn to listen, and no one's hard work is
                   forgotten.”
                 </p>
                 <footer className="mt-5 text-lg">From our team's mission</footer>
@@ -654,7 +654,7 @@ export default function Landing() {
               </p>
               <p className="mt-3">A saying often shared as a Greek proverb</p>
               <h2 id="cta-title" className="mx-auto mt-10 max-w-3xl text-4xl leading-tight text-white sm:text-5xl">
-                We just want the young to come and sit beside them.
+                We just want someone to come and sit beside them.
               </h2>
               <div className="mt-10 flex flex-wrap justify-center gap-3">
                 <Link to="/start" className="btn min-h-[60px] bg-warm-400 px-7 text-lg font-semibold text-brand-900 hover:bg-warm-200">
@@ -686,7 +686,7 @@ export default function Landing() {
               {[
                 ["/start", "Start here"],
                 ["/family", "Invite someone you love"],
-                ["/older/roles", "Gentler work"],
+                ["/roots/roles", "Gentler work"],
                 ["/impact", "Our goals"],
                 ["/safety", "Safety"],
                 ["/privacy", "Privacy"],

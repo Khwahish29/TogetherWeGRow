@@ -161,6 +161,18 @@ export async function changePassword(current: string, password: string) {
   await call("POST", "auth/password", { current, password });
 }
 
+export async function changeEmail(email: string, password: string) {
+  const { user } = await change<{ user: User }>("POST", "auth/email", { email, password });
+  me = user;
+  return user;
+}
+
+/** Signs out on every device, including this one. */
+export async function logOutEverywhere() {
+  await change("POST", "auth/logout-all");
+  me = null;
+}
+
 export async function deleteAccount() {
   await change("DELETE", "auth/account");
   me = null;

@@ -89,7 +89,7 @@ function publicUser(data: Json): Json {
 }
 
 /** Fields a person may set on their own profile. */
-const EDITABLE_FIELDS = [...PUBLIC_FIELDS.filter((f) => f !== "id" && f !== "createdAt"), "comfort", "workComfort"];
+const EDITABLE_FIELDS = [...PUBLIC_FIELDS.filter((f) => f !== "id" && f !== "createdAt"), "comfort", "workComfort", "emailAlerts"];
 
 function applyProfile(current: Json, patch: Json): Json {
   const next: Json = { ...current };
@@ -229,6 +229,32 @@ authRouter.post("/password", async (req, res) => {
     throw new HttpError(401, "Your current password isn't right.");
   }
   await (await db()).query("update users set password_hash = $2 where id = $1", [id, await hashPassword(next)]);
+  res.json({ ok: true });
+});
+
+/** Change the email you sign in with. Needs your password, so a borrowed phone can't take over the account. */
+authRouter.post("/email", async (req, res) => {
+  const id = requireUser(res);
+  const row = await loadUser(id);
+  const email = str(req.body?.email, 200).toLowerCase();
+  if (!row?.email || !row.password_hash) throw new HttpError(400, "Add an email and password to your account first.");
+  if (!validEmail(email)) throw new HttpError(400, "Please check your email address.");
+  await rateLimit(`email-change:${id}`, 5, 3600);
+  if (!(await verifyPassword(String(req.body?.password ?? ""), row.password_hash))) throw new HttpError(401, "Your password isn't right.");
+  const conn = await db();
+  if (email !== row.email) {
+    const taken = await conn.query("select 1 from users where email = $1", [email]);
+    if (taken.length) throw new HttpError(409, "Another account already uses that email.");
+    await conn.query("update users set email = $2 where id = $1", [id, email]);
+  }
+  res.json({ user: await ownRecord(id) });
+});
+
+/** Sign out on every phone and computer, including this one. */
+authRouter.post("/logout-all", async (req, res) => {
+  const id = requireUser(res);
+  await (await db()).query("delete from sessions where user_id = $1", [id]);
+  await endSession(req, res);
   res.json({ ok: true });
 });
 
