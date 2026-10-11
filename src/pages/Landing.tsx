@@ -46,8 +46,8 @@ const TRADES = ["Carpenters", "Nurses", "Welders", "Cooks", "Farmers", "Seamstre
 
 const CHAPTERS = [
   { n: "I", title: "He could tell a good joint by the sound it made.", body: "Thirty-eight years at the bench." },
-  { n: "II", title: "Then his knees said what he wouldn't.", body: "The job ads asked for “digital natives.”" },
-  { n: "III", title: "The worst part wasn't the money. It was the quiet.", body: "" },
+  { n: "II", title: "Then the job ads started asking for “digital natives.”", body: "Not for someone who could do the work with his eyes closed." },
+  { n: "III", title: "Nobody thought to ask what he knew.", body: "" },
   { n: "IV", title: "Three streets away, Maya was on her ninth video about dovetail joints.", body: "She needed ten minutes with someone who'd cut ten thousand." },
   { n: "V", title: "They never met. So we built the introduction.", body: "" },
 ];
@@ -65,7 +65,7 @@ const DIFFERENT = [
   { icon: Heart, title: "It starts with someone they love", body: "A guided invitation from a son, daughter or grandchild.", to: "/family", cta: "Write an invitation" },
   { icon: MessageSquareText, title: "“Clutch,” meet “measure twice, cut once”", body: "Vibe Check explains each generation's expressions. No embarrassment.", to: "/growth/understand", cta: "Try Vibe Check" },
   { icon: HelpCircle, title: "No forms. Just a question.", body: "One tap, or a few spoken words. Nothing is invented.", to: "/roots/share", cta: "See the first question" },
-  { icon: Coins, title: "They set the price. They keep 90%.", body: "Experience is expertise, and gentler work says so plainly.", to: "/roots/roles", cta: "See gentler work" },
+  { icon: Coins, title: "They set the price. They keep 90%.", body: "Experience is expertise, and it should be paid like it.", to: "/roots/roles", cta: "See paid roles" },
 ];
 
 const GIVES = {
@@ -75,9 +75,9 @@ const GIVES = {
 
 const VALUES = [
   { name: "Empathy", icon: Ear, how: "We listen first. Nobody is asked their age." },
-  { name: "Compassion", icon: HeartHandshake, how: "Asking for help is ordinary here." },
+  { name: "Compassion", icon: HeartHandshake, how: "Everyone asks. Everyone answers." },
   { name: "Respect", icon: Award, how: "A lifetime of skill is expertise, never charity." },
-  { name: "Kindness", icon: Smile, how: "Their pace. Their hands on the phone." },
+  { name: "Kindness", icon: Smile, how: "Unhurried, generous, and glad to be asked." },
   { name: "Integrity", icon: ShieldCheck, how: "No promises we can't keep. Nothing shared without a yes." },
 ];
 
@@ -232,10 +232,10 @@ export default function Landing() {
             </p>
             <h1 id="hero-title" className="mt-4 max-w-3xl text-[2.6rem] leading-[1.04] text-white sm:text-6xl 2xl:text-[4.4rem]">
               <span className="rise mb-2 block text-[1.55rem] leading-snug text-brand-100 sm:text-4xl" style={{ animationDelay: "120ms" }}>
-                After a lifetime of hard work,
+                A lifetime of hard work
               </span>
               <span className="rise block" style={{ animationDelay: "340ms" }}>
-                their bodies deserve rest.
+                made them experts.
               </span>
               <span className="rise relative block" style={{ animationDelay: "580ms" }}>
                 Their experience deserves to{" "}
@@ -281,7 +281,7 @@ export default function Landing() {
             <div className="lg:sticky lg:top-28 lg:self-start">
               <p className="eyebrow">A story we kept hearing</p>
               <h2 id="story-title" className="mt-4 text-4xl leading-tight sm:text-5xl">
-                The hardest barrier isn't technology or age. It's the fear of no longer being needed.
+                The problem was never ability. It's that people stopped asking.
               </h2>
               <figure className="floaty mt-10 hidden max-w-md rotate-[-2deg] rounded-2xl bg-white p-3 pb-4 shadow-xl ring-1 ring-warm-200 lg:block">
                 <img
@@ -315,7 +315,7 @@ export default function Landing() {
           <div className="container-page">
             <Reveal>
               <p id="proverb" className="mx-auto max-w-4xl font-serif text-4xl leading-tight text-white sm:text-6xl">
-                Their bodies may grow tired, but their wisdom <span className="text-warm-400">never loses its value.</span>
+                Some things can't be looked up. They have to be <span className="text-warm-400">handed on.</span>
               </p>
             </Reveal>
             <Reveal delay={250}>
@@ -515,9 +515,9 @@ export default function Landing() {
             <Reveal delay={150}>
               <p className="eyebrow">Learning goes both ways</p>
               <h2 id="both-title" className="mt-4 text-4xl leading-tight sm:text-5xl">
-                Nobody is too old to learn. Nobody is too young to teach.
+                Everyone here teaches. Everyone here learns.
               </h2>
-              <p className="mt-5 text-xl leading-relaxed text-muted">Small, patient steps. Read aloud if you like. A real person whenever you'd rather not do it alone.</p>
+              <p className="mt-5 text-xl leading-relaxed text-muted">Clear steps, at your own pace. Read aloud if you like. A real person whenever you'd prefer one.</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link to="/roots/learn" className="btn-primary min-h-[56px] px-6 text-lg">
                   See a step-by-step guide
@@ -662,7 +662,7 @@ export default function Landing() {
               {[
                 ["/start", "Start here"],
                 ["/family", "Invite someone you love"],
-                ["/roots/roles", "Gentler work"],
+                ["/roots/roles", "Paid roles"],
                 ["/impact", "Our goals"],
                 ["/safety", "Safety"],
                 ["/privacy", "Privacy"],
