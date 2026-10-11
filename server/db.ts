@@ -1,6 +1,6 @@
 // Postgres access. In production this uses DATABASE_URL (Vercel Postgres / Neon, or any Postgres).
 // In local development without DATABASE_URL, it uses PGlite: a real Postgres stored in ./.data/pglite.
-import { STARTER_QUESTIONS } from "./starterQuestions";
+import { STARTER_QUESTIONS } from "./starterQuestions.js";
 
 export interface Db {
   query<T = Record<string, unknown>>(text: string, params?: unknown[]): Promise<T[]>;

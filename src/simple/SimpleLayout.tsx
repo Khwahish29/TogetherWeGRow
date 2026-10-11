@@ -57,7 +57,7 @@ export function SimpleLayout() {
               <Link
                 to="/inbox"
                 aria-label={waiting ? `Your messages, ${waiting} new` : "Your messages"}
-                className="relative flex min-h-[52px] min-w-[52px] items-center justify-center gap-1.5 rounded-full px-2.5 text-lg font-semibold text-brand-800 hover:bg-brand-100 sm:px-4"
+                className="relative flex min-h-[52px] min-w-[44px] items-center justify-center gap-1.5 rounded-full px-2 text-lg font-semibold text-brand-800 hover:bg-brand-100 sm:px-4"
               >
                 <Mail aria-hidden="true" className="h-6 w-6" />
                 <span className="hidden sm:inline">Messages</span>
@@ -71,7 +71,7 @@ export function SimpleLayout() {
             <GoogleTranslate />
             {!atStart && (
               <Link to="/start" className="flex min-h-[52px] items-center gap-1.5 rounded-full px-2.5 text-lg font-semibold text-brand-800 hover:bg-brand-100 sm:gap-2 sm:px-4">
-                <Home aria-hidden="true" className="h-6 w-6" /> Home
+                <Home aria-hidden="true" className="h-6 w-6" /> <span className="max-[379px]:sr-only">Home</span>
               </Link>
             )}
           </div>

@@ -1,4 +1,4 @@
-import type { ResumeJobResult, ResumeSummaryInput } from "../../shared/types";
+import type { ResumeJobResult, ResumeSummaryInput } from "../../shared/types.js";
 
 const titleCase = (s: string) => s.trim().replace(/\b\w/g, (c) => c.toUpperCase());
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);

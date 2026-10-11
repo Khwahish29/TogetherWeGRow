@@ -1,6 +1,6 @@
 // Optional email (password resets and "you have a new message" alerts) through Resend's HTTP API.
 // Set RESEND_API_KEY and EMAIL_FROM to turn it on. Without them, the site works and simply sends no email.
-import { db } from "./db";
+import { db } from "./db.js";
 
 export function emailEnabled() {
   return Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);

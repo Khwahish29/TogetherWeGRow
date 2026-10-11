@@ -1,4 +1,4 @@
-import type { VibeCheckRequest, VibeCheckResult } from "../../shared/types";
+import type { VibeCheckRequest, VibeCheckResult } from "../../shared/types.js";
 
 interface Entry {
   re: RegExp;

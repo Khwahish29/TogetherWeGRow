@@ -1,5 +1,5 @@
-import type { CareerProfileInput, CareerRec, ProfileDraft } from "../../shared/types";
-import { GENERIC_ROLES, PREFERENCE_PATTERNS, TRADES } from "../data/roleMap";
+import type { CareerProfileInput, CareerRec, ProfileDraft } from "../../shared/types.js";
+import { GENERIC_ROLES, PREFERENCE_PATTERNS, TRADES } from "../data/roleMap.js";
 
 function unique(values: string[]): string[] {
   return [...new Set(values)];

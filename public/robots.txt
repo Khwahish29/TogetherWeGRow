@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /inbox
+Disallow: /account
+Disallow: /dashboard
+Disallow: /requests
+Disallow: /reset

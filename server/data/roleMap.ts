@@ -1,4 +1,4 @@
-import type { CareerRec } from "../../shared/types";
+import type { CareerRec } from "../../shared/types.js";
 
 export interface TradeEntry {
   /** Lowercase words that signal this trade in free text. */

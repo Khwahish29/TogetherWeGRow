@@ -1,7 +1,7 @@
 import express, { type NextFunction, type Request, type Response } from "express";
-import { HttpError, clientIp } from "./auth";
-import { attachUser, authRouter, dataRouter, sameOrigin } from "./api";
-import { runRoute } from "./routes";
+import { HttpError, clientIp } from "./auth.js";
+import { attachUser, authRouter, dataRouter, sameOrigin } from "./api.js";
+import { runRoute } from "./routes.js";
 
 // Gentle limit on the guidance endpoints (they call a paid/free-tier model), per server instance.
 const hits = new Map<string, number[]>();

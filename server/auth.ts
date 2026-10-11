@@ -1,6 +1,6 @@
 import { createHash, randomBytes, scrypt as scryptCb, timingSafeEqual } from "node:crypto";
 import type { Request, Response } from "express";
-import { db } from "./db";
+import { db } from "./db.js";
 
 export class HttpError extends Error {
   constructor(

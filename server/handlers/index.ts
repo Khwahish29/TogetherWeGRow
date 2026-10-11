@@ -14,13 +14,13 @@ import type {
   ProfileDraft,
   ResumeJobResult,
   ResumeSummaryInput,
-} from "../../shared/types";
-import { askStructured } from "../lib/ai";
-import { fallbackCareers, fallbackProfileDraft } from "../fallback/profile";
-import { fallbackCompanion, GUIDES } from "../fallback/companion";
-import { fallbackResumeJob, fallbackResumeSummary } from "../fallback/resume";
-import { fallbackPlan } from "../fallback/plan";
-import { fallbackVibeCheck } from "../fallback/vibe";
+} from "../../shared/types.js";
+import { askStructured } from "../lib/ai.js";
+import { fallbackCareers, fallbackProfileDraft } from "../fallback/profile.js";
+import { fallbackCompanion, GUIDES } from "../fallback/companion.js";
+import { fallbackResumeJob, fallbackResumeSummary } from "../fallback/resume.js";
+import { fallbackPlan } from "../fallback/plan.js";
+import { fallbackVibeCheck } from "../fallback/vibe.js";
 
 export class BadRequest extends Error {}
 

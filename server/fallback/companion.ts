@@ -1,4 +1,4 @@
-import type { CompanionRequest, CompanionResponse } from "../../shared/types";
+import type { CompanionRequest, CompanionResponse } from "../../shared/types.js";
 
 interface Guide {
   intro: string;

@@ -1,4 +1,4 @@
-import type { NextChapterInput, NextChapterPlan } from "../../shared/types";
+import type { NextChapterInput, NextChapterPlan } from "../../shared/types.js";
 
 /** A sensible five-step pathway built from the person's own profile, used when AI is unavailable. */
 export function fallbackPlan(input: NextChapterInput): NextChapterPlan {

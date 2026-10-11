@@ -1,4 +1,4 @@
-import { BadRequest, answerSkills, careers, companion, match, nextChapter, profileDraft, resumeJob, resumeSummary, vibeCheck } from "./handlers";
+import { BadRequest, answerSkills, careers, companion, match, nextChapter, profileDraft, resumeJob, resumeSummary, vibeCheck } from "./handlers/index.js";
 
 export const ROUTES: Record<string, (body: unknown) => Promise<unknown>> = {
   "profile-draft": profileDraft,

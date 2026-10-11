@@ -15,9 +15,9 @@ import {
   startSession,
   useResetToken,
   verifyPassword,
-} from "./auth";
-import { db } from "./db";
-import { emailEnabled, notifyUser, sendEmail } from "./email";
+} from "./auth.js";
+import { db } from "./db.js";
+import { emailEnabled, notifyUser, sendEmail } from "./email.js";
 
 type Json = Record<string, unknown>;
 
@@ -385,7 +385,12 @@ dataRouter.patch("/requests/:id", async (req, res) => {
     data.status = "pending";
   }
   if (typeof b.status === "string") {
-    const allowed = row.to_id === me ? ["accepted", "declined"] : ["withdrawn"];
+    // The person asked can accept or decline (and change their mind); the asker can withdraw, or send it again.
+    const was = String(row.data.status);
+    const allowed =
+      row.to_id === me
+        ? was === "pending" ? ["accepted", "declined"] : was === "declined" ? ["pending"] : []
+        : was === "withdrawn" ? ["pending"] : was === "pending" || was === "accepted" ? ["withdrawn"] : [];
     if (!allowed.includes(b.status)) throw new HttpError(403, "You can't make that change.");
     data.status = b.status;
   }

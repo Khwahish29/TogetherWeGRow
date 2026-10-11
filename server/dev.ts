@@ -1,7 +1,7 @@
 import "dotenv/config";
-import { aiProviderName } from "./lib/ai";
-import { createApp } from "./app";
-import { db } from "./db";
+import { aiProviderName } from "./lib/ai.js";
+import { createApp } from "./app.js";
+import { db } from "./db.js";
 
 const port = Number(process.env.API_PORT ?? 8787);
 createApp().listen(port, async () => {
