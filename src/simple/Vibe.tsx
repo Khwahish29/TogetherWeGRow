@@ -73,7 +73,7 @@ export function MeaningScreen({ younger = false }: { younger?: boolean }) {
   if (result) {
     const explaining = mode === "explain";
     return (
-      <Screen title={explaining ? "Here's what it means" : "Here's a clearer way to say it"} help={explaining ? "Every generation has its own words. Not knowing one isn't falling behind." : "Same meaning, plainer words."}>
+      <Screen step="Vibe Check" title={explaining ? "Here's what it means" : "Here's a clearer way to say it"} help={explaining ? "Every generation has its own words. Not knowing one isn't falling behind." : "Same meaning, plainer words."}>
         <p className="border-l-2 border-warm-400 pl-4 text-lg italic text-muted">“{text.trim()}”</p>
 
         <section className="rise mt-5 rounded-[2rem] bg-brand-900 p-6 text-brand-100 shadow-lg sm:p-8" aria-label={explaining ? "The meaning" : "The clearer version"}>
@@ -142,6 +142,7 @@ export function MeaningScreen({ younger = false }: { younger?: boolean }) {
 
   return (
     <Screen
+      step="Vibe Check"
       title={younger ? "Understand each other" : "What does this message mean?"}
       help={
         younger

@@ -1,5 +1,5 @@
 import { Link, Navigate } from "react-router-dom";
-import { Briefcase, Heart, Mail, MessageSquareText } from "lucide-react";
+import { Briefcase, Heart, Mail, MessagesSquare } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { getNotes, getRequests, startVisitClock } from "../lib/store";
 import { useStore } from "../lib/useStore";
@@ -105,6 +105,7 @@ export function OlderHome() {
         <BigChoice to="/roots/share" image="/images/carpenter-1952.jpg" imageFocus="70% 25%" label="Share My Experience" sub="Your work, your skills, the lessons life taught you" />
         <BigChoice to="/roots/learn" image="/images/learning-together.jpg" imageFocus="70% 35%" label="Learn Something New" sub="Small, easy steps, as slowly as you like" />
         <BigChoice to="/roots/help" image="/images/smiling-laptop.jpg" imageFocus="68% 30%" label="Get Help" sub="From a friendly person, or step by step" />
+        <BigChoice to="/roots/understand" icon={MessagesSquare} tone="warm" label="Vibe Check" sub="What does this message or expression mean?" />
       </div>
 
       <div className="mt-8">
@@ -132,17 +133,13 @@ export function YoungerHome() {
         )}
         <BigChoice to="/growth/learn" image="/images/welding-mentor.jpg" imageFocus="25% 18%" label="Learn from Deep Roots" sub="Practical skills and honest, real-world advice" />
         <BigChoice to="/growth/share" image="/images/learning-together.jpg" imageFocus="70% 35%" label="Share My Skills" sub="Help someone feel at home with technology" />
+        <BigChoice to="/growth/understand" icon={MessagesSquare} tone="warm" label="Vibe Check" sub="Explain an expression, or say something more clearly" />
       </div>
 
       <div className="mt-8">
         <Affirmation who="younger" />
       </div>
 
-      <p className="mt-8 text-lg">
-        <Link to="/growth/understand" className="link inline-flex items-center gap-2">
-          <MessageSquareText aria-hidden="true" className="h-5 w-5" /> Understand each other: explain an expression or soften a message
-        </Link>
-      </p>
       <PhotoCredits>Rwebogora (CC BY-SA 4.0), Ivana Guslarevic (CC BY-SA 4.0)</PhotoCredits>
     </Screen>
   );

@@ -63,6 +63,7 @@ export default function App() {
         <Route path="growth/learn" element={<YoungerLearn />} />
         <Route path="growth/share" element={<YoungerShare />} />
         <Route path="growth/understand" element={<MeaningScreen younger />} />
+        <Route path="roots/understand" element={<MeaningScreen />} />
         <Route path="roots/earn" element={<OlderEarn />} />
         <Route path="roots/roles" element={<OlderRoles />} />
         <Route path="roots/scam" element={<ScamCheck />} />
