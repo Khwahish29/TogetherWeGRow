@@ -4,12 +4,14 @@ import {
   ArrowDown,
   ArrowRight,
   Award,
+  Check,
   Coins,
   Ear,
   Heart,
   HeartHandshake,
   HelpCircle,
   Languages,
+  LogIn,
   MessageSquareText,
   Mic,
   MousePointerClick,
@@ -22,6 +24,7 @@ import {
 import { Logo } from "../components/Logo";
 import { Reveal } from "../components/ui";
 import { EVENT_NAME, TEAM, TEAM_NAME } from "../data/team";
+import { useAuth } from "../lib/auth";
 
 const NAV = [
   ["#story", "The story"],
@@ -73,12 +76,13 @@ const GIVES = {
   growth: ["Patience with technology", "Fresh questions", "Someone who listens"],
 };
 
+/** Each value is a promise, followed by the thing on the site that keeps it. */
 const VALUES = [
-  { name: "Empathy", icon: Ear, how: "We listen first. Nobody is asked their age." },
-  { name: "Compassion", icon: HeartHandshake, how: "Everyone asks. Everyone answers." },
-  { name: "Respect", icon: Award, how: "A lifetime of skill is expertise, never charity." },
-  { name: "Kindness", icon: Smile, how: "Unhurried, generous, and glad to be asked." },
-  { name: "Integrity", icon: ShieldCheck, how: "No promises we can't keep. Nothing shared without a yes." },
+  { name: "Empathy", icon: Ear, promise: "We start by asking, never assuming.", proof: "The first screen asks one question. Nothing ever asks your age." },
+  { name: "Compassion", icon: HeartHandshake, promise: "Nobody is left to work it out alone.", proof: "Every step of every guide offers a real person to ask." },
+  { name: "Respect", icon: Award, promise: "What you know is worth paying for.", proof: "Mentors set their own price. A role can't be posted without its pay." },
+  { name: "Kindness", icon: Smile, promise: "Patience is promised, not hoped for.", proof: "Every helper makes three promises before they can help anyone." },
+  { name: "Integrity", icon: ShieldCheck, promise: "We say only what is true.", proof: "Organizations are marked “not verified”. Nothing is shared without your yes." },
 ];
 
 const PARTNERS = ["Colleges and universities", "Senior centers", "Counseling departments", "Local businesses", "Trade associations", "Nonprofits"];
@@ -163,6 +167,9 @@ function WhoNeedsYou() {
 }
 
 export default function Landing() {
+  // Sign in is only offered to people who aren't signed in already.
+  const { user, loading } = useAuth();
+  const signedOut = !loading && !user;
   const [scrolled, setScrolled] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -204,12 +211,24 @@ export default function Landing() {
               ))}
             </ul>
           </nav>
-          <Link
-            to="/start"
-            className={`btn min-h-[48px] shrink-0 whitespace-nowrap px-5 font-semibold ${scrolled ? "bg-brand-700 text-white hover:bg-brand-800" : "bg-warm-400 text-brand-900 hover:bg-warm-200"}`}
-          >
-            Start here <ArrowRight aria-hidden="true" className="hidden h-5 w-5 sm:block" />
-          </Link>
+          <div className="flex shrink-0 items-center gap-2">
+            {signedOut && (
+              <Link
+                to="/login"
+                className={`hidden min-h-[48px] items-center gap-2 whitespace-nowrap rounded-full border-2 px-4 font-semibold transition-colors sm:flex ${
+                  scrolled ? "border-brand-700 text-brand-800 hover:bg-brand-50" : "border-white/60 text-white hover:bg-white/10"
+                }`}
+              >
+                <LogIn aria-hidden="true" className="h-5 w-5" /> Sign in
+              </Link>
+            )}
+            <Link
+              to="/start"
+              className={`btn min-h-[48px] shrink-0 whitespace-nowrap px-5 font-semibold ${scrolled ? "bg-brand-700 text-white hover:bg-brand-800" : "bg-warm-400 text-brand-900 hover:bg-warm-200"}`}
+            >
+              Start here <ArrowRight aria-hidden="true" className="hidden h-5 w-5 sm:block" />
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -259,6 +278,14 @@ export default function Landing() {
                 Read the story <ArrowDown aria-hidden="true" className="h-5 w-5" />
               </a>
             </div>
+            {signedOut && (
+              <p className="rise mt-4 text-lg sm:hidden" style={{ animationDelay: "1250ms" }}>
+                Already joined?{" "}
+                <Link to="/login" className="font-semibold text-white underline underline-offset-4">
+                  Sign in
+                </Link>
+              </p>
+            )}
           </div>
           <p className="absolute bottom-3 right-4 max-w-[70%] text-right text-xs text-brand-100">Photo: Priskin János, 1952. Public domain, via Wikimedia Commons.</p>
         </section>
@@ -534,20 +561,29 @@ export default function Landing() {
         <section id="values" className="container-page scroll-mt-20 py-20 lg:py-28" aria-labelledby="values-title">
           <Reveal>
             <p className="eyebrow">What we believe</p>
-            <h2 id="values-title" className="mt-4 text-4xl sm:text-5xl">
-              Five words we build by
+            <h2 id="values-title" className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl">
+              Five promises, and how we keep them
             </h2>
           </Reveal>
-          <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <ul className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
             {VALUES.map((v, i) => (
-              <li key={v.name}>
+              <li key={v.name} className={i < 3 ? "lg:col-span-2" : "lg:col-span-3"}>
                 <Reveal delay={i * 70} className="h-full">
-                  <div className="lift flex h-full flex-col items-center rounded-3xl bg-white p-6 text-center ring-1 ring-warm-200">
-                    <span aria-hidden="true" className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 text-brand-800">
-                      <v.icon className="h-8 w-8" />
-                    </span>
-                    <h3 className="mt-4 font-serif text-3xl text-brand-900 lg:text-[1.6rem] 2xl:text-3xl">{v.name}</h3>
-                    <p className="mt-2 text-lg leading-snug text-muted">{v.how}</p>
+                  <div className="lift flex h-full flex-col rounded-3xl bg-white p-7 ring-1 ring-warm-200">
+                    <div className="flex items-center gap-3">
+                      <span aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-800">
+                        <v.icon className="h-6 w-6" />
+                      </span>
+                      <h3 className="font-sans text-sm font-semibold uppercase tracking-[0.14em] text-warm-700">{v.name}</h3>
+                    </div>
+                    <p className="mt-5 flex-1 font-serif text-[1.7rem] leading-snug text-brand-900">{v.promise}</p>
+                    <p className="mt-5 flex gap-3 border-t border-warm-200 pt-4 text-lg leading-snug text-muted">
+                      <Check aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" />
+                      <span>
+                        <span className="sr-only">How we keep it: </span>
+                        {v.proof}
+                      </span>
+                    </p>
                   </div>
                 </Reveal>
               </li>
@@ -593,7 +629,7 @@ export default function Landing() {
               <h2 id="team-title" className="mt-4 text-4xl sm:text-5xl">
                 {TEAM_NAME}
               </h2>
-              <p className="mt-5 text-xl leading-relaxed">Built for {EVENT_NAME}, Aging and Labor track.</p>
+              <p className="mt-5 text-xl leading-relaxed">Built for {EVENT_NAME}</p>
               {TEAM.length > 0 && (
                 <ul className="mt-8 grid gap-4 sm:grid-cols-2">
                   {TEAM.map((m) => (

@@ -81,14 +81,6 @@ export function Welcome() {
           Show me how this works
         </Link>
       </p>
-      {!user && (
-        <p className="mt-4 text-center text-lg text-muted">
-          Already joined?{" "}
-          <Link to="/login" className="link">
-            Sign in
-          </Link>
-        </p>
-      )}
     </div>
   );
 }

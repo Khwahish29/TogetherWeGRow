@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, Home, Mail } from "lucide-react";
+import { ArrowLeft, Home, LogIn, Mail, UserRound } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { getNotes, getRequests } from "../lib/store";
 import { useStore } from "../lib/useStore";
@@ -16,7 +16,7 @@ export function SimpleLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const atStart = location.pathname === "/start";
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const notes = useStore(getNotes, []);
   const requests = useStore(getRequests, []);
   const waiting = user
@@ -68,10 +68,28 @@ export function SimpleLayout() {
                 )}
               </Link>
             )}
+            {user && location.pathname !== "/account" && (
+              <Link
+                to="/account"
+                aria-label="Your account"
+                className="flex min-h-[52px] min-w-[44px] items-center justify-center gap-1.5 rounded-full px-2 text-lg font-semibold text-brand-800 hover:bg-brand-100 sm:px-4"
+              >
+                <UserRound aria-hidden="true" className="h-6 w-6" />
+                <span className="hidden sm:inline">{user.name.trim().split(" ")[0]}</span>
+              </Link>
+            )}
+            {!user && !loading && !["/login", "/join"].includes(location.pathname) && (
+              <Link
+                to="/login"
+                className="flex min-h-[48px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border-2 border-brand-700 bg-white px-2.5 text-lg font-semibold text-brand-800 hover:bg-brand-50 sm:px-4"
+              >
+                <LogIn aria-hidden="true" className="h-5 w-5 max-[359px]:hidden" /> Sign in
+              </Link>
+            )}
             <GoogleTranslate />
             {!atStart && (
               <Link to="/start" className="flex min-h-[52px] items-center gap-1.5 rounded-full px-2.5 text-lg font-semibold text-brand-800 hover:bg-brand-100 sm:gap-2 sm:px-4">
-                <Home aria-hidden="true" className="h-6 w-6" /> <span className="max-[379px]:sr-only">Home</span>
+                <Home aria-hidden="true" className="h-6 w-6" /> <span className="max-[459px]:sr-only">Home</span>
               </Link>
             )}
           </div>
@@ -97,7 +115,6 @@ export function SimpleLayout() {
                 ["/safety", "Safety"],
                 ["/privacy", "Privacy"],
                 ["/terms", "Terms"],
-                [user ? "/account" : "/login", user ? "Your account" : "Sign in"],
               ].map(([to, label]) => (
                 <li key={to}>
                   <Link to={to} className="underline underline-offset-4 hover:text-brand-800">
