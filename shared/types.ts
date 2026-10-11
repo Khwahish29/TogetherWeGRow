@@ -143,6 +143,19 @@ export interface NextChapterInput {
   hasOffer: boolean;
 }
 
+export type ScamVerdict = "likely-scam" | "be-careful" | "no-signs";
+
+/** Our best judgment about a message someone was worried about. Never a guarantee. */
+export interface ScamCheckResult {
+  verdict: ScamVerdict;
+  /** One plain sentence. */
+  summary: string;
+  /** The warning signs found, each with why it matters. */
+  signs: { sign: string; why: string }[];
+  /** What to do next. Always our own fixed wording. */
+  advice: string[];
+}
+
 export interface VibeCheckRequest {
   text: string;
   /** "explain": what does this message mean? "rephrase": help me say this clearly and kindly. */

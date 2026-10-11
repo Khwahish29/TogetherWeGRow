@@ -9,9 +9,12 @@ export function Screen({
   eyebrow,
   title,
   help,
+  readAloud = true,
   children,
 }: {
   step?: string;
+  /** Set to false on screens that offer their own, more specific "read to me" button. */
+  readAloud?: boolean;
   /** A warm line above the question, such as a greeting. */
   eyebrow?: ReactNode;
   title: string;
@@ -26,7 +29,7 @@ export function Screen({
         {title}
       </h1>
       {help && <p className="mt-4 text-xl leading-relaxed text-muted">{help}</p>}
-      <ReadAloud className="mt-4" />
+      {readAloud && <ReadAloud className="mt-4" />}
       <div className="mt-6">{children}</div>
     </div>
   );

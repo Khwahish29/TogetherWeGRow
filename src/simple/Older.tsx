@@ -19,6 +19,8 @@ import {
   Mic,
   Scissors,
   ShieldAlert,
+  ShieldCheck,
+  Smartphone,
   Sparkles,
   Sprout,
   Truck,
@@ -35,7 +37,7 @@ import { api } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { addNote, answerQuestion, getQuestions, getUsers, quickJoin, saveUser } from "../lib/store";
 import { useStore } from "../lib/useStore";
-import { setTextSize } from "../components/TextSizeToggle";
+import { TextSizeToggle, setTextSize } from "../components/TextSizeToggle";
 import { Actions, BigChoice, Examples, Screen, SpeakOrType, TreeAndSprout, useRun } from "./parts";
 import { useWizard } from "./useWizard";
 import { Feedback, MeaningScreen } from "./Extra";
@@ -317,54 +319,112 @@ export function OlderShare() {
 /* Learn Something New                                                 */
 /* ------------------------------------------------------------------ */
 
-const TOPICS = [
-  { id: "video-meeting", label: "Video call my family", icon: Video },
-  { id: "photos", label: "Send a photo from my phone", icon: ImageIcon },
-  { id: "email", label: "Send an email", icon: Mail },
-  { id: "scams", label: "Spot a scam message", icon: ShieldAlert },
-  { id: "ai-tools", label: "Ask a chat assistant a question", icon: MessageCircle },
+const TOPICS: { id: string; label: string; why: string; icon: LucideIcon; to?: string }[] = [
+  { id: "video-meeting", label: "Video call my family", why: "See their faces, wherever they are", icon: Video },
+  { id: "photos", label: "Send a photo from my phone", why: "Share a moment with someone you love", icon: ImageIcon },
+  { id: "email", label: "Send an email", why: "Write to anyone, at any time", icon: Mail },
+  { id: "scams", label: "Check a suspicious message", why: "Paste it in and we'll look for warning signs", icon: ShieldAlert, to: "/older/scam" },
+  { id: "ai-tools", label: "Ask a chat assistant a question", why: "Get a quick answer in plain words", icon: MessageCircle },
 ];
 
+/** A kind word that changes as they move through the steps. */
+function encouragement(index: number, total: number) {
+  const left = total - index - 1;
+  if (index === 0) return "A good place to start. Take all the time you need.";
+  if (left === 0) return "This is the last one. You've nearly done it.";
+  if (left === 1) return "Just one more after this.";
+  if (index + 1 === Math.ceil(total / 2)) return "You're halfway there, and doing well.";
+  return `You're doing well. ${left} more small steps to go.`;
+}
+
 export function OlderLearn() {
-  const w = useWizard("twg.simple.learn", { topic: "", steps: [] as string[], intro: "" });
+  const w = useWizard("twg.simple.learn", { topic: "", steps: [] as string[], intro: "", at: 0 });
   const { step, go, data, set } = w;
   const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [simpler, setSimpler] = useState<string | null>(null);
+  const [explaining, setExplaining] = useState(false);
   const topic = TOPICS.find((t) => t.id === data.topic);
 
   async function choose(id: string) {
     set("topic", id);
     set("steps", []);
+    set("at", 0);
+    setFailed(false);
     setLoading(true);
     go(1);
     try {
       const res = await api.companion({ action: "guide", topic: id });
       set("intro", res.data.intro ?? "");
       set("steps", res.data.steps ?? []);
+    } catch {
+      setFailed(true);
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => setSimpler(null), [step]);
+  useEffect(() => {
+    setSimpler(null);
+    window.speechSynthesis?.cancel();
+    // Remember where they are, so they can carry on another time.
+    if (step >= 1 && step <= data.steps.length) set("at", step);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
-  if (step === 0 || !topic)
+  if (step === 0 || !topic) {
+    const resume = topic && data.steps.length > 0 && data.at >= 1 && data.at <= data.steps.length ? topic : null;
     return (
-      <Screen title="What would you like to learn?" help="Pick one. We'll go one small step at a time.">
+      <Screen title="What would you like to learn?" help="Pick one. We'll go one small step at a time, and you can't break anything.">
+        <figure className="relative mb-6 overflow-hidden rounded-3xl">
+          <img src="/images/learning-together.jpg" alt="An older woman types at a computer while a helper stands beside her." className="h-44 w-full object-cover object-[60%_35%] sm:h-56" />
+          <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-brand-900/90 to-transparent p-5 pt-12 font-serif text-2xl text-white">
+            Everyone starts somewhere. Today is a fine day for it.
+          </figcaption>
+        </figure>
         <div className="space-y-4">
+          {resume && (
+            <BigChoice
+              onClick={() => go(data.at)}
+              icon={Sparkles}
+              tone="warm"
+              label="Carry on where you stopped"
+              sub={`${resume.label}: step ${data.at} of ${data.steps.length}`}
+            />
+          )}
           {TOPICS.map((t, i) => (
-            <BigChoice key={t.id} onClick={() => choose(t.id)} icon={t.icon} tone={i % 2 ? "warm" : "forest"} label={t.label} />
+            <BigChoice key={t.id} to={t.to} onClick={t.to ? undefined : () => choose(t.id)} icon={t.icon} tone={i % 2 ? "warm" : "forest"} label={t.label} sub={t.why} />
           ))}
+        </div>
+        <p className="mt-8 text-lg">
+          <Link to="/older/help?step=1" className="link inline-flex items-center gap-2">
+            <Users aria-hidden="true" className="h-5 w-5 shrink-0" /> I'd rather learn with a person beside me
+          </Link>
+        </p>
+        <p className="mt-8 text-sm text-muted">Photo: Ivana Guslarevic, CC BY-SA 4.0. The people pictured are not affiliated with TogetherWeGrow.</p>
+      </Screen>
+    );
+  }
+
+  if (failed)
+    return (
+      <Screen title="We couldn't get the steps just now." help="That's our fault, not yours. Please try again in a moment." readAloud={false}>
+        <div className="space-y-4">
+          <BigChoice onClick={() => choose(topic.id)} icon={Sparkles} label="Try again" />
+          <BigChoice to="/older/help?step=1" icon={Users} tone="warm" label="Ask a person instead" />
         </div>
       </Screen>
     );
 
   if (loading || data.steps.length === 0)
     return (
-      <Screen title={topic.label} help="Getting your steps ready…">
-        <span className="sr-only" aria-live="polite">
-          Loading
-        </span>
+      <Screen title={topic.label} help="Getting your steps ready. This takes a few seconds." readAloud={false}>
+        <div role="status" aria-label="Loading" className="flex items-center gap-3 rounded-3xl bg-white p-8 ring-1 ring-warm-200">
+          {[0, 1, 2].map((i) => (
+            <span key={i} aria-hidden="true" className="ember h-4 w-4 rounded-full bg-brand-600" style={{ animationDelay: `${i * 0.3}s`, animationDuration: "1.2s" }} />
+          ))}
+          <span className="ml-2 text-xl text-muted">Writing them out in plain words…</span>
+        </div>
       </Screen>
     );
 
@@ -373,11 +433,17 @@ export function OlderLearn() {
 
   if (index >= total)
     return (
-      <Screen title="That's every step." help="Come back and go through it again whenever you like. Everyone needs a few tries.">
-        <div className="space-y-4">
-          <BigChoice onClick={() => go(1)} icon={Sparkles} label="Go through it again" />
+      <Screen title="You did it." help={`Every step of “${topic.label.toLowerCase()}”. That took patience, and you had it.`}>
+        <div className="flex flex-col items-center rounded-[2rem] bg-brand-900 p-8 text-center text-brand-100">
+          <span aria-hidden="true" className="rise flex h-20 w-20 items-center justify-center rounded-full bg-warm-400 text-brand-900">
+            <Check className="h-11 w-11" strokeWidth={3} />
+          </span>
+          <p className="mt-5 font-serif text-2xl leading-snug text-white">Nobody gets it all the first time. Come back as often as you like. The steps will be here.</p>
+        </div>
+        <div className="mt-6 space-y-4">
+          <BigChoice onClick={() => go(1)} icon={Sparkles} label="Go through it again" sub="It gets easier each time" />
           <BigChoice onClick={() => go(0)} icon={FileText} tone="warm" label="Learn something else" />
-          <BigChoice to="/older/help" icon={Users} tone="sage" label="I'd like a person to help" />
+          <BigChoice to="/older/help?step=1" icon={Users} tone="sage" label="I'd like a person to help" />
         </div>
         <Feedback flow="learn" askComfort />
       </Screen>
@@ -385,35 +451,70 @@ export function OlderLearn() {
 
   const current = data.steps[index];
   return (
-    <Screen step={`Step ${index + 1} of ${total}`} title={topic.label}>
-      <div className="h-3 overflow-hidden rounded-full bg-brand-100" aria-hidden="true">
-        <div className="h-full rounded-full bg-brand-700 transition-all" style={{ width: `${((index + 1) / total) * 100}%` }} />
-      </div>
+    <Screen step={topic.label} title={`Step ${index + 1} of ${total}`} readAloud={false}>
+      {/* The trail: where you've been, where you are, what's left. */}
+      <ol aria-hidden="true" className="flex flex-wrap items-center gap-2">
+        {data.steps.map((_, i) => (
+          <li
+            key={i}
+            className={`flex h-10 w-10 items-center justify-center rounded-full text-lg font-semibold ${
+              i < index ? "bg-brand-700 text-white" : i === index ? "bg-warm-400 text-brand-900 ring-4 ring-warm-200" : "bg-white text-muted ring-1 ring-warm-200"
+            }`}
+          >
+            {i < index ? <Check className="h-5 w-5" strokeWidth={3} /> : i + 1}
+          </li>
+        ))}
+      </ol>
+
       {index === 0 && data.intro && <p className="mt-6 text-xl text-muted">{data.intro}</p>}
-      <p aria-live="polite" className="mt-6 rounded-3xl bg-white p-6 font-serif text-[1.75rem] leading-snug text-brand-900 ring-1 ring-warm-200 sm:p-8">
-        {current}
-      </p>
+
+      <div className="mt-6 flex gap-4 rounded-3xl bg-white p-6 ring-1 ring-warm-200 sm:gap-6 sm:p-8">
+        <span aria-hidden="true" className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-brand-800 sm:flex">
+          <topic.icon className="h-9 w-9" />
+        </span>
+        <p aria-live="polite" className="font-serif text-[1.75rem] leading-snug text-brand-900">
+          {current}
+        </p>
+      </div>
+
       {simpler && (
-        <p className="mt-4 rounded-2xl bg-warm-100 p-5 text-xl">
+        <p className="pop-in mt-4 rounded-2xl bg-warm-100 p-5 text-xl">
           <strong>In other words:</strong> {simpler}
         </p>
       )}
+
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <button type="button" className="btn-secondary min-h-[56px] text-lg" onClick={() => speak(simpler ?? current)}>
-          <Volume2 aria-hidden="true" className="h-5 w-5" /> Read it to me
+          <Volume2 aria-hidden="true" className="h-5 w-5" /> Read this step to me
         </button>
         <button
           type="button"
           className="btn-secondary min-h-[56px] text-lg"
+          disabled={explaining}
           onClick={async () => {
+            setExplaining(true);
             const res = await api.companion({ action: "simpler", topic: topic.id, step: current }).catch(() => null);
-            setSimpler(res?.data.reply ?? "Take it slowly, one small part at a time.");
+            setSimpler(res?.data.reply ?? "Take it slowly, one small part at a time. There's no rush.");
+            setExplaining(false);
           }}
         >
-          Explain it more simply
+          {explaining ? "One moment…" : "Explain it more simply"}
         </button>
       </div>
-      <Actions primary={index + 1 === total ? "I'm done" : "Next step"} onPrimary={() => go(step + 1)} />
+
+      <p className="mt-8 text-center font-serif text-xl text-warm-700">{encouragement(index, total)}</p>
+
+      <Actions
+        primary={index + 1 === total ? "I've done it" : "Done. Next step"}
+        onPrimary={() => go(step + 1)}
+        secondary={index > 0 ? "Go back a step" : undefined}
+        onSecondary={index > 0 ? () => go(step - 1) : undefined}
+      />
+      <p className="mt-6 text-center text-lg">
+        <Link to="/older/help?step=1" className="link inline-flex items-center gap-2">
+          <Users aria-hidden="true" className="h-5 w-5 shrink-0" /> Stuck? Ask a person to help
+        </Link>
+      </p>
     </Screen>
   );
 }
@@ -422,38 +523,68 @@ export function OlderLearn() {
 /* Get Help                                                            */
 /* ------------------------------------------------------------------ */
 
-const HELP_TOPICS = ["Using my phone", "Video calls", "Email", "Filling in a form online", "Something else"];
+/** What people ask for help with. `match` is the helper skill it lines up with; `guide` is a step-by-step guide on the same thing. */
+const HELP_TOPICS: { id: string; label: string; icon: LucideIcon; match?: string; guide?: string }[] = [
+  { id: "phone", label: "Using my phone", icon: Smartphone, match: "Smartphones" },
+  { id: "video", label: "Video calls", icon: Video, match: "Video calls", guide: "video-meeting" },
+  { id: "email", label: "Email", icon: Mail, match: "Email", guide: "email" },
+  { id: "forms", label: "Filling in a form online", icon: FileText, match: "Online forms" },
+  { id: "safety", label: "Staying safe online", icon: ShieldCheck, match: "Online safety" },
+  { id: "other", label: "Something else", icon: HelpCircle },
+];
+
+const AVATAR = ["bg-brand-700 text-white", "bg-warm-600 text-white", "bg-brand-500 text-white", "bg-warm-400 text-brand-900"];
 
 export function OlderHelp() {
   const users = useStore(getUsers, []);
   const { user } = useAuth();
-  // The most recently joined helpers first.
+  const helpRun = useRun();
+  const w = useWizard("twg.simple.help", { helperId: "", topicId: "", contact: "", name: "", note: "" });
+  const { step, go, data, set } = w;
+  const topic = HELP_TOPICS.find((t) => t.id === data.topicId);
+  const helps = (u: (typeof users)[number]) => Boolean(topic?.match && u.buddy?.topics.some((t) => t.toLowerCase() === topic.match!.toLowerCase()));
+  // People who enjoy helping with this come first, then whoever joined most recently.
   const helpers = useMemo(
     () =>
       users
         .filter((u) => u.roles.includes("buddy") && u.buddy && u.id !== user?.id)
-        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-        .slice(0, 4),
-    [users, user?.id],
+        .sort((a, b) => Number(helps(b)) - Number(helps(a)) || b.createdAt.localeCompare(a.createdAt))
+        .slice(0, 3),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [users, user?.id, data.topicId],
   );
-  const helpRun = useRun();
-  const w = useWizard("twg.simple.help", { helperId: "", topic: "", contact: "", name: "" });
-  const { step, go, data, set } = w;
   const helper = helpers.find((h) => h.id === data.helperId) ?? users.find((u) => u.id === data.helperId);
+  const first = helper?.name.split(" ")[0] ?? "a helper";
 
   if (step === 0)
     return (
-      <Screen title="How can we help?" help="There's no wrong way to ask.">
+      <Screen title="How can we help?" help="Asking is how everyone learns anything. You're in good company.">
         <div className="space-y-4">
-          <BigChoice onClick={() => go(1)} icon={Users} label="Talk to a friendly person" sub="A patient younger helper" />
-          <BigChoice to="/older/learn" icon={FileText} tone="warm" label="Show me step by step" sub="Simple steps you can follow on your own" />
-          <BigChoice onClick={() => go(11)} icon={MessageSquareText} tone="sage" label="What does this message mean?" sub="A text, email or letter that confused you" />
-          <BigChoice onClick={() => go(10)} icon={Type} label="Make the words bigger" />
+          <BigChoice onClick={() => go(1)} image="/images/learning-together.jpg" imageFocus="70% 35%" label="Ask a friendly person" sub="A patient younger helper, at your pace" />
+          <BigChoice onClick={() => go(12)} icon={MessageSquareText} tone="warm" label="Help with a message I received" sub="Is it a scam? What does it mean?" />
+          <BigChoice to="/older/learn" icon={FileText} tone="sage" label="Show me step by step" sub="Simple steps you can follow on your own" />
         </div>
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-3xl bg-white p-5 ring-1 ring-warm-200">
+          <p className="flex items-center gap-3 text-xl font-semibold text-brand-900">
+            <Type aria-hidden="true" className="h-6 w-6 text-warm-700" /> Are the words too small?
+          </p>
+          <TextSizeToggle />
+        </div>
+        <p className="mt-8 text-sm text-muted">Photo: Ivana Guslarevic, CC BY-SA 4.0. The people pictured are not affiliated with TogetherWeGrow.</p>
       </Screen>
     );
 
   if (step === 11) return <MeaningScreen />;
+
+  if (step === 12)
+    return (
+      <Screen title="What would you like to know about it?" help="Have the message ready. You can paste it or type it in.">
+        <div className="space-y-4">
+          <BigChoice to="/older/scam" icon={ShieldAlert} label="Is it a scam?" sub="We'll look for the warning signs with you" />
+          <BigChoice onClick={() => go(11)} icon={MessageSquareText} tone="warm" label="What does it mean?" sub="Plain words for a confusing message" />
+        </div>
+      </Screen>
+    );
 
   if (step === 10)
     return (
@@ -467,96 +598,185 @@ export function OlderHelp() {
       </Screen>
     );
 
+  // 1 of 3: what they need. One tap.
   if (step === 1)
     return (
-      <Screen step="1 of 3" title="Who would you like to talk to?" help="These are friendly younger helpers. Each one says if their help is free.">
-        <div className="space-y-4">
-          {helpers.map((h, i) => (
-            <BigChoice
-              key={h.id}
-              onClick={() => {
-                set("helperId", h.id);
-                go(2);
-              }}
-              emoji={h.name[0]}
-              tone={i % 2 ? "warm" : "forest"}
-              label={h.name.split(" ")[0]}
-              sub={`${h.buddy!.pricing === "paid" ? `Paid, $${h.buddy!.rate}/hour` : h.buddy!.pricing === "free" ? "Free" : "Volunteer, free"} · ${h.buddy!.availability || "Times vary"}`}
-            />
+      <Screen step="Step 1 of 3" title="What would you like help with?" help="Tap the closest one. You can explain more later if you want to.">
+        <ul className="grid grid-cols-2 gap-3 sm:gap-4">
+          {HELP_TOPICS.map((t) => (
+            <li key={t.id}>
+              <button
+                type="button"
+                onClick={() => {
+                  set("topicId", t.id);
+                  go(2);
+                }}
+                aria-pressed={data.topicId === t.id}
+                className={`flex h-full min-h-[132px] w-full flex-col items-center justify-center gap-3 rounded-3xl border-2 p-4 text-center transition hover:border-brand-600 hover:bg-brand-50/60 ${
+                  data.topicId === t.id ? "border-brand-700 bg-brand-50" : "border-warm-200 bg-white"
+                }`}
+              >
+                <span aria-hidden="true" className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-800">
+                  <t.icon className="h-8 w-8" />
+                </span>
+                <span className="text-lg font-semibold leading-snug text-brand-900 sm:text-xl">{t.label}</span>
+              </button>
+            </li>
           ))}
-        </div>
-        {helpers.length === 0 && (
+        </ul>
+      </Screen>
+    );
+
+  // 2 of 3: who to ask. Meeting people, not picking from a list.
+  if (step === 2 || !topic)
+    return (
+      <Screen
+        step="Step 2 of 3"
+        title="Who would you like to ask?"
+        help={helpers.length ? "These younger helpers signed up because they enjoy explaining things. None of them will rush you." : undefined}
+      >
+        {helpers.length === 0 ? (
           <div className="rounded-3xl bg-white p-6 text-xl ring-1 ring-warm-200">
-            <p>Our first younger helpers are just joining. In the meantime, the step-by-step guides can help with most things.</p>
-            <div className="mt-5">
-              <BigChoice to="/older/learn" icon={FileText} tone="warm" label="Show me step by step" />
+            <p>Our first younger helpers are just joining, so nobody is here to ask yet. That will change soon.</p>
+            <div className="mt-5 space-y-3">
+              <BigChoice to="/older/learn" icon={FileText} tone="warm" label="Show me step by step instead" sub="Simple steps you can follow today" />
+              <BigChoice to="/older" icon={Users} tone="sage" label="Back to my choices" />
             </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <BigChoice
+              onClick={() => {
+                set("helperId", helpers[0].id);
+                go(3);
+              }}
+              icon={Sparkles}
+              tone="warm"
+              label="Anyone kind is fine"
+              sub="We'll ask the best match for you"
+            />
+            {helpers.map((h, i) => (
+              <button
+                key={h.id}
+                type="button"
+                onClick={() => {
+                  set("helperId", h.id);
+                  go(3);
+                }}
+                className="flex w-full items-start gap-4 rounded-3xl border-2 border-warm-200 bg-white p-5 text-left transition hover:border-brand-600 hover:bg-brand-50/60 sm:gap-5 sm:p-6"
+              >
+                <span aria-hidden="true" className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-full font-serif text-3xl ${AVATAR[i % AVATAR.length]}`}>
+                  {h.name.trim()[0]?.toUpperCase()}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-2xl font-semibold text-brand-900">{h.name.split(" ")[0]}</span>
+                  {helps(h) && topic && (
+                    <span className="mt-1 inline-block rounded-full bg-brand-100 px-3 py-1 text-base font-semibold text-brand-800">Enjoys helping with {topic.label.toLowerCase()}</span>
+                  )}
+                  {(() => {
+                    const others = h.buddy!.topics.filter((t) => !(helps(h) && t.toLowerCase() === topic?.match?.toLowerCase())).slice(0, 3);
+                    return others.length ? (
+                      <span className="mt-2 block text-lg text-muted">
+                        {helps(h) ? "Also helps with" : "Helps with"} {others.join(", ").toLowerCase()}
+                      </span>
+                    ) : null;
+                  })()}
+                  <span className="mt-1 block text-lg text-muted">
+                    {h.buddy!.pricing === "paid" ? `Paid, $${h.buddy!.rate}/hour` : "Free"} · {h.buddy!.availability || "Times vary"} ·{" "}
+                    {h.buddy!.mode === "online" ? "Online" : h.buddy!.mode === "in-person" ? "In person" : "Online or in person"}
+                  </span>
+                </span>
+              </button>
+            ))}
           </div>
         )}
       </Screen>
     );
 
-  if (step === 2)
-    return (
-      <Screen step="2 of 3" title="What would you like help with?">
-        <div className="space-y-3">
-          {HELP_TOPICS.map((t) => (
-            <BigChoice
-              key={t}
-              onClick={() => {
-                set("topic", t);
-                go(3);
-              }}
-              label={t}
-            />
-          ))}
-        </div>
-      </Screen>
-    );
-
+  // 3 of 3: one confirmation. Everything extra is optional and tucked away.
   if (step === 3)
     return (
-      <Screen step="3 of 3" title={`How can ${helper?.name.split(" ")[0] ?? "they"} reach you?`} help="A phone number or email. Or leave it empty: their reply will be in your messages here.">
+      <Screen step="Step 3 of 3" title={`Shall we ask ${first}?`} help="That's all it takes. You can say as little or as much as you like.">
+        <div className="flex items-center gap-4 rounded-3xl bg-brand-900 p-6 text-brand-100">
+          <span aria-hidden="true" className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-warm-400 font-serif text-3xl text-brand-900">
+            {first[0]?.toUpperCase()}
+          </span>
+          <p className="font-serif text-2xl leading-snug text-white">
+            “Hello {first}, I'd like some help with {topic.id === "other" ? "something" : topic.label.toLowerCase()}.”
+          </p>
+        </div>
         {!user && (
           <>
-            <label htmlFor="hname" className="label text-xl">
+            <label htmlFor="hname" className="label mt-6 text-xl">
               Your first name
             </label>
-            <input id="hname" className="input mb-6 min-h-[60px] text-xl" autoComplete="given-name" value={data.name} onChange={(e) => set("name", e.target.value)} />
+            <input id="hname" className="input min-h-[60px] text-xl" autoComplete="given-name" value={data.name} onChange={(e) => set("name", e.target.value)} />
           </>
         )}
-        <label htmlFor="contact" className="label text-xl">
-          Phone or email <span className="font-normal text-muted">(optional)</span>
-        </label>
-        <input id="contact" className="input min-h-[60px] text-xl" value={data.contact} onChange={(e) => set("contact", e.target.value)} />
+        <details className="mt-6 rounded-2xl bg-white p-5 ring-1 ring-warm-200">
+          <summary className="cursor-pointer text-xl font-semibold text-brand-900">Add a little more (only if you'd like)</summary>
+          <label htmlFor="hnote" className="label mt-4 text-lg">
+            Anything you'd like {first} to know
+          </label>
+          <textarea id="hnote" rows={3} className="input text-xl" value={data.note} onChange={(e) => set("note", e.target.value)} placeholder="For example: I'd like to call my daughter on Sunday." />
+          <label htmlFor="contact" className="label mt-4 text-lg">
+            A phone number or email, if you'd like them to contact you directly
+          </label>
+          <input id="contact" className="input min-h-[60px] text-xl" value={data.contact} onChange={(e) => set("contact", e.target.value)} />
+        </details>
         <Actions
-          primary="Ask for help"
+          primary={`Yes, ask ${first}`}
           disabled={!user && !data.name.trim()}
           busy={helpRun.busy}
           error={helpRun.error}
           onPrimary={() =>
             helpRun.run(async () => {
               const me = user ?? (await quickJoin(data.name.trim()));
-              await addNote({ toId: data.helperId, fromName: me.name.split(" ")[0], kind: "help", text: data.topic, contact: data.contact.trim() || undefined });
+              const text = [topic.label, data.note.trim()].filter(Boolean).join(": ");
+              await addNote({ toId: data.helperId, fromName: me.name.split(" ")[0], kind: "help", text, contact: data.contact.trim() || undefined });
+              set("note", "");
               go(4);
             })
           }
+          secondary="Choose someone else"
+          onSecondary={() => go(2)}
         />
       </Screen>
     );
 
   return (
-    <Screen title="Your request has been made." help={`${helper?.name.split(" ")[0] ?? "A helper"} will see that you'd like help with “${data.topic.toLowerCase()}”.`}>
-      <p className="rounded-3xl bg-brand-100/70 p-6 text-xl">
-        Their reply will appear in{" "}
-        <Link to="/inbox" className="link">
-          your messages
-        </Link>
-        {data.contact.trim() ? ", or they may contact you directly" : ""}. Helpers are volunteers, so it can take a day or two.
-      </p>
+    <Screen title={`${first} has your request.`} help="Well done for asking. That's the hardest part, and it's behind you.">
+      <ol className="space-y-3">
+        {[
+          { done: true, title: "You asked", body: `For help with ${topic.id === "other" ? "something" : topic.label.toLowerCase()}.` },
+          { done: false, title: `${first} reads it`, body: "Helpers are volunteers, so this can take a day or two." },
+          {
+            done: false,
+            title: "Their reply arrives",
+            body: data.contact.trim() ? "In your messages here, or they may contact you directly." : "In your messages here. We'll show you when you next visit.",
+          },
+        ].map((s, i) => (
+          <li key={s.title} className="flex gap-4 rounded-2xl bg-white p-5 ring-1 ring-warm-200">
+            <span
+              aria-hidden="true"
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-semibold ${s.done ? "bg-brand-700 text-white" : "bg-warm-100 text-warm-800"}`}
+            >
+              {s.done ? <Check className="h-5 w-5" strokeWidth={3} /> : i + 1}
+            </span>
+            <span>
+              <span className="block text-xl font-semibold text-brand-900">{s.title}</span>
+              <span className="block text-lg text-muted">{s.body}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
       <div className="mt-8 space-y-4">
-        <BigChoice to="/older/learn" icon={FileText} label="Try the step-by-step help meanwhile" />
-        <BigChoice to="/older" icon={Users} tone="warm" label="Back to my choices" />
+        <BigChoice to="/inbox" icon={Mail} label="See my messages" />
+        {topic.guide ? (
+          <BigChoice to="/older/learn" icon={FileText} tone="warm" label="Try a guide while I wait" />
+        ) : (
+          <BigChoice to="/older" icon={Users} tone="warm" label="Back to my choices" />
+        )}
       </div>
       <Feedback flow="help" askComfort />
     </Screen>

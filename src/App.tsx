@@ -29,8 +29,11 @@ import Landing from "./pages/Landing";
 import { OlderHome, Welcome, YoungerHome } from "./simple/Start";
 import { OlderHelp, OlderLearn, OlderShare } from "./simple/Older";
 import { YoungerLearn, YoungerShare } from "./simple/Younger";
-import { FamilyFlow, Impact, MeaningScreen, OlderEarn, OlderRoles } from "./simple/Extra";
+import { FamilyFlow, Impact, MeaningScreen } from "./simple/Extra";
+import { OlderEarn } from "./simple/Earn";
+import { OlderRoles } from "./simple/Roles";
 import { Account, Inbox } from "./simple/Inbox";
+import { ScamCheck } from "./simple/Scam";
 import { Privacy, Safety, Terms } from "./simple/Legal";
 
 export default function App() {
@@ -51,6 +54,7 @@ export default function App() {
         <Route path="younger/understand" element={<MeaningScreen younger />} />
         <Route path="older/earn" element={<OlderEarn />} />
         <Route path="older/roles" element={<OlderRoles />} />
+        <Route path="older/scam" element={<ScamCheck />} />
         <Route path="family" element={<FamilyFlow />} />
         <Route path="impact" element={<Impact />} />
         <Route path="inbox" element={<Inbox />} />
