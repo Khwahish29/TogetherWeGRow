@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   ArrowRight,
   Calculator,
@@ -6,14 +6,19 @@ import {
   Check,
   ChefHat,
   Compass,
+  FileText,
   Hammer,
+  HeartHandshake,
   HeartPulse,
   Mail,
   MessageCircleQuestion,
   Scissors,
   Search,
+  ShieldCheck,
+  Smartphone,
   Sprout,
   Users,
+  Video,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
@@ -419,23 +424,62 @@ export function YoungerLearn() {
 /* Share My Skills                                                     */
 /* ------------------------------------------------------------------ */
 
-const SKILLS = ["Video calls", "Smartphones", "Email", "Online forms", "Chat assistants", "Social media", "Online safety"];
+/** What a helper can offer. The names line up with what older adults ask for in Get Help. */
+const SKILLS: { name: string; icon: LucideIcon }[] = [
+  { name: "Video calls", icon: Video },
+  { name: "Smartphones", icon: Smartphone },
+  { name: "Email", icon: Mail },
+  { name: "Online forms", icon: FileText },
+  { name: "Online safety", icon: ShieldCheck },
+  { name: "Chat assistants", icon: MessageCircleQuestion },
+  { name: "Social media", icon: Users },
+];
 const WHEN = ["Weekday evenings", "Weekends", "Most days", "It varies"];
 const HOW: { value: Format; label: string }[] = [
-  { value: "in-person", label: "In person" },
+  { value: "both", label: "Online or in person" },
   { value: "online", label: "Online" },
-  { value: "both", label: "Either is fine" },
+  { value: "in-person", label: "In person" },
 ];
+
+/** The whole of what we ask from a helper. */
+const PROMISE = [
+  { title: "I'll go at their pace", body: "Slowly, and as many times as it takes. No sighing." },
+  { title: "I'll let them do the tapping", body: "My hands stay off their phone. They learn by doing." },
+  { title: "I'll never ask for passwords, codes or money", body: "If they need to type one, I look away." },
+];
+
+const chip = (on: boolean) =>
+  `min-h-[52px] rounded-full border-2 px-5 text-lg font-medium transition ${on ? "border-brand-700 bg-brand-700 text-white" : "border-warm-200 bg-white text-brand-900 hover:border-brand-600"}`;
 
 export function YoungerShare() {
   const { user } = useAuth();
-  const w = useWizard("twg.simple.yshare", { skills: [] as string[], other: "", when: "", how: "both" as Format, name: user?.name.split(" ")[0] ?? "" });
+  const helping = Boolean(user?.buddy && user.roles.includes("buddy"));
+  const known = SKILLS.map((k) => k.name);
+  const w = useWizard("twg.simple.yshare", {
+    skills: user?.buddy?.topics.filter((t) => known.includes(t)) ?? ([] as string[]),
+    other: user?.buddy?.topics.find((t) => !known.includes(t)) ?? "",
+    when: user?.buddy?.availability || "Weekends",
+    how: (user?.buddy?.mode ?? "both") as Format,
+    name: user?.name.split(" ")[0] ?? "",
+    promised: false,
+  });
   const { step, go, data, set } = w;
+  const topics = [...data.skills, ...(data.other.trim() ? [data.other.trim()] : [])];
+
+  // Account details arrive a moment after the page opens. Fill in a returning helper's choices once they do.
+  useEffect(() => {
+    const b = user?.buddy;
+    if (!b || data.skills.length || data.other) return;
+    set("skills", b.topics.filter((t) => known.includes(t)));
+    set("other", b.topics.find((t) => !known.includes(t)) ?? "");
+    if (b.availability) set("when", b.availability);
+    set("how", b.mode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const saveRun = useRun();
   function save() {
     return saveRun.run(async () => {
-      const topics = [...data.skills, ...(data.other.trim() ? [data.other.trim()] : [])];
       const person = user ?? (await quickJoin(data.name.trim(), ["buddy"]));
       await saveUser({
         ...person,
@@ -449,82 +493,174 @@ export function YoungerShare() {
     });
   }
 
+  function pause() {
+    return saveRun.run(async () => {
+      if (!user) return;
+      await saveUser({ ...user, roles: user.roles.filter((r) => r !== "buddy") });
+      go(5);
+    });
+  }
+
+  // 1 of 3: what they can help with.
   if (step === 0)
     return (
-      <Screen step="1 of 4" title="What could you help with?" help="Choose as many as you like.">
-        <div className="space-y-3">
-          {SKILLS.map((s) => (
-            <BigChoice
-              key={s}
-              label={s}
-              selected={data.skills.includes(s)}
-              onClick={() => set("skills", data.skills.includes(s) ? data.skills.filter((x) => x !== s) : [...data.skills, s])}
-            />
-          ))}
-        </div>
+      <Screen
+        step="Step 1 of 3"
+        title={helping ? "What you help with" : "What could you help with?"}
+        help={helping ? "You're already a helper. Thank you. Change anything you like." : "Things that feel obvious to you can be a locked door to someone else. Tap all that you could explain."}
+      >
+        <ul className="grid grid-cols-2 gap-3 sm:gap-4">
+          {SKILLS.map((k) => {
+            const on = data.skills.includes(k.name);
+            return (
+              <li key={k.name}>
+                <button
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => set("skills", on ? data.skills.filter((x) => x !== k.name) : [...data.skills, k.name])}
+                  className={`relative flex h-full min-h-[120px] w-full flex-col items-center justify-center gap-3 rounded-3xl border-2 p-4 text-center transition ${
+                    on ? "border-brand-700 bg-brand-50" : "border-warm-200 bg-white hover:border-brand-600"
+                  }`}
+                >
+                  {on && (
+                    <span aria-hidden="true" className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-brand-700 text-white">
+                      <Check className="h-4 w-4" strokeWidth={3} />
+                    </span>
+                  )}
+                  <span aria-hidden="true" className={`flex h-14 w-14 items-center justify-center rounded-2xl ${on ? "bg-brand-700 text-white" : "bg-brand-100 text-brand-800"}`}>
+                    <k.icon className="h-8 w-8" />
+                  </span>
+                  <span className="text-lg font-semibold leading-snug text-brand-900">{k.name}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
         <label htmlFor="other" className="label mt-6 text-xl">
           Something else? <span className="font-normal text-muted">(optional)</span>
         </label>
         <input id="other" className="input min-h-[60px] text-xl" value={data.other} onChange={(e) => set("other", e.target.value)} placeholder="For example: online banking" />
-        <Actions primary="Next" onPrimary={() => go(1)} disabled={data.skills.length === 0 && !data.other.trim()} />
+        <Actions primary="Next" onPrimary={() => go(1)} disabled={topics.length === 0} />
+        {helping && (
+          <p className="mt-6 text-center text-lg">
+            <button type="button" className="link min-h-[44px]" onClick={pause} disabled={saveRun.busy}>
+              I need a break from helping for now
+            </button>
+          </p>
+        )}
       </Screen>
     );
 
+  // 2 of 3: when and how, on one screen, already filled in.
   if (step === 1)
     return (
-      <Screen step="2 of 4" title="When are you usually free?">
-        <div className="space-y-3">
-          {WHEN.map((t) => (
-            <BigChoice
-              key={t}
-              label={t}
-              onClick={() => {
-                set("when", t);
-                go(2);
-              }}
-            />
-          ))}
+      <Screen step="Step 2 of 3" title="When and how?" help="A rough idea is plenty. You and the person you help will agree the details.">
+        <div role="group" aria-labelledby="yw-when">
+          <p id="yw-when" className="text-xl font-semibold text-brand-900">
+            I'm usually free
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2.5">
+            {WHEN.map((t) => (
+              <button key={t} type="button" aria-pressed={data.when === t} onClick={() => set("when", t)} className={chip(data.when === t)}>
+                {t}
+              </button>
+            ))}
+          </div>
         </div>
+        <div role="group" aria-labelledby="yw-how" className="mt-8">
+          <p id="yw-how" className="text-xl font-semibold text-brand-900">
+            I can help
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2.5">
+            {HOW.map((h) => (
+              <button key={h.value} type="button" aria-pressed={data.how === h.value} onClick={() => set("how", h.value)} className={chip(data.how === h.value)}>
+                {h.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <Actions primary="Next" onPrimary={() => go(2)} />
       </Screen>
     );
 
+  // 3 of 3: the promise, a preview, and a name.
   if (step === 2)
     return (
-      <Screen step="3 of 4" title="How would you like to help?">
-        <div className="space-y-3">
-          {HOW.map((h) => (
-            <BigChoice
-              key={h.value}
-              label={h.label}
-              onClick={() => {
-                set("how", h.value);
-                go(3);
-              }}
-            />
+      <Screen step="Step 3 of 3" title="A helper's promise" help="Patience is the whole gift. For many older adults, asking was the hard part. This is how we honor it.">
+        <ul className="space-y-3">
+          {PROMISE.map((pr) => (
+            <li key={pr.title} className="flex gap-4 rounded-2xl bg-white p-5 ring-1 ring-warm-200">
+              <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warm-100 text-warm-700">
+                <HeartHandshake className="h-5 w-5" />
+              </span>
+              <span>
+                <span className="block text-xl font-semibold text-brand-900">{pr.title}</span>
+                <span className="block text-lg text-muted">{pr.body}</span>
+              </span>
+            </li>
           ))}
+        </ul>
+        <label className={`mt-5 flex min-h-[64px] cursor-pointer items-center gap-4 rounded-2xl border-2 p-4 text-xl font-semibold text-brand-900 ${data.promised ? "border-brand-700 bg-brand-50" : "border-warm-200 bg-white"}`}>
+          <input type="checkbox" className="h-6 w-6 accent-[#234638]" checked={data.promised} onChange={(e) => set("promised", e.target.checked)} />
+          I promise
+        </label>
+
+        {!user && (
+          <>
+            <label htmlFor="ysname" className="label mt-6 text-xl">
+              Your first name
+            </label>
+            <input id="ysname" className="input min-h-[60px] text-xl" autoComplete="given-name" value={data.name} onChange={(e) => set("name", e.target.value)} />
+          </>
+        )}
+
+        <p className="mt-8 text-lg text-muted">This is how older adults will see you:</p>
+        <div className="mt-2 flex items-start gap-4 rounded-3xl border-2 border-warm-200 bg-white p-5">
+          <span aria-hidden="true" className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-brand-700 font-serif text-3xl text-white">
+            {(firstName(user?.name || data.name) || "?")[0]}
+          </span>
+          <span className="min-w-0">
+            <span className="block text-2xl font-semibold text-brand-900">{firstName(user?.name || data.name) || "Your name"}</span>
+            <span className="mt-1 block text-lg text-muted">Helps with {topics.slice(0, 3).join(", ").toLowerCase()}</span>
+            <span className="mt-1 block text-lg text-muted">
+              Free · {data.when} · {HOW.find((h) => h.value === data.how)?.label}
+            </span>
+          </span>
         </div>
+
+        <Actions
+          primary={helping ? "Save my changes" : "Offer my help"}
+          onPrimary={save}
+          disabled={!data.promised || (!user && !data.name.trim())}
+          busy={saveRun.busy}
+          error={saveRun.error}
+        />
       </Screen>
     );
 
-  if (step === 3)
+  if (step === 5)
     return (
-      <Screen step="4 of 4" title="What's your first name?" help="This is what people will see.">
-        <label htmlFor="ysname" className="sr-only">
-          Your first name
-        </label>
-        <input id="ysname" className="input min-h-[64px] text-2xl" autoComplete="given-name" value={data.name} onChange={(e) => set("name", e.target.value)} />
-        <p className="mt-6 rounded-2xl bg-brand-100/70 p-5 text-lg">
-          A reminder: patience is the whole gift. Go at their pace, let them do the tapping, and never ask for passwords.
-        </p>
-        <Actions primary="Offer my help" onPrimary={save} disabled={!data.name.trim()} busy={saveRun.busy} error={saveRun.error} />
+      <Screen title="You're taking a break." help="Older adults won't see you in the list for now. Thank you for the help you've given. Come back whenever you're ready.">
+        <div className="space-y-4">
+          <BigChoice onClick={() => go(0)} icon={HeartHandshake} label="Start helping again" />
+          <BigChoice to="/younger" icon={Users} tone="warm" label="Back to my choices" />
+        </div>
       </Screen>
     );
 
   return (
-    <Screen title={`Thank you, ${data.name.trim()}.`} help="Older adults asking for help can now find you. When someone asks, it will be in your messages.">
-      <div className="space-y-4">
-        <BigChoice to="/younger/learn" icon={Search} label="Find someone to learn from too" />
-        <BigChoice to="/younger" icon={Users} tone="warm" label="Back to my choices" />
+    <Screen title={`Thank you, ${firstName(user?.name || data.name)}.`} help="You've just made it easier for someone to ask. That matters more than it sounds.">
+      <Timeline
+        steps={[
+          { title: "You offered your help", body: `With ${topics.slice(0, 3).join(", ").toLowerCase()}.` },
+          { title: "Someone asks", body: "It will be waiting in your messages. There may be a wait while people find us." },
+          { title: "You reply and arrange a time", body: "Online or in person, whatever suits you both." },
+        ]}
+      />
+      <div className="mt-8 space-y-4">
+        <BigChoice to="/inbox" icon={Mail} label="See my messages" />
+        <BigChoice to="/younger/learn" icon={Search} tone="warm" label="Learn from someone too" sub="It goes both ways" />
+        <BigChoice to="/younger" icon={Users} tone="sage" label="Back to my choices" />
       </div>
       <Feedback flow="offer" />
     </Screen>

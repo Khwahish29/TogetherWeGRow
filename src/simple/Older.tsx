@@ -40,7 +40,8 @@ import { useStore } from "../lib/useStore";
 import { TextSizeToggle, setTextSize } from "../components/TextSizeToggle";
 import { Actions, BigChoice, Examples, Screen, SpeakOrType, TreeAndSprout, useRun } from "./parts";
 import { useWizard } from "./useWizard";
-import { Feedback, MeaningScreen } from "./Extra";
+import { Feedback } from "./Extra";
+import { MeaningScreen } from "./Vibe";
 
 function speak(text: string) {
   if (!("speechSynthesis" in window)) return;
