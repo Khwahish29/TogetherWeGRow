@@ -1,12 +1,42 @@
 import { useEffect, useMemo, useState } from "react";
-import { Briefcase, Check, Coins, FileText, Heart, HelpCircle, Mail, MessageCircle, MessageSquareText, ShieldAlert, Image as ImageIcon, Sparkles, Type, Video, Volume2, Users } from "lucide-react";
+import {
+  Briefcase,
+  Calculator,
+  Check,
+  ChefHat,
+  Coins,
+  Factory,
+  FileText,
+  GraduationCap,
+  Hammer,
+  Heart,
+  HeartPulse,
+  HelpCircle,
+  Image as ImageIcon,
+  Mail,
+  MessageCircle,
+  MessageSquareText,
+  Mic,
+  Scissors,
+  ShieldAlert,
+  Sparkles,
+  Sprout,
+  Truck,
+  Type,
+  Users,
+  Video,
+  Volume2,
+  Wrench,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { addNote, answerQuestion, getQuestions, getUsers, quickJoin, saveUser } from "../lib/store";
 import { useStore } from "../lib/useStore";
 import { setTextSize } from "../components/TextSizeToggle";
-import { Actions, BigChoice, Examples, Screen, SpeakOrType, useRun } from "./parts";
+import { Actions, BigChoice, Examples, Screen, SpeakOrType, TreeAndSprout, useRun } from "./parts";
 import { useWizard } from "./useWizard";
 import { Feedback, MeaningScreen } from "./Extra";
 
@@ -22,29 +52,49 @@ function speak(text: string) {
 /* Share My Experience                                                 */
 /* ------------------------------------------------------------------ */
 
-const SHARE_START = { work: "", good: "", lesson: "", skills: [] as string[], summary: "", name: "", analyzed: false, questionId: "", answer: "" };
+const SHARE_START = { kind: "", work: "", more: "", skills: [] as string[], summary: "", name: "", analyzed: false, questionId: "", answer: "" };
+
+/** Kinds of work, each with a kind word and a few things people often want to learn from someone who did it. */
+const KINDS: { id: string; label: string; icon: LucideIcon; praise: string; skills: string[] }[] = [
+  { id: "build", label: "Building and carpentry", icon: Hammer, praise: "Things you built are still standing.", skills: ["Carpentry", "Home repairs", "Using hand tools"] },
+  { id: "cook", label: "Cooking and kitchens", icon: ChefHat, praise: "You've fed more people than you could ever count.", skills: ["Cooking", "Running a kitchen", "Feeding a crowd"] },
+  { id: "care", label: "Caring and nursing", icon: HeartPulse, praise: "People were safer because you were there.", skills: ["Caring for others", "Patience with people", "Staying calm under pressure"] },
+  { id: "grow", label: "Farming and gardening", icon: Sprout, praise: "You know things about soil and seasons that no screen can tell.", skills: ["Growing food", "Gardening", "Reading the seasons"] },
+  { id: "fix", label: "Fixing and mechanics", icon: Wrench, praise: "You kept things running when others gave up on them.", skills: ["Repairs", "Finding what's wrong", "Looking after machines"] },
+  { id: "sew", label: "Sewing and tailoring", icon: Scissors, praise: "Your work was worn close to people's lives.", skills: ["Sewing", "Mending clothes", "Working with fabric"] },
+  { id: "teach", label: "Teaching and guiding", icon: GraduationCap, praise: "Somewhere, people still use what you taught them.", skills: ["Explaining things clearly", "Guiding beginners", "Patience"] },
+  { id: "office", label: "Office and bookkeeping", icon: Calculator, praise: "You kept everything in order so others could do their work.", skills: ["Keeping records", "Managing money", "Staying organized"] },
+  { id: "drive", label: "Driving and delivery", icon: Truck, praise: "People counted on you to arrive, and you did.", skills: ["Safe driving", "Planning routes", "Being reliable"] },
+  { id: "factory", label: "Factory and machine work", icon: Factory, praise: "You made things people use every day.", skills: ["Working with machines", "Workplace safety", "Checking quality"] },
+];
 
 export function OlderShare() {
   const { user } = useAuth();
   const w = useWizard("twg.simple.share", { ...SHARE_START, name: user?.name.split(" ")[0] ?? "" });
   const { step, go, data, set } = w;
-  const loading = step === 3 && !data.analyzed;
+  const kind = KINDS.find((k) => k.id === data.kind);
+  const said = [data.work, data.more].map((t) => t.trim()).filter(Boolean).join(" ");
+  const loading = step === 2 && !data.analyzed;
 
-  // Step 3: find what they could teach, using only their own words.
+  // Step 2: work out what they could pass on. If they used their own words, read those; otherwise start from the kind of work they tapped.
   useEffect(() => {
-    if (step !== 3 || data.analyzed) return;
+    if (step !== 2 || data.analyzed) return;
     let active = true;
-    const text = [`My work: ${data.work}`, data.good && `What I'm good at: ${data.good}`, data.lesson && `A lesson I've learned: ${data.lesson}`]
-      .filter(Boolean)
-      .join("\n");
+    const fallback = kind?.skills ?? [];
+    if (!said) {
+      set("skills", fallback);
+      set("summary", "");
+      set("analyzed", true);
+      return;
+    }
     api
-      .profileDraft(text)
+      .profileDraft([kind && `My work: ${kind.label}`, said].filter(Boolean).join("\n"))
       .then((r) => {
         if (!active) return;
-        set("skills", r.data.skills.slice(0, 6));
+        set("skills", r.data.skills.length ? r.data.skills.slice(0, 5) : fallback);
         set("summary", r.data.summary);
       })
-      .catch(() => undefined)
+      .catch(() => active && set("skills", fallback))
       .finally(() => active && set("analyzed", true));
     return () => {
       active = false;
@@ -53,147 +103,209 @@ export function OlderShare() {
   }, [step, data.analyzed]);
 
   const shareRun = useRun();
-  function share() {
+  function share(name: string) {
     return shareRun.run(async () => {
       // A first name is enough to start; they can add an email later to sign in on other devices.
-      const person = user ?? (await quickJoin(data.name.trim(), ["mentor"]));
+      const person = user ?? (await quickJoin(name.trim(), ["mentor"]));
+      const workLine = kind ? `Worked in ${kind.label.toLowerCase()}.` : "";
       await saveUser({
         ...person,
-        name: user?.name || data.name.trim(),
         roles: person.roles.includes("mentor") ? person.roles : [...person.roles, "mentor"],
-        bio: data.summary || data.work,
-        skills: [...new Set([...person.skills, ...(data.skills.length ? data.skills : [data.work.slice(0, 40)])])],
-        yearsExperience: person.yearsExperience ?? (Number(data.work.match(/(\d{1,2})\s*years/i)?.[1]) || null),
+        bio: data.summary || [workLine, said].filter(Boolean).join(" ") || person.bio,
+        skills: [...new Set([...person.skills, ...(data.skills.length ? data.skills : (kind?.skills ?? [said.slice(0, 40)]))])],
+        yearsExperience: person.yearsExperience ?? (Number(said.match(/(\d{1,2})\s*years/i)?.[1]) || null),
         profileApproved: true,
       });
+      // Start fresh next time, so old answers don't reappear.
+      for (const k of ["kind", "work", "more", "summary"] as const) set(k, "");
+      set("skills", []);
+      set("analyzed", false);
       go(6);
     });
   }
 
+  // 1 of 3: one tap is enough.
   if (step === 0)
     return (
-      <Screen step="Question 1 of 3" title="What kind of work have you done?" help="Tell us in your own words. A sentence or two is plenty.">
-        <SpeakOrType id="work" label="The work you've done" value={data.work} onChange={(v) => set("work", v)} placeholder="For example: I was a carpenter for 35 years." />
-        <Examples items={["I was a carpenter for 35 years", "I ran a kitchen", "I worked on farms", "I was a nurse"]} onPick={(v) => set("work", v)} />
-        <Actions primary="Next" onPrimary={() => go(1)} disabled={data.work.trim().length < 3} />
-        <div className="mt-10 border-t border-warm-200 pt-8">
-          <BigChoice onClick={() => go(20)} icon={HelpCircle} tone="warm" label="Or answer a question someone is asking" sub="Younger people's real questions about work and life" />
+      <Screen step="Step 1 of 3" title="What kind of work have you done?" help="Tap the one that fits best. Close enough is fine.">
+        <ul className="grid grid-cols-2 gap-3 sm:gap-4">
+          {KINDS.map((k) => (
+            <li key={k.id}>
+              <button
+                type="button"
+                onClick={() => {
+                  set("kind", k.id);
+                  set("work", "");
+                  if (k.id !== data.kind) set("more", "");
+                  set("analyzed", false);
+                  go(1);
+                }}
+                aria-pressed={data.kind === k.id}
+                className={`flex h-full min-h-[132px] w-full flex-col items-center justify-center gap-3 rounded-3xl border-2 p-4 text-center transition hover:border-brand-600 hover:bg-brand-50/60 ${
+                  data.kind === k.id ? "border-brand-700 bg-brand-50" : "border-warm-200 bg-white"
+                }`}
+              >
+                <span aria-hidden="true" className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-800">
+                  <k.icon className="h-8 w-8" />
+                </span>
+                <span className="text-lg font-semibold leading-snug text-brand-900 sm:text-xl">{k.label}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4">
+          <BigChoice onClick={() => go(10)} icon={Mic} tone="warm" label="Something else" sub="Tell us in your own words" />
         </div>
+        <p className="mt-10 border-t border-warm-200 pt-6 text-lg">
+          <button type="button" onClick={() => go(20)} className="link inline-flex items-center gap-2 text-left">
+            <HelpCircle aria-hidden="true" className="h-5 w-5 shrink-0" /> Or simply answer a question a younger person is asking
+          </button>
+        </p>
       </Screen>
     );
 
-  if (step === 20 || step === 21 || step === 22) return <AnswerAQuestion step={step} go={go} data={data} set={set} />;
-
-  if (step === 1)
+  // The "in my own words" way in. It replaces the tiles, and skips the optional step.
+  if (step === 10)
     return (
-      <Screen step="Question 2 of 3" title="What are you good at, or love doing?" help="Skills from work, hobbies, or anything people ask you about.">
-        <SpeakOrType id="good" label="What you're good at" value={data.good} onChange={(v) => set("good", v)} placeholder="For example: fixing things, gardening, sewing, keeping calm." />
-        <Actions primary="Next" onPrimary={() => go(2)} secondary="Skip this question" onSecondary={() => go(2)} />
-      </Screen>
-    );
-
-  if (step === 2)
-    return (
-      <Screen step="Question 3 of 3" title="What has life or work taught you?" help="A lesson you wish someone had told you when you were starting out.">
-        <SpeakOrType id="lesson" label="A lesson you've learned" value={data.lesson} onChange={(v) => set("lesson", v)} placeholder="For example: measure twice, cut once." />
+      <Screen step="Step 1 of 3" title="Tell us about your work" help="In your own words. A sentence is plenty, and there's no wrong answer.">
+        <SpeakOrType id="work" label="The work you've done" value={data.work} onChange={(v) => set("work", v)} placeholder="For example: I was a carpenter for 35 years." />
+        <Examples items={["I was a carpenter for 35 years", "I ran a kitchen", "I drove a bus for 20 years", "I was a nurse"]} onPick={(v) => set("work", v)} />
         <Actions
-          primary="See what I could teach"
+          primary="Next"
+          disabled={data.work.trim().length < 3}
           onPrimary={() => {
+            set("kind", "");
+            set("more", "");
             set("analyzed", false);
-            go(3);
-          }}
-          secondary="Skip this question"
-          onSecondary={() => {
-            set("analyzed", false);
-            go(3);
+            go(2);
           }}
         />
       </Screen>
     );
 
-  if (step === 3)
+  // 2 of 3: entirely optional.
+  if (step === 1)
     return (
-      <Screen title="Here's what you could teach others" help={loading ? "Reading what you shared…" : "Based only on what you told us. Tap any that don't feel right to remove them."}>
+      <Screen
+        step="Step 2 of 3"
+        eyebrow={kind?.praise}
+        title="Would you like to add anything?"
+        help="How long you did it, or something you're proud of. Only if you'd like to. You've already told us enough."
+      >
+        <SpeakOrType id="more" label="Anything you'd like to add" value={data.more} onChange={(v) => set("more", v)} placeholder="For example: 35 years, mostly furniture. I trained a lot of apprentices." />
+        <Actions
+          primary={data.more.trim() ? "Next" : "Skip this"}
+          onPrimary={() => {
+            set("analyzed", false);
+            go(2);
+          }}
+        />
+      </Screen>
+    );
+
+  // 3 of 3: what they could pass on, and one decision.
+  if (step === 2)
+    return (
+      <Screen step="Step 3 of 3" title={loading ? "One moment…" : "Look what you could pass on"} help={loading ? "Reading what you shared." : undefined}>
         <div aria-live="polite">
           {!loading && (
             <>
-              {data.skills.length > 0 ? (
-                <ul className="space-y-3">
-                  {data.skills.map((s) => (
-                    <li key={s}>
-                      <button
-                        type="button"
-                        onClick={() => set("skills", data.skills.filter((x) => x !== s))}
-                        className="flex min-h-[64px] w-full items-center justify-between gap-3 rounded-2xl border-2 border-brand-200 bg-white px-5 text-left text-xl font-semibold text-brand-900 hover:border-warm-600"
-                        aria-label={`${s}. Tap to remove`}
-                      >
-                        <span className="flex items-center gap-3">
-                          <Check aria-hidden="true" className="h-6 w-6 text-brand-600" /> {s}
-                        </span>
-                        <span className="text-base font-normal text-muted">Remove</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="rounded-2xl bg-white p-5 text-xl">Everything you shared is worth passing on: “{data.work}”</p>
+              <section className="relative overflow-hidden rounded-[2rem] bg-brand-900 p-6 text-brand-100 shadow-xl sm:p-8" aria-label="What you could pass on">
+                <span aria-hidden="true" className="absolute -right-3 -top-3 text-[7rem] leading-none opacity-20">
+                  🌳
+                </span>
+                <p className="font-serif text-2xl leading-snug text-white">{kind?.praise ?? "A lifetime of work is a lifetime of knowing how."}</p>
+                {said && <p className="mt-3 border-l-2 border-warm-400 pl-4 text-lg italic">“{said}”</p>}
+                <p className="mt-6 text-sm font-semibold uppercase tracking-[0.14em] text-warm-400">People could learn from you</p>
+                {data.skills.length > 0 ? (
+                  <ul className="mt-3 flex flex-wrap gap-2">
+                    {data.skills.map((s) => (
+                      <li key={s}>
+                        <button
+                          type="button"
+                          onClick={() => set("skills", data.skills.filter((x) => x !== s))}
+                          aria-label={`${s}. Tap to remove if it doesn't fit`}
+                          className="flex min-h-[48px] items-center gap-2 rounded-full bg-white/10 px-4 text-lg font-medium text-white ring-1 ring-white/25 hover:bg-white/20"
+                        >
+                          {s} <X aria-hidden="true" className="h-4 w-4 opacity-70" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-3 text-lg text-white">Everything you've told us.</p>
+                )}
+                {data.skills.length > 0 && <p className="mt-3 text-base">These are suggestions. Tap any that don't fit to remove them.</p>}
+              </section>
+
+              <p className="mt-6 text-xl">Someone, somewhere, is trying to learn exactly this.</p>
+              <h2 className="mt-8 font-sans text-2xl font-semibold">Shall we let younger people know they can ask you?</h2>
+              <p className="mt-2 text-lg text-muted">It's your choice, and you can change your mind any time.</p>
+              <div className="mt-5 space-y-4">
+                <BigChoice onClick={() => (user ? share(user.name) : go(3))} icon={Heart} label={shareRun.busy ? "One moment…" : "Yes, I'd like to share"} sub="Your phone and email stay private" />
+                <BigChoice onClick={() => go(7)} icon={Check} tone="warm" label="Not right now" sub="Nothing will be shared" />
+              </div>
+              {shareRun.error && (
+                <p role="alert" className="mt-4 rounded-2xl bg-warm-100 p-4 text-lg text-warm-800">
+                  {shareRun.error}
+                </p>
               )}
-              {data.lesson && (
-                <blockquote className="mt-6 rounded-2xl bg-brand-100/70 p-5 font-serif text-2xl leading-snug text-brand-900">
-                  “{data.lesson}”
-                  <span className="mt-2 block font-sans text-base text-muted">A lesson worth passing on.</span>
-                </blockquote>
-              )}
-              <p className="mt-6 text-xl text-ink">Someone, somewhere, is trying to learn exactly this.</p>
-              <Actions primary="Next" onPrimary={() => go(4)} />
             </>
           )}
         </div>
       </Screen>
     );
 
-  if (step === 4)
+  if (step === 3)
     return (
-      <Screen title="Would you like to share this with younger people who want to learn?" help="It's completely your choice. You can say no, and you can change your mind later.">
-        <div className="space-y-4">
-          <BigChoice onClick={() => go(5)} icon={Heart} label="Yes, I'd like to share" sub="Younger adults will see what you could teach" />
-          <BigChoice onClick={() => go(7)} icon={Check} tone="warm" label="Not right now" sub="Nothing will be shared" />
-        </div>
-      </Screen>
-    );
-
-  if (step === 5)
-    return (
-      <Screen title="What name should people see?" help="Your first name is enough.">
+      <Screen title="Last thing: what should people call you?" help="Your first name is enough.">
         <label htmlFor="name" className="sr-only">
           Your first name
         </label>
         <input id="name" className="input min-h-[64px] text-2xl" autoComplete="given-name" value={data.name} onChange={(e) => set("name", e.target.value)} />
-        <Actions primary="Share my experience" onPrimary={share} disabled={!data.name.trim()} busy={shareRun.busy} error={shareRun.error} />
+        <Actions primary="Share my experience" onPrimary={() => share(data.name)} disabled={!data.name.trim()} busy={shareRun.busy} error={shareRun.error} />
       </Screen>
     );
 
   if (step === 6)
     return (
-      <Screen title={`Thank you, ${data.name.trim()}.`} help="Your experience is now shared. Younger adults who want to learn can find you, and send you a question.">
-        <p className="rounded-3xl bg-brand-100/70 p-6 text-xl text-brand-900">
-          Questions people send you will be waiting in <Link to="/inbox" className="link">your messages</Link>. We never show your phone number or
-          email to anyone.
+      <Screen title={`Thank you, ${(user?.name ?? data.name).trim().split(" ")[0]}.`} help="That's it. You're done. Someone will be glad you did this.">
+        <TreeAndSprout className="mx-auto h-auto w-full max-w-sm" />
+        <p className="mt-4 rounded-3xl bg-brand-100/70 p-6 text-xl text-brand-900">
+          When a younger person asks you something, it will be waiting in{" "}
+          <Link to="/inbox" className="link">
+            your messages
+          </Link>
+          . There's nothing more you need to do.
         </p>
-        <h2 className="mt-10 font-sans text-2xl font-semibold">Would you like to earn from what you know?</h2>
-        <p className="mt-2 text-lg text-muted">Only if you want to. There's no pressure either way.</p>
-        <div className="mt-5 space-y-4">
-          <BigChoice to="/older/earn" icon={Coins} label="Offer paid help sessions" sub="You set the price and keep 90%" />
-          <BigChoice to="/older/roles" icon={Briefcase} tone="warm" label="See roles that are easier on the body" sub="Paid work where what you know matters most" />
-          <BigChoice to="/older" icon={Users} tone="sage" label="Back to my choices" />
+        <div className="mt-6">
+          <BigChoice to="/older" icon={Users} label="Back to my choices" />
         </div>
-        <Feedback flow="share" askComfort />
+
+        <div className="mt-10 border-t border-warm-200 pt-6">
+          <p className="text-lg text-muted">Another day, only if you'd like:</p>
+          <ul className="mt-3 space-y-3 text-lg">
+            <li>
+              <Link to="/older/earn" className="link inline-flex items-center gap-2">
+                <Coins aria-hidden="true" className="h-5 w-5 shrink-0" /> Earn from what you know (you keep 90%)
+              </Link>
+            </li>
+            <li>
+              <Link to="/older/roles" className="link inline-flex items-center gap-2">
+                <Briefcase aria-hidden="true" className="h-5 w-5 shrink-0" /> See work that's easier on the body
+              </Link>
+            </li>
+          </ul>
+        </div>
+        <Feedback flow="share" />
       </Screen>
     );
 
+  if (step === 20 || step === 21 || step === 22) return <AnswerAQuestion step={step} go={go} data={data} set={set} />;
+
   // step 7: chose not to share
   return (
-    <Screen title="That's completely fine." help="Nothing has been shared. What you know is still yours, and you're welcome back anytime.">
+    <Screen title="That's completely fine." help="Nothing has been shared. What you know is still yours, and you're welcome back whenever you like.">
       <div className="space-y-4">
         <BigChoice to="/older" icon={Users} label="Back to my choices" />
       </div>

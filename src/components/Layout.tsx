@@ -36,7 +36,7 @@ interface NavItem {
 }
 
 const PUBLIC_NAV: NavItem[] = [
-  { to: "/explore", label: "Home", icon: HomeIcon, exact: true, also: ["/introduce"] },
+  { to: "/", label: "Home", icon: HomeIcon, exact: true, also: ["/introduce"] },
   { to: "/questions", label: "Share What You Know", short: "Share", icon: MessageCircleQuestion },
   { to: "/mentors", label: "Find Mentors", short: "Mentors", icon: Search, also: ["/marketplace"] },
   { to: "/opportunities", label: "Opportunities", short: "Work", icon: Briefcase, also: ["/careers", "/next-chapter"] },
@@ -146,8 +146,8 @@ export function Layout() {
   const nav: NavItem[] = employerOnly
     ? EMPLOYER_NAV
     : user
-      ? [...PUBLIC_NAV.filter((n) => n.to !== "/explore"), { to: "/dashboard", label: "My Home", icon: LayoutGrid, also: ["/requests", "/profile"] }]
-      : PUBLIC_NAV.filter((n) => n.to !== "/explore");
+      ? [...PUBLIC_NAV.filter((n) => n.to !== "/"), { to: "/dashboard", label: "My Home", icon: LayoutGrid, also: ["/requests", "/profile"] }]
+      : PUBLIC_NAV.filter((n) => n.to !== "/");
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -155,7 +155,7 @@ export function Layout() {
 
   async function handleLogOut() {
     await logOut();
-    navigate("/explore");
+    navigate("/");
   }
 
   // Mobile tab bar: five clear destinations.
@@ -170,7 +170,7 @@ export function Layout() {
           { to: "/learn", label: "Learn", icon: Lightbulb, also: ["/resume", "/vibe-check"] },
         ]
       : [
-          { to: "/explore", label: "Home", icon: HomeIcon, exact: true, also: ["/introduce"] },
+          { to: "/", label: "Home", icon: HomeIcon, exact: true, also: ["/introduce"] },
           { to: "/questions", label: "Share", icon: MessageCircleQuestion },
           { to: "/mentors", label: "Mentors", icon: Search, also: ["/marketplace"] },
           { to: "/opportunities", label: "Work", icon: Briefcase, also: ["/careers", "/next-chapter"] },

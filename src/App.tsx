@@ -1,7 +1,6 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { RequireAuth } from "./components/ui";
-import Home from "./pages/Home";
 import { Login, ResetPassword, Signup } from "./pages/Auth";
 import CreateProfile from "./pages/CreateProfile";
 import Profile from "./pages/Profile";
@@ -63,7 +62,8 @@ export default function App() {
 
       {/* The fuller website, kept for deeper features; not linked from the simple screens. */}
       <Route element={<Layout />}>
-        <Route path="explore" element={<Home />} />
+        {/* The old homepage lived here; send any saved links to the real one. */}
+        <Route path="explore" element={<Navigate to="/" replace />} />
         <Route path="signup" element={<Signup />} />
         <Route path="login" element={<Login />} />
         <Route path="reset" element={<ResetPassword />} />
