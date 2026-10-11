@@ -1,12 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
+  ArrowDown,
   ArrowRight,
-  BookOpen,
-  Briefcase,
   Coins,
-  GraduationCap,
-  HandHeart,
   Heart,
   HelpCircle,
   Languages,
@@ -19,161 +16,240 @@ import {
   Users,
 } from "lucide-react";
 import { Logo } from "../components/Logo";
+import { Reveal } from "../components/ui";
 import { EVENT_NAME, TEAM, TEAM_NAME } from "../data/team";
 
 const NAV = [
-  ["#challenge", "The challenge"],
+  ["#story", "The story"],
   ["#how", "How it works"],
-  ["#impact", "Impact"],
+  ["#values", "What we believe"],
   ["#team", "Team"],
 ];
 
-const BARRIERS = [
-  {
-    title: "Bodies that are tired",
-    body: "Decades of lifting, standing and repetition take their toll. Yet the usual alternative is starting over at the bottom.",
-  },
-  {
-    title: "Doors that quietly close",
-    body: "Age discrimination and online-only hiring leave experienced people out, and their confidence often goes with them.",
-  },
-  {
-    title: "The fear of asking",
-    body: "Many hesitate to learn new technology. They feel embarrassed to ask, or worry they're too old to start again.",
-  },
+/** Common questions people starting out ask, by trade. */
+const ASKED: [string, string][] = [
+  ["Carpentry", "My cuts keep drifting off the line. What am I doing wrong with the saw?"],
+  ["Cooking", "How do you keep calm and organized when every order comes in at once?"],
+  ["Welding", "How do you know when a weld is strong, just by looking at it?"],
+  ["Mechanics", "What sounds from an engine mean I should stop driving right away?"],
+  ["Gardening", "How do you know when soil is ready for planting?"],
+  ["Sewing", "How do I stop fabric from puckering when I sew a seam?"],
+  ["Running a business", "What's the simplest way to keep track of money coming in and going out?"],
+  ["Working life", "How do you earn the respect of people who've been there much longer than you?"],
 ];
 
-const STORIES = [
+const TRADES = ["Carpenters", "Nurses", "Welders", "Cooks", "Farmers", "Seamstresses", "Mechanics", "Electricians", "Bookkeepers", "Masons", "Machinists", "Caregivers"];
+
+const CHAPTERS = [
   {
-    icon: HandHeart,
-    who: "A carpenter ready to put down the heavy tools",
-    what: "He answers a few questions in his own words and discovers that younger people want exactly what he knows. He offers paid mentoring sessions, and looks at advisory roles that are easier on his body.",
-    to: "/older/share",
-    cta: "Try “Share my experience”",
+    n: "I",
+    title: "He could tell a good joint by the sound it made.",
+    body: "Thirty-eight years at the bench. Robert never needed a manual. His hands remembered everything.",
   },
   {
-    icon: BookOpen,
-    who: "A grandmother who wants to video-call her family",
-    what: "She learns one small step at a time, with the words read aloud if she likes. When she'd rather have a person, a patient younger helper is there.",
-    to: "/older/learn",
-    cta: "Try “Learn something new”",
+    n: "II",
+    title: "Then his knees said what he wouldn't.",
+    body: "The lifting got harder. The job ads moved online and asked for “digital natives.” The interviews went to younger hands.",
   },
   {
-    icon: GraduationCap,
-    who: "A student looking for career advice",
-    what: "She finds someone with forty years in the trade, asks a question for free, or books a paid session. She learns what no course could teach her.",
-    to: "/younger/learn",
-    cta: "Try “Learn from older adults”",
+    n: "III",
+    title: "The worst part wasn't the money.",
+    body: "It was the quiet. The feeling that everything he knew had stopped mattering on the day he stopped lifting.",
+  },
+  {
+    n: "IV",
+    title: "Three streets away, Maya was on her ninth video about dovetail joints.",
+    body: "She didn't need another video. She needed ten minutes with someone who had cut ten thousand of them.",
+  },
+  {
+    n: "V",
+    title: "They never met.",
+    body: "Not because they didn't need each other. Because nothing was built to introduce them. So we built it.",
   },
 ];
 
 const DESIGN = [
   { icon: MousePointerClick, text: "One question per screen" },
-  { icon: Mic, text: "Speak or type, whichever is easier" },
-  { icon: Type, text: "Large text and large buttons" },
-  { icon: Undo2, text: "Back and Home always in the same place" },
-  { icon: Languages, text: "Works in many languages" },
-  { icon: ShieldCheck, text: "Nothing is shared without a clear yes" },
+  { icon: Mic, text: "Speak or type" },
+  { icon: Type, text: "Large text, large buttons" },
+  { icon: Undo2, text: "Back and Home, always in the same place" },
+  { icon: Languages, text: "Many languages" },
+  { icon: ShieldCheck, text: "Nothing shared without a clear yes" },
 ];
 
 const DIFFERENT = [
   {
     icon: Heart,
-    title: "Introduced by someone they love",
-    body: "People try something new when someone they trust suggests it. A guided invitation helps children and grandchildren start that conversation in a way that celebrates their loved one's experience.",
+    title: "It starts with someone they love",
+    body: "People try something new when someone they trust suggests it. A guided invitation helps a son, daughter or grandchild begin that conversation, in words that honor a lifetime of work.",
     to: "/family",
+    cta: "Write an invitation",
   },
   {
     icon: MessageSquareText,
-    title: "Vibe Check: understanding each other",
-    body: "“That advice was clutch” and “measure twice, cut once” both carry real meaning. Vibe Check explains expressions and softens messages, so neither generation feels embarrassed.",
+    title: "“Clutch,” meet “measure twice, cut once”",
+    body: "Every generation has its own way of speaking. Vibe Check explains an expression or softens a message, so nobody has to feel embarrassed for asking.",
     to: "/younger/understand",
+    cta: "Try Vibe Check",
   },
   {
     icon: HelpCircle,
-    title: "It begins with familiar questions",
-    body: "Instead of a long form, older adults describe their work in their own words, or answer a real question a younger person is asking. Their skills are drawn from what they said, never invented.",
+    title: "No forms. Just a question.",
+    body: "Older adults describe their work in their own words, or answer something a younger person is really asking. Their skills are drawn from what they said. Nothing is invented.",
     to: "/older/share",
+    cta: "See the first question",
   },
   {
     icon: Coins,
-    title: "Fair pay, shown up front",
-    body: "Mentors set their own price and keep 90%. Roles that are easier on the body show pay, hours and physical demands in plain words.",
+    title: "They set the price. They keep 90%.",
+    body: "Experience is professional knowledge. Mentors choose what a session costs, and roles that are easier on the body state pay, hours and physical demands in plain words.",
     to: "/older/roles",
+    cta: "See gentler work",
   },
 ];
 
 const VALUES = [
-  { name: "Empathy", how: "We start by listening. Nobody is asked their age, and nearly every question can be skipped." },
-  { name: "Compassion", how: "Asking for help is treated as normal. Steps repeat as often as needed, and “Explain it more simply” is always there." },
-  { name: "Respect", how: "Experience is professional knowledge. Mentors set their own price and keep 90% of it." },
-  { name: "Kindness", how: "Younger helpers are reminded to go at the other person's pace, let them do the tapping, and never ask for passwords." },
-  { name: "Integrity", how: "Example people are labeled. Suggestions are never promises. Nothing is shared or charged without a clear yes." },
-];
-
-const METRICS = [
-  ["10–15", "older adults and 10 younger helpers taking part through local community organizations"],
-  ["10", "intergenerational learning sessions"],
-  ["5 min", "for an older adult to finish a first interaction, with little or no help"],
-  ["7 in 10", "older participants feeling more comfortable asking for help"],
-  ["5", "older adults sharing a practical skill or professional experience"],
-  ["80%", "of participants rating their experience 4 or more out of 5"],
-  ["5", "matched pairs returning for a second session"],
-];
-
-const REVENUE = [
-  { title: "A small 10% fee", body: "On completed paid sessions only. On a $40 session, the mentor keeps $36." },
-  { title: "Employer and institution partnerships", body: "Subscriptions for businesses, vocational schools and training groups that need experienced trainers and advisers." },
-  { title: "Sponsorships and grants", body: "From nonprofits, local businesses and workforce programs, keeping help free for older adults." },
-];
-
-const COSTS = [
-  ["Reaching people", "Family referrals, campus outreach, in-person demos", "$50–150"],
-  ["Hosting and technology", "Website, database, security", "$30–100"],
-  ["Outreach materials", "Printed guides, community events, assisted sign-up", "$20–75"],
-  ["People and operations", "Student volunteers and team members at first", "$0–500"],
+  { name: "Empathy", how: "We begin by listening. Nobody is asked their age, and nearly every question can be skipped." },
+  { name: "Compassion", how: "Asking for help is treated as ordinary. Steps repeat as often as needed, and “Explain it more simply” is always there." },
+  { name: "Respect", how: "A lifetime of skill is treated as expertise, never as charity. Mentors name their price and keep 90% of it." },
+  { name: "Kindness", how: "Younger helpers are reminded: go at their pace, let them do the tapping, never ask for passwords." },
+  { name: "Integrity", how: "Suggestions are never promises. Organizations are labeled as unverified. Nothing is shared or charged without a clear yes." },
 ];
 
 const PARTNERS = [
-  ["Families and trusted friends", "The main way people find us: gentle, familiar conversations."],
-  ["Community colleges and universities", "Such as Arizona State University and Maricopa Community Colleges, connecting students and apprentices with experienced mentors."],
-  ["Senior centers and community groups", "Building trust early and offering patient, in-person help."],
-  ["Psychology and counseling departments", "Helping design gentle onboarding that reduces the fear of judgment and builds confidence."],
-  ["Local businesses and trade associations", "Paid mentoring and roles that are easier on the body."],
-  ["Nonprofits", "Such as AARP Foundation and Senior Planet, for outreach and connecting people with existing support."],
+  ["Families and trusted friends", "Where it begins: a gentle conversation at the kitchen table."],
+  ["Colleges and universities", "Such as Arizona State University and Maricopa Community Colleges, where students and apprentices are looking for mentors."],
+  ["Senior centers and community groups", "Trusted places for patient, in-person first steps."],
+  ["Psychology and counseling departments", "To help us design onboarding that eases the fear of being judged."],
+  ["Local businesses and trade associations", "For paid mentoring and roles that are easier on the body."],
+  ["Nonprofits", "Such as AARP Foundation and Senior Planet, to connect people with support that already exists."],
 ];
 
+/** Types out each question in turn. Decorative: screen readers get one static example instead. */
+function TypedQuestion() {
+  const [text, setText] = useState(ASKED[0][1]);
+  useEffect(() => {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    let q = 0;
+    let i = 0;
+    let dir: 1 | -1 = 1;
+    let timer: ReturnType<typeof setTimeout>;
+    setText("");
+    const tick = () => {
+      const full = ASKED[q][1];
+      i += dir;
+      setText(full.slice(0, i));
+      if (dir === 1 && i >= full.length) {
+        dir = -1;
+        timer = setTimeout(tick, 2600);
+      } else if (dir === -1 && i <= 0) {
+        dir = 1;
+        q = (q + 1) % ASKED.length;
+        timer = setTimeout(tick, 400);
+      } else {
+        timer = setTimeout(tick, dir === 1 ? 34 : 12);
+      }
+    };
+    timer = setTimeout(tick, 1600);
+    return () => clearTimeout(timer);
+  }, []);
+  return (
+    <p className="rise mt-7 min-h-[7.5rem] max-w-xl border-l-2 border-warm-400 pl-5 sm:min-h-[5.5rem]" style={{ animationDelay: "900ms" }}>
+      <span className="block text-sm font-semibold uppercase tracking-[0.14em] text-warm-400">Somewhere, someone starting out is asking</span>
+      <span aria-hidden="true" className="mt-1 block font-serif text-xl leading-snug text-white sm:text-2xl">
+        “{text}
+        <span className="caret ml-0.5 inline-block h-[1em] w-[2px] translate-y-[3px] bg-warm-400" />”
+      </span>
+      <span className="sr-only">“{ASKED[0][1]}”</span>
+    </p>
+  );
+}
+
+/** Tap a trade, see a question people starting out ask about it. */
+function WhoNeedsYou() {
+  const [pick, setPick] = useState(0);
+  return (
+    <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.15fr] lg:items-center">
+      <div role="group" aria-label="Choose a kind of work" className="flex flex-wrap gap-2.5">
+        {ASKED.map(([trade], i) => (
+          <button
+            key={trade}
+            type="button"
+            onClick={() => setPick(i)}
+            aria-pressed={pick === i}
+            className={`min-h-[52px] rounded-full border-2 px-5 text-lg font-medium transition ${
+              pick === i ? "border-brand-700 bg-brand-700 text-white" : "border-warm-200 bg-white text-brand-900 hover:border-brand-600"
+            }`}
+          >
+            {trade}
+          </button>
+        ))}
+      </div>
+      <div aria-live="polite" className="rounded-[2rem] bg-brand-900 p-7 text-brand-100 shadow-xl sm:p-10">
+        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-warm-400">People starting out in {ASKED[pick][0].toLowerCase()} ask</p>
+        <p key={pick} className="rise mt-3 font-serif text-2xl leading-snug text-white sm:text-3xl">
+          “{ASKED[pick][1]}”
+        </p>
+        <p className="mt-5 text-lg">Could you answer that? Then someone needs you.</p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link to="/older/share?step=20" className="btn min-h-[52px] bg-warm-400 px-6 font-semibold text-brand-900 hover:bg-warm-200">
+            I could answer that <ArrowRight aria-hidden="true" className="h-5 w-5" />
+          </Link>
+          <Link to="/younger/learn" className="btn min-h-[52px] border-2 border-brand-100/50 px-6 text-white hover:bg-white/10">
+            I have a question like this
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Landing() {
+  const [scrolled, setScrolled] = useState(false);
+  const [progress, setProgress] = useState(0);
+
   useEffect(() => {
     document.title = "TogetherWeGrow: experience that lives on";
+    const onScroll = () => {
+      setScrolled(window.scrollY > 40);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(max > 0 ? Math.min(1, window.scrollY / max) : 0);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
+      window.removeEventListener("scroll", onScroll);
       document.title = "TogetherWeGrow";
     };
   }, []);
 
   return (
     <div className="min-h-screen bg-warm-50 text-ink">
-      <a href="#main" className="btn-primary sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60]">
+      <a href="#main" className="btn-primary sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70]">
         Skip to main content
       </a>
 
-      <header className="border-b border-warm-200/80">
-        <div className="container-wide flex h-[76px] items-center justify-between gap-3">
+      <header className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${scrolled ? "border-b border-warm-200/80 bg-warm-50/95 backdrop-blur-md" : "bg-transparent"}`}>
+        <div aria-hidden="true" className="absolute inset-x-0 top-0 h-[3px] origin-left bg-warm-400" style={{ transform: `scaleX(${progress})` }} />
+        <div className="container-wide flex h-[72px] items-center justify-between gap-3">
           <Link to="/" aria-label="TogetherWeGrow, home" className="rounded-xl">
-            <Logo />
+            <Logo light={!scrolled} />
           </Link>
           <nav aria-label="On this page" className="hidden lg:block">
             <ul className="flex gap-1">
               {NAV.map(([href, label]) => (
                 <li key={href}>
-                  <a href={href} className="rounded-full px-4 py-2 font-medium text-brand-800 hover:bg-brand-100">
+                  <a href={href} className={`rounded-full px-4 py-2 font-medium transition-colors ${scrolled ? "text-brand-800 hover:bg-brand-100" : "text-white hover:bg-white/10"}`}>
                     {label}
                   </a>
                 </li>
               ))}
             </ul>
           </nav>
-          <Link to="/start" className="btn-primary min-h-[48px] shrink-0 whitespace-nowrap px-5">
+          <Link
+            to="/start"
+            className={`btn min-h-[48px] shrink-0 whitespace-nowrap px-5 font-semibold ${scrolled ? "bg-brand-700 text-white hover:bg-brand-800" : "bg-warm-400 text-brand-900 hover:bg-warm-200"}`}
+          >
             Start here <ArrowRight aria-hidden="true" className="hidden h-5 w-5 sm:block" />
           </Link>
         </div>
@@ -181,306 +257,367 @@ export default function Landing() {
 
       <main id="main" tabIndex={-1} className="outline-none">
         {/* Hero */}
-        <section className="container-wide grid items-center gap-12 py-14 lg:grid-cols-[1.15fr_1fr] lg:py-24" aria-labelledby="hero-title">
-          <div>
-            <p className="eyebrow">
+        <section className="relative isolate overflow-hidden bg-brand-900 text-brand-100" aria-labelledby="hero-title">
+          <div className="absolute inset-y-0 right-0 -z-10 w-full overflow-hidden lg:w-[60%]">
+            <img
+              src="/images/carpenter-1952.jpg"
+              alt="An older carpenter at his workbench in 1952, both hands on a wooden plane, looking up at the camera."
+              className="kenburns h-full w-full object-cover object-[70%_30%] opacity-[0.16] lg:opacity-90"
+            />
+          </div>
+          <div aria-hidden="true" className="absolute inset-y-0 right-0 -z-10 hidden w-[60%] bg-gradient-to-r from-brand-900 via-brand-900/55 to-brand-900/5 lg:block" />
+          <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-brand-900 to-transparent" />
+
+          <div className="container-wide flex min-h-[100svh] flex-col justify-center pb-12 pt-24">
+            <p className="rise text-sm font-semibold uppercase tracking-[0.16em] text-warm-400">
               {EVENT_NAME} · {TEAM_NAME}
             </p>
-            <h1 id="hero-title" className="mt-5 text-[2.6rem] leading-[1.08] sm:text-6xl">
-              Their bodies deserve rest. Their experience deserves to live on.
+            <h1 id="hero-title" className="mt-5 max-w-3xl text-[2.6rem] leading-[1.04] text-white sm:text-6xl 2xl:text-[4.4rem]">
+              <span className="rise block" style={{ animationDelay: "120ms" }}>
+                Their bodies deserve rest.
+              </span>
+              <span className="rise relative block" style={{ animationDelay: "380ms" }}>
+                Their experience deserves to{" "}
+                <span className="relative whitespace-nowrap text-warm-400">
+                  live on.
+                  <svg aria-hidden="true" viewBox="0 0 320 18" preserveAspectRatio="none" className="absolute -bottom-2 left-0 h-3 w-full">
+                    <path className="draw" d="M3 12 C 70 2, 150 16, 317 6" fill="none" stroke="#D8AB67" strokeWidth="4" strokeLinecap="round" />
+                  </svg>
+                </span>
+              </span>
             </h1>
-            <p className="mt-6 max-w-xl text-xl leading-relaxed text-muted">
-              After decades of physically demanding work, many older adults face age discrimination and the feeling that what they know no
-              longer matters. TogetherWeGrow connects them with younger people who need that knowledge, so they can earn from experience,
-              learn at their own pace, and find gentler work without starting over.
+            <p className="rise mt-7 max-w-xl text-xl leading-relaxed" style={{ animationDelay: "650ms" }}>
+              After decades of hard physical work, too many people are told they're finished. A younger generation is searching for exactly
+              what they know. We introduce them.
             </p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Link to="/start" className="btn-primary min-h-[60px] px-7 text-lg">
+            <TypedQuestion />
+            <div className="rise mt-7 flex flex-wrap gap-3" style={{ animationDelay: "1100ms" }}>
+              <Link to="/start" className="btn min-h-[60px] bg-warm-400 px-7 text-lg font-semibold text-brand-900 hover:bg-warm-200">
                 Start here <ArrowRight aria-hidden="true" className="h-5 w-5" />
               </Link>
-              <a href="#how" className="btn-secondary min-h-[60px] px-7 text-lg">
-                See how it works
+              <a href="#story" className="btn min-h-[60px] border-2 border-brand-100/50 px-7 text-lg text-white hover:bg-white/10">
+                Read the story <ArrowDown aria-hidden="true" className="h-5 w-5" />
               </a>
             </div>
-            <p className="mt-5 text-muted">Free to try. No sign-up. One question per screen.</p>
           </div>
-          <figure>
-            <img
-              src="/images/welding-mentor.jpg"
-              alt="An experienced instructor guides a younger learner through a welding task in a workshop."
-              className="aspect-[4/3] w-full rounded-[2rem] object-cover object-[30%_22%] shadow-lg lg:aspect-[5/6]"
-            />
-            <figcaption className="mt-3 text-sm text-muted">
-              Photo: Rwebogora, CC BY-SA 4.0, via Wikimedia Commons. The people pictured are not affiliated with TogetherWeGrow.
-            </figcaption>
-          </figure>
+          <p className="absolute bottom-3 right-4 max-w-[70%] text-right text-xs text-brand-100">Photo: Priskin János, 1952. Public domain, via Wikimedia Commons.</p>
         </section>
 
-        {/* The challenge */}
-        <section id="challenge" className="scroll-mt-4 border-y border-warm-200 bg-white py-16 lg:py-24" aria-labelledby="challenge-title">
-          <div className="container-page">
-            <p className="eyebrow">The challenge</p>
-            <h2 id="challenge-title" className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl">
-              The hardest barrier isn't technology or age. It's the fear of no longer being needed.
-            </h2>
-            <ul className="mt-12 grid gap-6 md:grid-cols-3">
-              {BARRIERS.map((b) => (
-                <li key={b.title} className="rounded-3xl bg-warm-50 p-7 ring-1 ring-warm-200">
-                  <h3 className="font-sans text-xl font-semibold text-brand-900">{b.title}</h3>
-                  <p className="mt-3 text-lg leading-relaxed text-muted">{b.body}</p>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-10 max-w-3xl text-xl leading-relaxed">
-              Meanwhile, younger people are searching for exactly what these workers know: practical skills, honest career advice, and someone
-              patient to learn from. The two groups rarely meet.
-            </p>
-          </div>
-        </section>
-
-        {/* Stories */}
-        <section className="container-page py-16 lg:py-24" aria-labelledby="stories-title">
-          <p className="eyebrow">Who it's for</p>
-          <h2 id="stories-title" className="mt-4 text-4xl sm:text-5xl">
-            Three people, three first steps
-          </h2>
-          <p className="mt-4 text-lg text-muted">Illustrative examples of how people would use TogetherWeGrow.</p>
-          <ul className="mt-12 grid gap-6 lg:grid-cols-3">
-            {STORIES.map((s) => (
-              <li key={s.who} className="flex flex-col rounded-3xl bg-white p-7 ring-1 ring-warm-200">
-                <span aria-hidden="true" className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-800">
-                  <s.icon className="h-7 w-7" />
-                </span>
-                <h3 className="mt-5 font-sans text-xl font-semibold text-brand-900">{s.who}</h3>
-                <p className="mt-3 flex-1 text-lg leading-relaxed text-muted">{s.what}</p>
-                <Link to={s.to} className="link mt-6 inline-flex items-center gap-2 text-lg">
-                  {s.cta} <ArrowRight aria-hidden="true" className="h-5 w-5" />
-                </Link>
-              </li>
+        {/* A moving band of trades */}
+        <section className="overflow-hidden border-b border-warm-200 bg-warm-100/70 py-5" aria-label="Whose experience we mean">
+          <p className="sr-only">For {TRADES.join(", ").toLowerCase()}, and everyone whose skill lives in their hands.</p>
+          <div aria-hidden="true" className="marquee flex w-max gap-10 whitespace-nowrap font-serif text-2xl text-brand-800">
+            {[...TRADES, ...TRADES].map((t, i) => (
+              <span key={i} className="flex items-center gap-10">
+                {t} <span className="text-warm-500">✦</span>
+              </span>
             ))}
-          </ul>
+          </div>
         </section>
 
-        {/* How it works */}
-        <section id="how" className="scroll-mt-4 bg-brand-900 py-16 text-brand-100 lg:py-24" aria-labelledby="how-title">
-          <div className="container-page grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-warm-400">How it works</p>
-              <h2 id="how-title" className="mt-4 text-4xl leading-tight text-white sm:text-5xl">
-                It begins with one simple question.
+        {/* The story */}
+        <section id="story" className="container-page scroll-mt-20 py-20 lg:py-28" aria-labelledby="story-title">
+          <div className="grid gap-12 lg:grid-cols-[1fr_1.05fr] lg:gap-20">
+            <div className="lg:sticky lg:top-28 lg:self-start">
+              <p className="eyebrow">A story we kept hearing</p>
+              <h2 id="story-title" className="mt-4 text-4xl leading-tight sm:text-5xl">
+                The hardest barrier isn't technology or age. It's the fear of no longer being needed.
               </h2>
-              <p className="mt-5 text-xl leading-relaxed">
-                No menus, no account, no jargon. Each screen asks one thing, in plain words, and the next step is always obvious.
-              </p>
-              <ul className="mt-8 grid gap-4 sm:grid-cols-2">
-                {DESIGN.map((d) => (
-                  <li key={d.text} className="flex items-start gap-3 text-lg">
-                    <d.icon aria-hidden="true" className="mt-1 h-5 w-5 shrink-0 text-warm-400" />
-                    {d.text}
-                  </li>
-                ))}
-              </ul>
+              <figure className="floaty mt-10 hidden max-w-md rotate-[-2deg] rounded-2xl bg-white p-3 pb-4 shadow-xl ring-1 ring-warm-200 lg:block">
+                <img
+                  src="/images/welding-mentor.jpg"
+                  alt="An experienced welder watches closely as a younger worker welds beside him."
+                  className="aspect-[4/3] w-full rounded-xl object-cover object-[30%_22%]"
+                />
+                <figcaption className="mt-3 px-1 text-sm text-muted">What gets passed on, when someone is there to receive it. Photo: Rwebogora, CC BY-SA 4.0.</figcaption>
+              </figure>
             </div>
-
-            <div className="rounded-[2rem] bg-warm-50 p-6 text-ink shadow-xl sm:p-8">
-              <p className="text-center font-serif text-3xl text-brand-900 sm:text-4xl">Who are you?</p>
-              <div className="mt-6 space-y-3" aria-hidden="true">
-                {[
-                  ["🌳", "I'm an Older Adult", "Share what you know · Learn something new · Get help"],
-                  ["🌱", "I'm a Younger Adult", "Learn from experienced people · Share your skills"],
-                ].map(([e, l, s]) => (
-                  <div key={l} className="flex items-center gap-4 rounded-2xl border-2 border-warm-200 bg-white p-4">
-                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-2xl">{e}</span>
-                    <span className="min-w-0">
-                      <span className="block text-lg font-semibold text-brand-900">{l}</span>
-                      <span className="block text-muted">{s}</span>
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <Link to="/start" className="btn-primary mt-6 min-h-[56px] w-full text-lg">
-                Try it yourself <ArrowRight aria-hidden="true" className="h-5 w-5" />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* What's different */}
-        <section className="container-page py-16 lg:py-24" aria-labelledby="different-title">
-          <p className="eyebrow">What makes it different</p>
-          <h2 id="different-title" className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl">
-            Built on trust and human connection, not complicated applications.
-          </h2>
-          <ul className="mt-12 grid gap-6 md:grid-cols-2">
-            {DIFFERENT.map((d) => (
-              <li key={d.title} className="rounded-3xl bg-white p-7 ring-1 ring-warm-200">
-                <d.icon aria-hidden="true" className="h-8 w-8 text-warm-700" />
-                <h3 className="mt-4 font-sans text-xl font-semibold text-brand-900">{d.title}</h3>
-                <p className="mt-3 text-lg leading-relaxed text-muted">{d.body}</p>
-                <Link to={d.to} className="link mt-5 inline-flex items-center gap-2">
-                  See it <span className="sr-only">: {d.title}</span>
-                  <ArrowRight aria-hidden="true" className="h-4 w-4" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-14 rounded-3xl bg-brand-100/60 p-7 sm:p-10">
-            <h3 className="font-sans text-2xl font-semibold text-brand-900">Learning from those who came before</h3>
-            <p className="mt-3 text-lg leading-relaxed">
-              Senior Planet by AARP offers free technology training. AARP Foundation's BACK TO WORK 50+ provides career coaching. CoGenerate
-              brings generations together around shared work. Each does important work on one part of this challenge. TogetherWeGrow brings
-              the parts together in one judgment-free place: two-way skill exchange, paid mentoring, and gentler work.
-            </p>
-          </div>
-        </section>
-
-        {/* Values */}
-        <section className="border-y border-warm-200 bg-white py-16 lg:py-24" aria-labelledby="values-title">
-          <div className="container-page">
-            <p className="eyebrow">What we believe</p>
-            <h2 id="values-title" className="mt-4 text-4xl sm:text-5xl">
-              The values behind every screen
-            </h2>
-            <ol className="mt-12 divide-y divide-warm-200">
-              {VALUES.map((v) => (
-                <li key={v.name} className="grid gap-2 py-6 md:grid-cols-[14rem_1fr] md:gap-8">
-                  <h3 className="font-serif text-3xl text-brand-900">{v.name}</h3>
-                  <p className="text-xl leading-relaxed text-muted">{v.how}</p>
+            <ol className="space-y-12 lg:space-y-20 lg:pt-6">
+              {CHAPTERS.map((c) => (
+                <li key={c.n}>
+                  <Reveal>
+                    <div className="flex gap-5 sm:gap-7">
+                      <span aria-hidden="true" className="w-10 shrink-0 font-serif text-4xl text-warm-600 sm:w-14 sm:text-5xl">
+                        {c.n}
+                      </span>
+                      <div className="border-l-2 border-warm-200 pl-5 sm:pl-7">
+                        <h3 className="text-2xl leading-snug sm:text-[2rem]">{c.title}</h3>
+                        <p className="mt-3 text-xl leading-relaxed text-muted">{c.body}</p>
+                      </div>
+                    </div>
+                  </Reveal>
                 </li>
               ))}
+              <li>
+                <Reveal>
+                  <p className="text-muted">Robert and Maya are illustrative. The situation they're in is the challenge our team set out to solve.</p>
+                </Reveal>
+              </li>
             </ol>
           </div>
         </section>
 
-        {/* Impact */}
-        <section id="impact" className="container-page scroll-mt-4 py-16 lg:py-24" aria-labelledby="impact-title">
-          <p className="eyebrow">Impact</p>
-          <h2 id="impact-title" className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl">
-            How we'll know it's working
-          </h2>
-          <p className="mt-5 max-w-3xl text-xl leading-relaxed text-muted">
-            We'll start with a local pilot, aiming to reach hundreds of older adults and young learners, and thousands as TogetherWeGrow
-            grows. These are the pilot's goals.
-          </p>
-          <ul className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {METRICS.map(([n, label]) => (
-              <li key={label} className="rounded-3xl bg-white p-6 ring-1 ring-warm-200">
-                <p className="font-serif text-4xl text-brand-800">{n}</p>
-                <p className="mt-2 text-lg leading-snug">{label}</p>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-8 text-lg">
-            The site measures these as people use it, anonymously.{" "}
-            <Link to="/impact" className="link">
-              See how we're doing so far
-            </Link>
-          </p>
+        {/* A proverb */}
+        <section className="relative isolate overflow-hidden bg-brand-900 py-24 text-center text-brand-100 lg:py-36" aria-labelledby="proverb">
+          <div aria-hidden="true" className="ember absolute left-1/2 top-1/2 -z-10 h-[34rem] w-[34rem] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-warm-600/25 blur-3xl" />
+          <div className="container-page">
+            <Reveal>
+              <blockquote>
+                <p id="proverb" className="mx-auto max-w-4xl font-serif text-4xl leading-tight text-white sm:text-6xl">
+                  “When an elder dies, a library burns to the ground.”
+                </p>
+                <footer className="mt-6 text-lg">A saying made famous by the Malian writer Amadou Hampâté Bâ</footer>
+              </blockquote>
+            </Reveal>
+            <Reveal delay={250}>
+              <p className="mx-auto mt-12 max-w-2xl font-serif text-2xl leading-snug text-warm-400 sm:text-3xl">
+                We don't have to wait for the fire. We can open the library while the librarian is still here.
+              </p>
+            </Reveal>
+          </div>
         </section>
 
-        {/* Sustainability */}
-        <section className="bg-warm-100/70 py-16 lg:py-24" aria-labelledby="model-title">
-          <div className="container-page">
-            <p className="eyebrow">Sustainability</p>
-            <h2 id="model-title" className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl">
-              Fair to older adults, built to last
+        {/* Who needs you */}
+        <section className="container-page py-20 lg:py-28" aria-labelledby="needs-title">
+          <Reveal>
+            <p className="eyebrow">Try it</p>
+            <h2 id="needs-title" className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl">
+              What do you know that someone is trying to learn?
             </h2>
-            <div className="mt-12 grid gap-10 lg:grid-cols-2">
-              <div>
-                <h3 className="font-sans text-2xl font-semibold text-brand-900">How it pays for itself</h3>
-                <ul className="mt-5 space-y-4">
-                  {REVENUE.map((r) => (
-                    <li key={r.title} className="rounded-3xl bg-white p-6 ring-1 ring-warm-200">
-                      <p className="text-xl font-semibold text-brand-900">{r.title}</p>
-                      <p className="mt-1 text-lg text-muted">{r.body}</p>
+            <p className="mt-4 max-w-2xl text-xl leading-relaxed text-muted">Pick a kind of work. See what people starting out are asking.</p>
+          </Reveal>
+          <WhoNeedsYou />
+        </section>
+
+        {/* How it works */}
+        <section id="how" className="scroll-mt-20 border-y border-warm-200 bg-white py-20 lg:py-28" aria-labelledby="how-title">
+          <div className="container-page">
+            <Reveal>
+              <p className="eyebrow">How it works</p>
+              <h2 id="how-title" className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl">
+                A fair exchange, in both directions.
+              </h2>
+            </Reveal>
+
+            <Reveal className="mt-12">
+              <div className="grid items-stretch gap-4 md:grid-cols-[1fr_auto_1fr]">
+                <div className="rounded-[2rem] bg-brand-100/70 p-7 sm:p-9">
+                  <p aria-hidden="true" className="text-5xl">
+                    🌳
+                  </p>
+                  <h3 className="mt-4 text-2xl">Older adults give</h3>
+                  <p className="mt-2 text-xl leading-relaxed text-muted">Decades of know-how. Honest career advice. Paid one-to-one sessions, at a price they set.</p>
+                </div>
+                <div aria-hidden="true" className="flex items-center justify-center">
+                  <svg viewBox="0 0 120 90" className="h-20 w-28 rotate-90 md:h-24 md:w-32 md:rotate-0">
+                    <path className="flow" d="M8 28 H104" fill="none" stroke="#234638" strokeWidth="3" strokeLinecap="round" />
+                    <path d="M96 20 L106 28 L96 36" fill="none" stroke="#234638" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    <path className="flow" d="M112 62 H16" fill="none" stroke="#A4553A" strokeWidth="3" strokeLinecap="round" />
+                    <path d="M24 54 L14 62 L24 70" fill="none" stroke="#A4553A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div className="rounded-[2rem] bg-warm-100 p-7 sm:p-9">
+                  <p aria-hidden="true" className="text-5xl">
+                    🌱
+                  </p>
+                  <h3 className="mt-4 text-2xl">Younger adults give</h3>
+                  <p className="mt-2 text-xl leading-relaxed text-muted">Patience with phones, video calls and online forms. Fresh questions. Someone who wants to listen.</p>
+                </div>
+              </div>
+            </Reveal>
+
+            <div className="mt-16 grid gap-12 lg:grid-cols-2 lg:items-center">
+              <Reveal>
+                <h3 className="text-3xl leading-tight sm:text-4xl">It begins with one simple question.</h3>
+                <p className="mt-4 text-xl leading-relaxed text-muted">
+                  No menus, no jargon, no long sign-up. A first name is enough. Each screen asks one thing in plain words, and the next step is
+                  always obvious.
+                </p>
+                <ul className="mt-7 grid gap-4 sm:grid-cols-2">
+                  {DESIGN.map((d) => (
+                    <li key={d.text} className="flex items-start gap-3 text-lg">
+                      <d.icon aria-hidden="true" className="mt-1 h-5 w-5 shrink-0 text-warm-600" />
+                      {d.text}
                     </li>
                   ))}
                 </ul>
-                <p className="mt-5 text-lg leading-relaxed">
-                  Repeat sessions and long-term partnerships bring steady income. As more people join, the shared platform supports more
-                  sessions at little extra cost.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-sans text-2xl font-semibold text-brand-900">What a pilot costs each month</h3>
-                <div className="mt-5 overflow-x-auto rounded-3xl bg-white ring-1 ring-warm-200">
-                  <table className="w-full min-w-[22rem] text-left text-lg">
-                    <caption className="sr-only">Estimated monthly pilot costs</caption>
-                    <thead>
-                      <tr className="border-b border-warm-200 text-base text-muted">
-                        <th scope="col" className="p-4 font-medium">
-                          Cost
-                        </th>
-                        <th scope="col" className="p-4 text-right font-medium">
-                          Per month
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {COSTS.map(([what, detail, amount]) => (
-                        <tr key={what} className="border-b border-warm-200">
-                          <th scope="row" className="p-4 font-normal">
-                            <span className="block font-semibold text-brand-900">{what}</span>
-                            <span className="block text-base text-muted">{detail}</span>
-                          </th>
-                          <td className="whitespace-nowrap p-4 text-right">{amount}</td>
-                        </tr>
-                      ))}
-                      <tr>
-                        <th scope="row" className="p-4 text-left font-semibold text-brand-900">
-                          Estimated total
-                        </th>
-                        <td className="whitespace-nowrap p-4 text-right font-semibold text-brand-900">$100–825</td>
-                      </tr>
-                    </tbody>
-                  </table>
+              </Reveal>
+              <Reveal delay={150}>
+                <div className="floaty mx-auto max-w-md rounded-[2.2rem] bg-warm-50 p-6 shadow-2xl ring-1 ring-warm-200 sm:p-8">
+                  <p className="text-center font-serif text-3xl text-brand-900 sm:text-4xl">Who are you?</p>
+                  <div className="mt-6 space-y-3" aria-hidden="true">
+                    {[
+                      ["🌳", "I'm an Older Adult", "Share what you know · Learn · Get help"],
+                      ["🌱", "I'm a Younger Adult", "Learn from experience · Share your skills"],
+                    ].map(([e, l, s]) => (
+                      <div key={l} className="flex items-center gap-4 rounded-2xl border-2 border-warm-200 bg-white p-4">
+                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-2xl">{e}</span>
+                        <span className="min-w-0">
+                          <span className="block text-lg font-semibold text-brand-900">{l}</span>
+                          <span className="block text-muted">{s}</span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <Link to="/start" className="btn-primary mt-6 min-h-[56px] w-full text-lg">
+                    Answer it yourself <ArrowRight aria-hidden="true" className="h-5 w-5" />
+                  </Link>
                 </div>
-                <p className="mt-4 text-muted">Excludes paid staff salaries and major development. Payments aren't handled through the site yet.</p>
-              </div>
+              </Reveal>
             </div>
           </div>
         </section>
 
-        {/* Partners */}
-        <section className="container-page py-16 lg:py-24" aria-labelledby="partners-title">
-          <p className="eyebrow">Reaching people</p>
-          <h2 id="partners-title" className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl">
-            Growing through trust, one family at a time
-          </h2>
-          <p className="mt-5 max-w-3xl text-xl leading-relaxed text-muted">
-            Older adults are far more comfortable exploring something introduced by someone they love than an unfamiliar website. So families
-            come first, supported by the community around them.
-          </p>
-          <ul className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {PARTNERS.map(([who, why]) => (
-              <li key={who} className="rounded-3xl bg-white p-6 ring-1 ring-warm-200">
-                <p className="text-xl font-semibold text-brand-900">{who}</p>
-                <p className="mt-2 text-lg text-muted">{why}</p>
+        {/* What makes it different */}
+        <section className="container-page py-20 lg:py-28" aria-labelledby="different-title">
+          <Reveal>
+            <p className="eyebrow">What makes it different</p>
+            <h2 id="different-title" className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl">
+              Built on trust, not on applications.
+            </h2>
+          </Reveal>
+          <ul className="mt-12 grid gap-6 md:grid-cols-2">
+            {DIFFERENT.map((d, i) => (
+              <li key={d.title}>
+                <Reveal delay={i * 90} className="h-full">
+                  <div className="lift flex h-full flex-col rounded-3xl bg-white p-7 ring-1 ring-warm-200 sm:p-8">
+                    <span aria-hidden="true" className="flex h-14 w-14 items-center justify-center rounded-2xl bg-warm-100 text-warm-700">
+                      <d.icon className="h-7 w-7" />
+                    </span>
+                    <h3 className="mt-5 text-2xl leading-snug">{d.title}</h3>
+                    <p className="mt-3 flex-1 text-lg leading-relaxed text-muted">{d.body}</p>
+                    <Link to={d.to} className="link mt-5 inline-flex items-center gap-2 text-lg">
+                      {d.cta} <ArrowRight aria-hidden="true" className="h-5 w-5" />
+                    </Link>
+                  </div>
+                </Reveal>
               </li>
             ))}
           </ul>
-          <p className="mt-6 text-lg text-muted">
-            Apart from families, these are organizations we hope to approach. None of them has agreed to work with us yet.
-          </p>
+          <Reveal className="mt-12">
+            <p className="max-w-4xl text-lg leading-relaxed text-muted">
+              <strong className="text-brand-900">Standing on good shoulders.</strong> Senior Planet by AARP teaches technology. AARP Foundation's BACK
+              TO WORK 50+ offers career coaching. CoGenerate brings generations together. Each does vital work on one part of this challenge.
+              TogetherWeGrow joins the parts in one judgment-free place: two-way skill exchange, paid mentoring, and gentler work.
+            </p>
+          </Reveal>
+        </section>
+
+        {/* Learning goes both ways */}
+        <section className="bg-brand-100/60 py-20 lg:py-28" aria-labelledby="both-title">
+          <div className="container-page grid gap-12 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+            <Reveal>
+              <div className="grid grid-cols-5 gap-4">
+                <figure className="col-span-3">
+                  <img
+                    src="/images/learning-together.jpg"
+                    alt="An older woman types at a computer in a library while a helper stands beside her."
+                    className="aspect-[4/5] w-full rounded-3xl object-cover object-[60%_40%] shadow-lg"
+                    loading="lazy"
+                  />
+                </figure>
+                <figure className="col-span-2 mt-12">
+                  <img
+                    src="/images/smiling-laptop.jpg"
+                    alt="An older woman lifts her glasses and smiles at something on her laptop."
+                    className="aspect-[3/4] w-full rounded-3xl object-cover object-[70%_30%] shadow-lg"
+                    loading="lazy"
+                  />
+                </figure>
+              </div>
+              <p className="mt-4 text-sm text-muted">
+                Photos: Ivana Guslarevic (CC BY-SA 4.0) and Shixart1985 (CC BY 2.0), via Wikimedia Commons. The people pictured are not affiliated with
+                TogetherWeGrow.
+              </p>
+            </Reveal>
+            <Reveal delay={150}>
+              <p className="eyebrow">Learning goes both ways</p>
+              <h2 id="both-title" className="mt-4 text-4xl leading-tight sm:text-5xl">
+                Nobody is too old to learn. Nobody is too young to teach.
+              </h2>
+              <p className="mt-5 text-xl leading-relaxed text-muted">
+                The same person who can teach you to read the grain of a board may want help joining a video call with her grandchildren. So she
+                gets small, patient steps, read aloud if she likes, and a real person whenever she'd rather not do it alone.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link to="/older/learn" className="btn-primary min-h-[56px] px-6 text-lg">
+                  See a step-by-step guide
+                </Link>
+                <Link to="/younger/share" className="btn-secondary min-h-[56px] px-6 text-lg">
+                  Become a helper
+                </Link>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* Values */}
+        <section id="values" className="container-page scroll-mt-20 py-20 lg:py-28" aria-labelledby="values-title">
+          <Reveal>
+            <p className="eyebrow">What we believe</p>
+            <h2 id="values-title" className="mt-4 text-4xl sm:text-5xl">
+              Five words we build by
+            </h2>
+          </Reveal>
+          <ol className="mt-10 divide-y divide-warm-200 border-y border-warm-200">
+            {VALUES.map((v, i) => (
+              <li key={v.name}>
+                <Reveal delay={i * 60}>
+                  <div className="group grid gap-2 py-7 md:grid-cols-[18rem_1fr] md:items-baseline md:gap-8">
+                    <h3 className="font-serif text-4xl text-brand-900 transition-colors group-hover:text-warm-600 sm:text-5xl">{v.name}</h3>
+                    <p className="text-xl leading-relaxed text-muted">{v.how}</p>
+                  </div>
+                </Reveal>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* Reaching people */}
+        <section className="border-y border-warm-200 bg-white py-20 lg:py-28" aria-labelledby="partners-title">
+          <div className="container-page">
+            <Reveal>
+              <p className="eyebrow">Reaching people</p>
+              <h2 id="partners-title" className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl">
+                Growing the way trust grows: one family at a time.
+              </h2>
+              <p className="mt-5 max-w-3xl text-xl leading-relaxed text-muted">
+                Nobody's grandfather signs up because of an advert. He tries it because someone he loves sat down beside him. So families come
+                first, with the community around them.
+              </p>
+            </Reveal>
+            <ul className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {PARTNERS.map(([who, why], i) => (
+                <li key={who}>
+                  <Reveal delay={i * 60} className="h-full">
+                    <div className="h-full rounded-3xl bg-warm-50 p-6 ring-1 ring-warm-200">
+                      <p className="text-xl font-semibold text-brand-900">{who}</p>
+                      <p className="mt-2 text-lg text-muted">{why}</p>
+                    </div>
+                  </Reveal>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 text-lg text-muted">Apart from families, these are organizations we hope to approach. None of them has agreed to work with us yet.</p>
+          </div>
         </section>
 
         {/* Team */}
-        <section id="team" className="scroll-mt-4 border-t border-warm-200 bg-white py-16 lg:py-24" aria-labelledby="team-title">
-          <div className="container-page grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-start">
-            <div>
+        <section id="team" className="container-page scroll-mt-20 py-20 lg:py-28" aria-labelledby="team-title">
+          <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-start">
+            <Reveal>
               <p className="eyebrow">The team</p>
               <h2 id="team-title" className="mt-4 text-4xl sm:text-5xl">
                 {TEAM_NAME}
               </h2>
               <p className="mt-5 text-xl leading-relaxed">
-                We built TogetherWeGrow for {EVENT_NAME}, in the Aging and Labor track. We believe every generation deserves to be heard,
-                valued, and given the chance to grow.
+                We built TogetherWeGrow for {EVENT_NAME}, in the Aging and Labor track. We believe everyone whose hands built something deserves to
+                be asked what they know.
               </p>
               {TEAM.length > 0 && (
                 <ul className="mt-8 grid gap-4 sm:grid-cols-2">
                   {TEAM.map((m) => (
-                    <li key={m.name} className="flex items-center gap-4 rounded-2xl bg-warm-50 p-4 ring-1 ring-warm-200">
+                    <li key={m.name} className="flex items-center gap-4 rounded-2xl bg-white p-4 ring-1 ring-warm-200">
                       <span aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-700 font-serif text-xl text-white">
                         {m.name.trim()[0]}
                       </span>
@@ -492,35 +629,44 @@ export default function Landing() {
                   ))}
                 </ul>
               )}
-            </div>
-            <blockquote className="rounded-[2rem] bg-brand-900 p-8 text-brand-100 sm:p-10">
-              <p className="font-serif text-2xl leading-snug text-white sm:text-3xl">
-                “We want a community where older adults feel heard, younger people learn to listen, and no one's lifetime of hard work is
-                forgotten.”
-              </p>
-              <footer className="mt-5 text-lg">From our team's mission</footer>
-            </blockquote>
+            </Reveal>
+            <Reveal delay={150}>
+              <blockquote className="rounded-[2rem] bg-brand-900 p-8 text-brand-100 sm:p-10">
+                <p className="font-serif text-2xl leading-snug text-white sm:text-3xl">
+                  “We want a community where older adults feel heard, younger people learn to listen, and no one's lifetime of hard work is
+                  forgotten.”
+                </p>
+                <footer className="mt-5 text-lg">From our team's mission</footer>
+              </blockquote>
+            </Reveal>
           </div>
         </section>
 
         {/* Closing */}
-        <section className="container-page py-16 lg:py-24" aria-labelledby="cta-title">
-          <div className="rounded-[2rem] bg-brand-100/70 p-8 text-center sm:p-14">
-            <h2 id="cta-title" className="text-4xl leading-tight sm:text-5xl">
-              Their wisdom never loses its value.
-            </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-xl leading-relaxed text-muted">
-              Begin the way an older adult or a younger adult would. It takes about two minutes, and a first name is all you need.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Link to="/start" className="btn-primary min-h-[60px] px-7 text-lg">
-                Start here <ArrowRight aria-hidden="true" className="h-5 w-5" />
-              </Link>
-              <Link to="/family" className="btn-secondary min-h-[60px] px-7 text-lg">
-                <Users aria-hidden="true" className="h-5 w-5" /> Invite someone you love
-              </Link>
+        <section className="container-page pb-20 lg:pb-28" aria-labelledby="cta-title">
+          <Reveal>
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-brand-900 px-7 py-14 text-center text-brand-100 sm:px-14 sm:py-20">
+              <p aria-hidden="true" className="text-5xl">
+                🌳 <span className="mx-2 text-warm-400">·</span> 🌱
+              </p>
+              <p className="mx-auto mt-6 max-w-3xl font-serif text-2xl leading-snug sm:text-3xl">
+                “A society grows great when the old plant trees in whose shade they know they will never sit.”
+              </p>
+              <p className="mt-3">A saying often shared as a Greek proverb</p>
+              <h2 id="cta-title" className="mx-auto mt-10 max-w-3xl text-4xl leading-tight text-white sm:text-5xl">
+                We just want the young to come and sit beside them.
+              </h2>
+              <div className="mt-10 flex flex-wrap justify-center gap-3">
+                <Link to="/start" className="btn min-h-[60px] bg-warm-400 px-7 text-lg font-semibold text-brand-900 hover:bg-warm-200">
+                  Start here <ArrowRight aria-hidden="true" className="h-5 w-5" />
+                </Link>
+                <Link to="/family" className="btn min-h-[60px] border-2 border-brand-100/50 px-7 text-lg text-white hover:bg-white/10">
+                  <Users aria-hidden="true" className="h-5 w-5" /> Invite someone you love
+                </Link>
+              </div>
+              <p className="mt-6">It takes about two minutes. A first name is all you need.</p>
             </div>
-          </div>
+          </Reveal>
         </section>
       </main>
 
@@ -529,38 +675,30 @@ export default function Landing() {
           <div>
             <Logo />
             <p className="mt-4 max-w-xl text-muted">
-              Built by {TEAM_NAME} for {EVENT_NAME}. We never sell your information or show adverts, and no payments are taken through the
-              site.
+              Built by {TEAM_NAME} for {EVENT_NAME}. We never sell your information or show adverts, and no payments are taken through the site.
+            </p>
+            <p className="mt-2 text-sm text-muted">
+              Photo credits and licenses are listed beside each image. The people pictured are not affiliated with TogetherWeGrow.
             </p>
           </div>
           <nav aria-label="Footer">
             <ul className="grid gap-2 text-lg sm:grid-cols-2">
-              <li>
-                <Link to="/start" className="link">
-                  Start here
-                </Link>
-              </li>
-              <li>
-                <Link to="/impact" className="link">
-                  Our goals
-                </Link>
-              </li>
-              <li>
-                <Link to="/family" className="link">
-                  Invite someone you love
-                </Link>
-              </li>
-              <li>
-                <Link to="/older/roles" className="inline-flex items-center gap-1 link">
-                  <Briefcase aria-hidden="true" className="h-4 w-4" /> Gentler work
-                </Link>
-              </li>
-              <li className="sm:col-span-2">
-                <Link to="/explore" className="link">
-                  Explore every feature
-                </Link>{" "}
-                <span className="text-base text-muted">(the full website)</span>
-              </li>
+              {[
+                ["/start", "Start here"],
+                ["/family", "Invite someone you love"],
+                ["/older/roles", "Gentler work"],
+                ["/impact", "Our goals"],
+                ["/safety", "Safety"],
+                ["/privacy", "Privacy"],
+                ["/terms", "Terms"],
+                ["/explore", "The full website"],
+              ].map(([to, label]) => (
+                <li key={to}>
+                  <Link to={to} className="link">
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
         </div>
