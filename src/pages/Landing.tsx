@@ -1,16 +1,20 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowDown,
   ArrowRight,
+  Award,
   Coins,
+  Ear,
   Heart,
+  HeartHandshake,
   HelpCircle,
   Languages,
   MessageSquareText,
   Mic,
   MousePointerClick,
   ShieldCheck,
+  Smile,
   Type,
   Undo2,
   Users,
@@ -41,89 +45,43 @@ const ASKED: [string, string][] = [
 const TRADES = ["Carpenters", "Nurses", "Welders", "Cooks", "Farmers", "Seamstresses", "Mechanics", "Electricians", "Bookkeepers", "Masons", "Machinists", "Caregivers"];
 
 const CHAPTERS = [
-  {
-    n: "I",
-    title: "He could tell a good joint by the sound it made.",
-    body: "Thirty-eight years at the bench. Robert never needed a manual. His hands remembered everything.",
-  },
-  {
-    n: "II",
-    title: "Then his knees said what he wouldn't.",
-    body: "The lifting got harder. The job ads moved online and asked for “digital natives.” The interviews went to younger hands.",
-  },
-  {
-    n: "III",
-    title: "The worst part wasn't the money.",
-    body: "It was the quiet. The feeling that everything he knew had stopped mattering on the day he stopped lifting.",
-  },
-  {
-    n: "IV",
-    title: "Three streets away, Maya was on her ninth video about dovetail joints.",
-    body: "She didn't need another video. She needed ten minutes with someone who had cut ten thousand of them.",
-  },
-  {
-    n: "V",
-    title: "They never met.",
-    body: "Not because they didn't need each other. Because nothing was built to introduce them. So we built it.",
-  },
+  { n: "I", title: "He could tell a good joint by the sound it made.", body: "Thirty-eight years at the bench." },
+  { n: "II", title: "Then his knees said what he wouldn't.", body: "The job ads asked for “digital natives.”" },
+  { n: "III", title: "The worst part wasn't the money. It was the quiet.", body: "" },
+  { n: "IV", title: "Three streets away, Maya was on her ninth video about dovetail joints.", body: "She needed ten minutes with someone who'd cut ten thousand." },
+  { n: "V", title: "They never met. So we built the introduction.", body: "" },
 ];
 
 const DESIGN = [
   { icon: MousePointerClick, text: "One question per screen" },
   { icon: Mic, text: "Speak or type" },
   { icon: Type, text: "Large text, large buttons" },
-  { icon: Undo2, text: "Back and Home, always in the same place" },
+  { icon: Undo2, text: "Back and Home, always there" },
   { icon: Languages, text: "Many languages" },
-  { icon: ShieldCheck, text: "Nothing shared without a clear yes" },
+  { icon: ShieldCheck, text: "Nothing shared without a yes" },
 ];
 
 const DIFFERENT = [
-  {
-    icon: Heart,
-    title: "It starts with someone they love",
-    body: "People try something new when someone they trust suggests it. A guided invitation helps a son, daughter or grandchild begin that conversation, in words that honor a lifetime of work.",
-    to: "/family",
-    cta: "Write an invitation",
-  },
-  {
-    icon: MessageSquareText,
-    title: "“Clutch,” meet “measure twice, cut once”",
-    body: "Every generation has its own way of speaking. Vibe Check explains an expression or softens a message, so nobody has to feel embarrassed for asking.",
-    to: "/growth/understand",
-    cta: "Try Vibe Check",
-  },
-  {
-    icon: HelpCircle,
-    title: "No forms. Just a question.",
-    body: "People describe their work in their own words, or answer something a person starting out is really asking. Their skills are drawn from what they said. Nothing is invented.",
-    to: "/roots/share",
-    cta: "See the first question",
-  },
-  {
-    icon: Coins,
-    title: "They set the price. They keep 90%.",
-    body: "Experience is professional knowledge. Mentors choose what a session costs, and roles that are easier on the body state pay, hours and physical demands in plain words.",
-    to: "/roots/roles",
-    cta: "See gentler work",
-  },
+  { icon: Heart, title: "It starts with someone they love", body: "A guided invitation from a son, daughter or grandchild.", to: "/family", cta: "Write an invitation" },
+  { icon: MessageSquareText, title: "“Clutch,” meet “measure twice, cut once”", body: "Vibe Check explains each generation's expressions. No embarrassment.", to: "/growth/understand", cta: "Try Vibe Check" },
+  { icon: HelpCircle, title: "No forms. Just a question.", body: "One tap, or a few spoken words. Nothing is invented.", to: "/roots/share", cta: "See the first question" },
+  { icon: Coins, title: "They set the price. They keep 90%.", body: "Experience is expertise, and gentler work says so plainly.", to: "/roots/roles", cta: "See gentler work" },
 ];
+
+const GIVES = {
+  roots: ["Decades of know-how", "Honest career advice", "Paid sessions, at their price"],
+  growth: ["Patience with technology", "Fresh questions", "Someone who listens"],
+};
 
 const VALUES = [
-  { name: "Empathy", how: "We begin by listening. Nobody is asked their age, and nearly every question can be skipped." },
-  { name: "Compassion", how: "Asking for help is treated as ordinary. Steps repeat as often as needed, and “Explain it more simply” is always there." },
-  { name: "Respect", how: "A lifetime of skill is treated as expertise, never as charity. Mentors name their price and keep 90% of it." },
-  { name: "Kindness", how: "Helpers are reminded: go at their pace, let them do the tapping, never ask for passwords." },
-  { name: "Integrity", how: "Suggestions are never promises. Organizations are labeled as unverified. Nothing is shared or charged without a clear yes." },
+  { name: "Empathy", icon: Ear, how: "We listen first. Nobody is asked their age." },
+  { name: "Compassion", icon: HeartHandshake, how: "Asking for help is ordinary here." },
+  { name: "Respect", icon: Award, how: "A lifetime of skill is expertise, never charity." },
+  { name: "Kindness", icon: Smile, how: "Their pace. Their hands on the phone." },
+  { name: "Integrity", icon: ShieldCheck, how: "No promises we can't keep. Nothing shared without a yes." },
 ];
 
-const PARTNERS = [
-  ["Families and trusted friends", "Where it begins: a gentle conversation at the kitchen table."],
-  ["Colleges and universities", "Such as Arizona State University and Maricopa Community Colleges, where students and apprentices are looking for mentors."],
-  ["Senior centers and community groups", "Trusted places for patient, in-person first steps."],
-  ["Psychology and counseling departments", "To help us design onboarding that eases the fear of being judged."],
-  ["Local businesses and trade associations", "For paid mentoring and roles that are easier on the body."],
-  ["Nonprofits", "Such as AARP Foundation and Senior Planet, to connect people with support that already exists."],
-];
+const PARTNERS = ["Colleges and universities", "Senior centers", "Counseling departments", "Local businesses", "Trade associations", "Nonprofits"];
 
 /** Types out each question in turn. Decorative: screen readers get one static example instead. */
 function TypedQuestion() {
@@ -154,7 +112,7 @@ function TypedQuestion() {
     return () => clearTimeout(timer);
   }, []);
   return (
-    <p className="rise mt-7 min-h-[7.5rem] max-w-xl border-l-2 border-warm-400 pl-5 sm:min-h-[5.5rem]" style={{ animationDelay: "900ms" }}>
+    <p className="rise mt-5 min-h-[7.5rem] max-w-xl border-l-2 border-warm-400 pl-5 sm:min-h-[5.5rem]" style={{ animationDelay: "900ms" }}>
       <span className="block text-sm font-semibold uppercase tracking-[0.14em] text-warm-400">Somewhere, someone starting out is asking</span>
       <span aria-hidden="true" className="mt-1 block font-serif text-xl leading-snug text-white sm:text-2xl">
         “{text}
@@ -268,15 +226,18 @@ export default function Landing() {
           <div aria-hidden="true" className="absolute inset-y-0 right-0 -z-10 hidden w-[60%] bg-gradient-to-r from-brand-900 via-brand-900/55 to-brand-900/5 lg:block" />
           <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-brand-900 to-transparent" />
 
-          <div className="container-wide flex min-h-[100svh] flex-col justify-center pb-12 pt-24">
+          <div className="container-wide flex min-h-[100svh] flex-col justify-center pb-10 pt-24">
             <p className="rise text-sm font-semibold uppercase tracking-[0.16em] text-warm-400">
               {EVENT_NAME} · {TEAM_NAME}
             </p>
-            <h1 id="hero-title" className="mt-5 max-w-3xl text-[2.6rem] leading-[1.04] text-white sm:text-6xl 2xl:text-[4.4rem]">
-              <span className="rise block" style={{ animationDelay: "120ms" }}>
-                Their bodies deserve rest.
+            <h1 id="hero-title" className="mt-4 max-w-3xl text-[2.6rem] leading-[1.04] text-white sm:text-6xl 2xl:text-[4.4rem]">
+              <span className="rise mb-2 block text-[1.55rem] leading-snug text-brand-100 sm:text-4xl" style={{ animationDelay: "120ms" }}>
+                After a lifetime of hard work,
               </span>
-              <span className="rise relative block" style={{ animationDelay: "380ms" }}>
+              <span className="rise block" style={{ animationDelay: "340ms" }}>
+                their bodies deserve rest.
+              </span>
+              <span className="rise relative block" style={{ animationDelay: "580ms" }}>
                 Their experience deserves to{" "}
                 <span className="relative whitespace-nowrap text-warm-400">
                   live on.
@@ -286,12 +247,11 @@ export default function Landing() {
                 </span>
               </span>
             </h1>
-            <p className="rise mt-7 max-w-xl text-xl leading-relaxed" style={{ animationDelay: "650ms" }}>
-              After decades of hard physical work, too many people are told they're finished. People just starting out are searching for exactly
-              what they know. We introduce them.
+            <p className="rise mt-5 max-w-xl text-xl leading-relaxed" style={{ animationDelay: "820ms" }}>
+              People starting out are searching for exactly what they know. We introduce them.
             </p>
             <TypedQuestion />
-            <div className="rise mt-7 flex flex-wrap gap-3" style={{ animationDelay: "1100ms" }}>
+            <div className="rise mt-5 flex flex-wrap gap-3" style={{ animationDelay: "1100ms" }}>
               <Link to="/start" className="btn min-h-[60px] bg-warm-400 px-7 text-lg font-semibold text-brand-900 hover:bg-warm-200">
                 Start here <ArrowRight aria-hidden="true" className="h-5 w-5" />
               </Link>
@@ -332,46 +292,35 @@ export default function Landing() {
                 <figcaption className="mt-3 px-1 text-sm text-muted">What gets passed on, when someone is there to receive it. Photo: Rwebogora, CC BY-SA 4.0.</figcaption>
               </figure>
             </div>
-            <ol className="space-y-12 lg:space-y-20 lg:pt-6">
+            <ol className="relative space-y-10 border-l-2 border-warm-200 pl-8 sm:pl-10 lg:space-y-14 lg:pt-2">
               {CHAPTERS.map((c) => (
-                <li key={c.n}>
+                <li key={c.n} className="relative">
+                  <span aria-hidden="true" className="absolute -left-[3.05rem] top-0 flex h-10 w-10 items-center justify-center rounded-full bg-warm-400 font-serif text-lg text-brand-900 ring-4 ring-warm-50 sm:-left-[3.55rem]">
+                    {c.n}
+                  </span>
                   <Reveal>
-                    <div className="flex gap-5 sm:gap-7">
-                      <span aria-hidden="true" className="w-10 shrink-0 font-serif text-4xl text-warm-600 sm:w-14 sm:text-5xl">
-                        {c.n}
-                      </span>
-                      <div className="border-l-2 border-warm-200 pl-5 sm:pl-7">
-                        <h3 className="text-2xl leading-snug sm:text-[2rem]">{c.title}</h3>
-                        <p className="mt-3 text-xl leading-relaxed text-muted">{c.body}</p>
-                      </div>
-                    </div>
+                    <h3 className="text-2xl leading-snug sm:text-[2rem]">{c.title}</h3>
+                    {c.body && <p className="mt-2 text-xl text-muted">{c.body}</p>}
                   </Reveal>
                 </li>
               ))}
-              <li>
-                <Reveal>
-                  <p className="text-muted">Robert and Maya are illustrative. The situation they're in is the challenge our team set out to solve.</p>
-                </Reveal>
-              </li>
             </ol>
           </div>
+          <p className="mt-10 text-base text-muted lg:text-right">Robert and Maya are illustrative. The situation is the one we set out to solve.</p>
         </section>
 
-        {/* A proverb */}
+        {/* What we believe, in one line */}
         <section className="relative isolate overflow-hidden bg-brand-900 py-24 text-center text-brand-100 lg:py-36" aria-labelledby="proverb">
           <div aria-hidden="true" className="ember absolute left-1/2 top-1/2 -z-10 h-[34rem] w-[34rem] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-warm-600/25 blur-3xl" />
           <div className="container-page">
             <Reveal>
-              <blockquote>
-                <p id="proverb" className="mx-auto max-w-4xl font-serif text-4xl leading-tight text-white sm:text-6xl">
-                  “When an elder dies, a library burns to the ground.”
-                </p>
-                <footer className="mt-6 text-lg">A saying made famous by the Malian writer Amadou Hampâté Bâ</footer>
-              </blockquote>
+              <p id="proverb" className="mx-auto max-w-4xl font-serif text-4xl leading-tight text-white sm:text-6xl">
+                Their bodies may grow tired, but their wisdom <span className="text-warm-400">never loses its value.</span>
+              </p>
             </Reveal>
             <Reveal delay={250}>
-              <p className="mx-auto mt-12 max-w-2xl font-serif text-2xl leading-snug text-warm-400 sm:text-3xl">
-                We don't have to wait for the fire. We can open the library while the librarian is still here.
+              <p className="mx-auto mt-10 max-w-2xl text-xl leading-relaxed text-brand-100 sm:text-2xl">
+                So we never ask anyone to start over. We connect them with the people who need exactly what they know.
               </p>
             </Reveal>
           </div>
@@ -406,7 +355,13 @@ export default function Landing() {
                     🌳
                   </p>
                   <h3 className="mt-4 text-2xl">Deep roots give</h3>
-                  <p className="mt-2 text-xl leading-relaxed text-muted">Decades of know-how. Honest career advice. Paid one-to-one sessions, at a price they set.</p>
+                  <ul className="mt-4 flex flex-wrap gap-2">
+                    {GIVES.roots.map((g) => (
+                      <li key={g} className="rounded-full bg-white px-4 py-2 text-lg font-medium text-brand-900 ring-1 ring-brand-200">
+                        {g}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
                 <div aria-hidden="true" className="flex items-center justify-center">
                   <svg viewBox="0 0 120 90" className="h-20 w-28 rotate-90 md:h-24 md:w-32 md:rotate-0">
@@ -421,7 +376,13 @@ export default function Landing() {
                     🌱
                   </p>
                   <h3 className="mt-4 text-2xl">New growth gives</h3>
-                  <p className="mt-2 text-xl leading-relaxed text-muted">Patience with phones, video calls and online forms. Fresh questions. Someone who wants to listen.</p>
+                  <ul className="mt-4 flex flex-wrap gap-2">
+                    {GIVES.growth.map((g) => (
+                      <li key={g} className="rounded-full bg-white px-4 py-2 text-lg font-medium text-brand-900 ring-1 ring-warm-200">
+                        {g}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </Reveal>
@@ -429,14 +390,11 @@ export default function Landing() {
             <div className="mt-16 grid gap-12 lg:grid-cols-2 lg:items-center">
               <Reveal>
                 <h3 className="text-3xl leading-tight sm:text-4xl">It begins with one simple question.</h3>
-                <p className="mt-4 text-xl leading-relaxed text-muted">
-                  No menus, no jargon, no long sign-up. A first name is enough. Each screen asks one thing in plain words, and the next step is
-                  always obvious.
-                </p>
-                <ul className="mt-7 grid gap-4 sm:grid-cols-2">
+                <p className="mt-3 text-xl text-muted">No menus. No jargon. A first name is enough.</p>
+                <ul className="mt-7 flex flex-wrap gap-2.5">
                   {DESIGN.map((d) => (
-                    <li key={d.text} className="flex items-start gap-3 text-lg">
-                      <d.icon aria-hidden="true" className="mt-1 h-5 w-5 shrink-0 text-warm-600" />
+                    <li key={d.text} className="flex items-center gap-2 rounded-full bg-warm-100 px-4 py-2.5 text-lg font-medium text-brand-900">
+                      <d.icon aria-hidden="true" className="h-5 w-5 shrink-0 text-warm-700" />
                       {d.text}
                     </li>
                   ))}
@@ -494,12 +452,34 @@ export default function Landing() {
               </li>
             ))}
           </ul>
-          <Reveal className="mt-12">
-            <p className="max-w-4xl text-lg leading-relaxed text-muted">
-              <strong className="text-brand-900">Standing on good shoulders.</strong> Senior Planet by AARP teaches technology. AARP Foundation's BACK
-              TO WORK 50+ offers career coaching. CoGenerate brings generations together. Each does vital work on one part of this challenge.
-              TogetherWeGrow joins the parts in one judgment-free place: two-way skill exchange, paid mentoring, and gentler work.
-            </p>
+          <Reveal className="mt-14">
+            <p className="eyebrow">In good company</p>
+            <div className="mt-4 grid items-stretch gap-3 lg:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1.25fr]">
+              {[
+                ["Senior Planet", "Technology training"],
+                ["BACK TO WORK 50+", "Career coaching"],
+                ["CoGenerate", "Generations together"],
+              ].map(([name, does], i) => (
+                <Fragment key={name}>
+                  {i > 0 && (
+                    <span aria-hidden="true" className="flex items-center justify-center text-3xl text-warm-600">
+                      +
+                    </span>
+                  )}
+                  <div className="rounded-3xl bg-white p-5 text-center ring-1 ring-warm-200">
+                    <p className="text-lg font-semibold text-brand-900">{does}</p>
+                    <p className="text-base text-muted">{name}</p>
+                  </div>
+                </Fragment>
+              ))}
+              <span aria-hidden="true" className="flex items-center justify-center text-3xl text-warm-600">
+                =
+              </span>
+              <div className="rounded-3xl bg-brand-900 p-5 text-center text-brand-100">
+                <p className="font-serif text-xl text-white">TogetherWeGrow</p>
+                <p className="text-base">All three, in one judgment-free place</p>
+              </div>
+            </div>
           </Reveal>
         </section>
 
@@ -535,10 +515,7 @@ export default function Landing() {
               <h2 id="both-title" className="mt-4 text-4xl leading-tight sm:text-5xl">
                 Nobody is too old to learn. Nobody is too young to teach.
               </h2>
-              <p className="mt-5 text-xl leading-relaxed text-muted">
-                The same person who can teach you to read the grain of a board may want help joining a video call with her grandchildren. So she
-                gets small, patient steps, read aloud if she likes, and a real person whenever she'd rather not do it alone.
-              </p>
+              <p className="mt-5 text-xl leading-relaxed text-muted">Small, patient steps. Read aloud if you like. A real person whenever you'd rather not do it alone.</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link to="/roots/learn" className="btn-primary min-h-[56px] px-6 text-lg">
                   See a step-by-step guide
@@ -559,18 +536,21 @@ export default function Landing() {
               Five words we build by
             </h2>
           </Reveal>
-          <ol className="mt-10 divide-y divide-warm-200 border-y border-warm-200">
+          <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {VALUES.map((v, i) => (
               <li key={v.name}>
-                <Reveal delay={i * 60}>
-                  <div className="group grid gap-2 py-7 md:grid-cols-[18rem_1fr] md:items-baseline md:gap-8">
-                    <h3 className="font-serif text-4xl text-brand-900 transition-colors group-hover:text-warm-600 sm:text-5xl">{v.name}</h3>
-                    <p className="text-xl leading-relaxed text-muted">{v.how}</p>
+                <Reveal delay={i * 70} className="h-full">
+                  <div className="lift flex h-full flex-col items-center rounded-3xl bg-white p-6 text-center ring-1 ring-warm-200">
+                    <span aria-hidden="true" className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 text-brand-800">
+                      <v.icon className="h-8 w-8" />
+                    </span>
+                    <h3 className="mt-4 font-serif text-3xl text-brand-900 lg:text-[1.6rem] 2xl:text-3xl">{v.name}</h3>
+                    <p className="mt-2 text-lg leading-snug text-muted">{v.how}</p>
                   </div>
                 </Reveal>
               </li>
             ))}
-          </ol>
+          </ul>
         </section>
 
         {/* Reaching people */}
@@ -581,24 +561,25 @@ export default function Landing() {
               <h2 id="partners-title" className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl">
                 Growing the way trust grows: one family at a time.
               </h2>
-              <p className="mt-5 max-w-3xl text-xl leading-relaxed text-muted">
-                Nobody's grandfather signs up because of an advert. He tries it because someone he loves sat down beside him. So families come
-                first, with the community around them.
-              </p>
             </Reveal>
-            <ul className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {PARTNERS.map(([who, why], i) => (
-                <li key={who}>
-                  <Reveal delay={i * 60} className="h-full">
-                    <div className="h-full rounded-3xl bg-warm-50 p-6 ring-1 ring-warm-200">
-                      <p className="text-xl font-semibold text-brand-900">{who}</p>
-                      <p className="mt-2 text-lg text-muted">{why}</p>
-                    </div>
-                  </Reveal>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-6 text-lg text-muted">Apart from families, these are organizations we hope to approach. None of them has agreed to work with us yet.</p>
+            <Reveal className="mt-10">
+              <div className="grid items-center gap-6 lg:grid-cols-[auto_auto_1fr]">
+                <div className="rounded-[2rem] bg-brand-900 px-8 py-7 text-center text-brand-100">
+                  <Heart aria-hidden="true" className="mx-auto h-8 w-8 text-warm-400" />
+                  <p className="mt-2 font-serif text-3xl text-white">Families first</p>
+                  <p className="mt-1 text-lg">Someone they love, sitting beside them</p>
+                </div>
+                <ArrowRight aria-hidden="true" className="mx-auto h-8 w-8 rotate-90 text-warm-600 lg:rotate-0" />
+                <ul className="flex flex-wrap gap-2.5">
+                  {PARTNERS.map((who) => (
+                    <li key={who} className="rounded-full bg-warm-50 px-5 py-3 text-lg font-medium text-brand-900 ring-1 ring-warm-200">
+                      {who}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Reveal>
+            <p className="mt-6 text-base text-muted">Beyond families, these are groups we hope to approach. None has agreed to work with us yet.</p>
           </div>
         </section>
 
@@ -610,10 +591,7 @@ export default function Landing() {
               <h2 id="team-title" className="mt-4 text-4xl sm:text-5xl">
                 {TEAM_NAME}
               </h2>
-              <p className="mt-5 text-xl leading-relaxed">
-                We built TogetherWeGrow for {EVENT_NAME}, in the Aging and Labor track. We believe everyone whose hands built something deserves to
-                be asked what they know.
-              </p>
+              <p className="mt-5 text-xl leading-relaxed">Built for {EVENT_NAME}, Aging and Labor track.</p>
               {TEAM.length > 0 && (
                 <ul className="mt-8 grid gap-4 sm:grid-cols-2">
                   {TEAM.map((m) => (
@@ -649,13 +627,10 @@ export default function Landing() {
               <p aria-hidden="true" className="text-5xl">
                 🌳 <span className="mx-2 text-warm-400">·</span> 🌱
               </p>
-              <p className="mx-auto mt-6 max-w-3xl font-serif text-2xl leading-snug sm:text-3xl">
-                “A society grows great when the old plant trees in whose shade they know they will never sit.”
-              </p>
-              <p className="mt-3">A saying often shared as a Greek proverb</p>
-              <h2 id="cta-title" className="mx-auto mt-10 max-w-3xl text-4xl leading-tight text-white sm:text-5xl">
-                We just want someone to come and sit beside them.
+              <h2 id="cta-title" className="mx-auto mt-6 max-w-3xl text-5xl leading-tight text-white sm:text-6xl">
+                Together, we grow.
               </h2>
+              <p className="mx-auto mt-4 max-w-xl text-xl">Two minutes. A first name. That's all it takes to begin.</p>
               <div className="mt-10 flex flex-wrap justify-center gap-3">
                 <Link to="/start" className="btn min-h-[60px] bg-warm-400 px-7 text-lg font-semibold text-brand-900 hover:bg-warm-200">
                   Start here <ArrowRight aria-hidden="true" className="h-5 w-5" />
@@ -664,7 +639,6 @@ export default function Landing() {
                   <Users aria-hidden="true" className="h-5 w-5" /> Invite someone you love
                 </Link>
               </div>
-              <p className="mt-6">It takes about two minutes. A first name is all you need.</p>
             </div>
           </Reveal>
         </section>
