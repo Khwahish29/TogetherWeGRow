@@ -11,7 +11,6 @@ import {
   HeartHandshake,
   HelpCircle,
   Languages,
-  LogIn,
   MessageSquareText,
   Mic,
   MousePointerClick,
@@ -24,7 +23,6 @@ import {
 import { Logo } from "../components/Logo";
 import { Reveal } from "../components/ui";
 import { EVENT_NAME, TEAM, TEAM_NAME } from "../data/team";
-import { useAuth } from "../lib/auth";
 
 const NAV = [
   ["#story", "The story"],
@@ -167,9 +165,6 @@ function WhoNeedsYou() {
 }
 
 export default function Landing() {
-  // Sign in is only offered to people who aren't signed in already.
-  const { user, loading } = useAuth();
-  const signedOut = !loading && !user;
   const [scrolled, setScrolled] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -211,24 +206,12 @@ export default function Landing() {
               ))}
             </ul>
           </nav>
-          <div className="flex shrink-0 items-center gap-2">
-            {signedOut && (
-              <Link
-                to="/login"
-                className={`hidden min-h-[48px] items-center gap-2 whitespace-nowrap rounded-full border-2 px-4 font-semibold transition-colors sm:flex ${
-                  scrolled ? "border-brand-700 text-brand-800 hover:bg-brand-50" : "border-white/60 text-white hover:bg-white/10"
-                }`}
-              >
-                <LogIn aria-hidden="true" className="h-5 w-5" /> Sign in
-              </Link>
-            )}
-            <Link
-              to="/start"
-              className={`btn min-h-[48px] shrink-0 whitespace-nowrap px-5 font-semibold ${scrolled ? "bg-brand-700 text-white hover:bg-brand-800" : "bg-warm-400 text-brand-900 hover:bg-warm-200"}`}
-            >
-              Start here <ArrowRight aria-hidden="true" className="hidden h-5 w-5 sm:block" />
-            </Link>
-          </div>
+          <Link
+            to="/start"
+            className={`btn min-h-[48px] shrink-0 whitespace-nowrap px-5 font-semibold ${scrolled ? "bg-brand-700 text-white hover:bg-brand-800" : "bg-warm-400 text-brand-900 hover:bg-warm-200"}`}
+          >
+            Start here <ArrowRight aria-hidden="true" className="hidden h-5 w-5 sm:block" />
+          </Link>
         </div>
       </header>
 
@@ -278,14 +261,6 @@ export default function Landing() {
                 Read the story <ArrowDown aria-hidden="true" className="h-5 w-5" />
               </a>
             </div>
-            {signedOut && (
-              <p className="rise mt-4 text-lg sm:hidden" style={{ animationDelay: "1250ms" }}>
-                Already joined?{" "}
-                <Link to="/login" className="font-semibold text-white underline underline-offset-4">
-                  Sign in
-                </Link>
-              </p>
-            )}
           </div>
           <p className="absolute bottom-3 right-4 max-w-[70%] text-right text-xs text-brand-100">Photo: Priskin János, 1952. Public domain, via Wikimedia Commons.</p>
         </section>
