@@ -61,7 +61,8 @@ export function Welcome() {
       <div className="mt-6 space-y-4">
         {choices.map((c) => (
           <div key={c.who} onClickCapture={() => remember(c.who)}>
-            <BigChoice to={c.to} emoji={c.emoji} tone={c.tone} label={c.label} sub={last === c.who ? "Carry on where you left off" : c.sub} />
+            {last === c.who && <p className="mb-2 text-lg font-semibold text-warm-700">Welcome back. This is where you were last time:</p>}
+            <BigChoice to={c.to} emoji={c.emoji} tone={c.tone} label={c.label} sub={c.sub} />
           </div>
         ))}
       </div>
