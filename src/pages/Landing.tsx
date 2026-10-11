@@ -80,7 +80,7 @@ const GIVES = {
 const VALUES = [
   { name: "Empathy", icon: Ear, promise: "We start by asking, never assuming.", proof: "The first screen asks one question. Nothing ever asks your age." },
   { name: "Compassion", icon: HeartHandshake, promise: "Nobody is left to work it out alone.", proof: "Every step of every guide offers a real person to ask." },
-  { name: "Respect", icon: Award, promise: "What you know is worth paying for.", proof: "Mentors set their own price. A role can't be posted without its pay." },
+  { name: "Respect", icon: Award, promise: "What you know is worth paying for.", proof: "Mentors set their own price." },
   { name: "Kindness", icon: Smile, promise: "Patience is promised, not hoped for.", proof: "Every helper makes three promises before they can help anyone." },
   { name: "Integrity", icon: ShieldCheck, promise: "We say only what is true.", proof: "Organizations are marked “not verified”. Nothing is shared without your yes." },
 ];
@@ -254,10 +254,10 @@ export default function Landing() {
                 A lifetime of hard work
               </span>
               <span className="rise block" style={{ animationDelay: "340ms" }}>
-                made them experts.
+                made you experts.
               </span>
               <span className="rise relative block" style={{ animationDelay: "580ms" }}>
-                Their experience deserves to{" "}
+                Your experience deserves to{" "}
                 <span className="relative whitespace-nowrap text-warm-400">
                   live on.
                   <svg aria-hidden="true" viewBox="0 0 320 18" preserveAspectRatio="none" className="absolute -bottom-2 left-0 h-3 w-full">
@@ -267,7 +267,7 @@ export default function Landing() {
               </span>
             </h1>
             <p className="rise mt-5 max-w-xl text-xl leading-relaxed" style={{ animationDelay: "820ms" }}>
-              People starting out are searching for exactly what they know. We introduce them.
+              People starting out are searching for exactly what you know. We introduce them.
             </p>
             <TypedQuestion />
             <div className="rise mt-5 flex flex-wrap gap-3" style={{ animationDelay: "1100ms" }}>
@@ -358,7 +358,7 @@ export default function Landing() {
           <Reveal>
             <p className="eyebrow">Try it</p>
             <h2 id="needs-title" className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl">
-              What do you know that someone is trying to learn?
+              How do you know that someone is trying to learn?
             </h2>
             <p className="mt-4 max-w-2xl text-xl leading-relaxed text-muted">Pick a kind of work. See what people starting out are asking.</p>
           </Reveal>
@@ -617,7 +617,7 @@ export default function Landing() {
                 </ul>
               </div>
             </Reveal>
-            <p className="mt-6 text-base text-muted">Beyond families, these are groups we hope to approach. None has agreed to work with us yet.</p>
+            <p className="mt-6 text-base text-muted">Beyond families, these are groups we hope to approach.</p>
           </div>
         </section>
 
