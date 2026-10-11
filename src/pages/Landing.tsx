@@ -452,32 +452,34 @@ export default function Landing() {
               </li>
             ))}
           </ul>
-          <Reveal className="mt-14">
-            <p className="eyebrow">In good company</p>
-            <div className="mt-4 grid items-stretch gap-3 lg:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1.25fr]">
+          <Reveal className="mt-16">
+            <p className="eyebrow">What it adds up to</p>
+            <div className="mt-4 grid items-stretch gap-3 lg:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1.2fr]">
               {[
-                ["Senior Planet", "Technology training"],
-                ["BACK TO WORK 50+", "Career coaching"],
-                ["CoGenerate", "Generations together"],
-              ].map(([name, does], i) => (
-                <Fragment key={name}>
+                { icon: HelpCircle, title: "To be asked", line: "“Could you show me how?”" },
+                { icon: Ear, title: "To be heard", line: "All the way to the end of the story." },
+                { icon: Heart, title: "To be thanked", line: "A note that says it mattered." },
+              ].map((x, i) => (
+                <Fragment key={x.title}>
                   {i > 0 && (
-                    <span aria-hidden="true" className="flex items-center justify-center text-3xl text-warm-600">
+                    <span aria-hidden="true" className="flex items-center justify-center font-serif text-3xl text-warm-600">
                       +
                     </span>
                   )}
-                  <div className="rounded-3xl bg-white p-5 text-center ring-1 ring-warm-200">
-                    <p className="text-lg font-semibold text-brand-900">{does}</p>
-                    <p className="text-base text-muted">{name}</p>
+                  <div className="rounded-3xl bg-white p-6 text-center ring-1 ring-warm-200">
+                    <x.icon aria-hidden="true" className="mx-auto h-8 w-8 text-warm-700" />
+                    <p className="mt-3 font-serif text-2xl text-brand-900">{x.title}</p>
+                    <p className="mt-1 text-lg text-muted">{x.line}</p>
                   </div>
                 </Fragment>
               ))}
-              <span aria-hidden="true" className="flex items-center justify-center text-3xl text-warm-600">
+              <span aria-hidden="true" className="flex items-center justify-center font-serif text-3xl text-warm-600">
                 =
               </span>
-              <div className="rounded-3xl bg-brand-900 p-5 text-center text-brand-100">
-                <p className="font-serif text-xl text-white">TogetherWeGrow</p>
-                <p className="text-base">All three, in one judgment-free place</p>
+              <div className="flex flex-col justify-center rounded-3xl bg-brand-900 p-6 text-center text-brand-100">
+                <p className="font-serif text-3xl text-white">
+                  To be <span className="text-warm-400">needed</span> again.
+                </p>
               </div>
             </div>
           </Reveal>

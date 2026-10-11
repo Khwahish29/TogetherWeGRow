@@ -1,9 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Briefcase, Heart, Mail, MessageSquareText } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { getNotes, getRequests, startVisitClock } from "../lib/store";
 import { useStore } from "../lib/useStore";
 import { Affirmation, BigChoice, ReadAloud, Screen, TreeAndSprout, greeting } from "./parts";
+import { tourSeen } from "./Tour";
 
 const LAST = "twg.lastChoice";
 
@@ -49,6 +50,9 @@ export function Welcome() {
   // Someone who has been here before sees their own door first.
   if (last === "younger") choices.reverse();
 
+  // The very first time on this device, show people around before asking anything.
+  if (!tourSeen()) return <Navigate to="/tour" replace />;
+
   return (
     <div className="mx-auto w-full max-w-2xl animate-fade-up px-5 pb-12 pt-6 sm:px-6 sm:pt-10">
       <TreeAndSprout className="mx-auto h-auto w-full max-w-md" />
@@ -70,6 +74,11 @@ export function Welcome() {
       <p className="mt-6 text-center text-lg">
         <Link to="/family" onClick={startVisitClock} className="link inline-flex items-center gap-2">
           <Heart aria-hidden="true" className="h-5 w-5" /> Helping someone you love take a first step?
+        </Link>
+      </p>
+      <p className="mt-4 text-center text-lg">
+        <Link to="/tour" className="link">
+          Show me how this works
         </Link>
       </p>
       {!user && (

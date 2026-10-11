@@ -37,6 +37,7 @@ import { OlderRoles } from "./simple/Roles";
 import { Inbox } from "./simple/Inbox";
 import { Account, Join, NewPassword, SignIn } from "./simple/Account";
 import { ScamCheck } from "./simple/Scam";
+import { Tour } from "./simple/Tour";
 import { Privacy, Safety, Terms } from "./simple/Legal";
 
 /** Sends an old address to its new one, keeping the rest of the path and any ?step=. */
@@ -53,6 +54,7 @@ export default function App() {
       <Route index element={<Landing />} />
       <Route element={<SimpleLayout />}>
         <Route path="start" element={<Welcome />} />
+        <Route path="tour" element={<Tour />} />
         <Route path="roots" element={<OlderHome />} />
         <Route path="roots/share" element={<OlderShare />} />
         <Route path="roots/learn" element={<OlderLearn />} />

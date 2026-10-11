@@ -92,6 +92,7 @@ export function SimpleLayout() {
             <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:justify-end">
               {[
                 ["/", "About us"],
+                ["/tour", "Show me around"],
                 ["/impact", "Our goals"],
                 ["/safety", "Safety"],
                 ["/privacy", "Privacy"],
